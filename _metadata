@@ -1,0 +1,9 @@
+ {
+ "version" : "1.1.0",
+ "friendlyName" : "SexboundAPI",
+ "link" : "",
+ "steamContentId" : "",
+ "name" : "SexboundAPI",
+ "description" : "Adds the Sexbound API.",
+ "author" : "Loxodon"
+ }

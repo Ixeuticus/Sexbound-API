@@ -3,9 +3,11 @@ moan = {}
 moan.init = function()
   local moanConfig = config.getParameter("sexboundConfig").moan
 
-  util.each(moanConfig, function(k,v)
-    self.sexboundConfig.moan[k] = v
-  end)
+  if (moanConfig ~= nil) then
+    util.each(moanConfig, function(k,v)
+      self.sexboundConfig.moan[k] = v
+    end)
+  end
 
   self.femaleMoans = {
     "/sfx/sexbound/moans/femalemoan1.ogg",

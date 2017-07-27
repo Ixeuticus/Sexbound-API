@@ -8,9 +8,11 @@ portrait.init = function()
   
   local portraitConfig = config.getParameter("sexboundConfig").portrait
   
-  util.each(portraitConfig, function(k,v)
-    self.sexboundConfig.portrait[k] = v
-  end)
+  if (portraitConfig ~= nil) then
+    util.each(portraitConfig, function(k,v)
+      self.sexboundConfig.portrait[k] = v
+    end)
+  end
 end
 
 portrait.getCurrentPortrait = function()

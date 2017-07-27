@@ -27,7 +27,7 @@ function sex.init()
     }
   end)
   
-    -- Handle request to check if is occupied
+  -- Handle request to return Animation Data
   message.setHandler("retrieveAnimationData", function()
     return {
       animationRate         = self.animationRate,
@@ -85,6 +85,8 @@ function sex.init()
   self.climaxPoints.max = self.sexboundConfig.sex.maxClimaxPoints
   self.climaxPoints.threshold = self.sexboundConfig.sex.climaxThreshold
   self.climaxPoints.autoClimax = self.sexboundConfig.sex.autoClimax
+
+  self.autoRestart = self.sexboundConfig.sex.autoRestart
   
   -- Temp store cooldown data 
   self.cooldowns = {}
@@ -92,7 +94,10 @@ function sex.init()
   self.cooldowns.moan  = util.randomInRange(self.sexboundConfig.sex.moanCooldown)
   self.cooldowns.talk  = util.randomInRange(self.sexboundConfig.sex.talkCooldown)
 
+  self.objectType = config.getParameter("objectType")
+  
   self.isCumming = false
+  self.isHavingSex = false
   self.isReseting = false
   
   resetTimers()
@@ -117,11 +122,17 @@ function sex.init()
 end
 
 function sex.handleInteract()
+  self.isHavingSex = true
+
   -- Invoke script pane which will force player to lounge in the object
   if (sexui.isEnabled()) then
     return {"ScriptPane", "/interface/sexbound/sexui.config"} end
-    
+
   return nil
+end
+
+function sex.isHavingSex()
+  return self.isHavingSex
 end
 
 function sex.isOccupied()
@@ -136,6 +147,10 @@ function sex.getAnimationRate()
   return self.animationRate
 end
 
+function sex.getAutoRestart()
+  return self.autoRestart
+end
+
 -- Call this in your script's update function
 function sex.loop(dt, callback)
   self.timers.talk  = self.timers.talk  + dt
@@ -143,6 +158,15 @@ function sex.loop(dt, callback)
   self.timers.emote = self.timers.emote + dt
   
   self.timers.moan  = self.timers.moan  + dt
+  
+  -- Check if an this entity is occupied
+  if (self.objectType == "loungeable") then
+    if (sex.isOccupied()) then
+      self.isHavingSex = true
+    else
+      self.isHavingSex = false
+    end
+  end
   
   -- Update the state
   self.sexStates.update(dt)
@@ -153,18 +177,48 @@ function sex.loop(dt, callback)
   end
 end
 
+function sex.isCumming()
+  return self.isCumming
+end
+
+function sex.setIsCumming(value)
+  self.isCumming = value
+end
+
+function sex.setIsReseting(value)
+  self.isReseting = value
+end
+
+function sex.isReseting()
+  return self.isReseting
+end
+
+function sex.setIsHavingSex(value)
+  self.isHavingSex = value
+end
+
+function sex.getTimer(name)
+  return self.timers[name]
+end
+
+function sex.setTimer(name, value)
+  self.timers[name] = value
+  return self.timers[name]
+end
+
 -- Try to Cum
 function sex.tryToCum(callback)
   if (self.climaxPoints.current >= self.climaxPoints.threshold) then
     local autoClimax = self.climaxPoints.autoClimax
 
+    -- Execute your cum logic as a callback
+    if (callback ~= nil) then
+      callback()
+    end
+    
     if (autoClimax or self.isCumming) then
+      self.isCumming = true
       self.climaxPoints.current = 0
-      
-      -- Execute your cum logic as a callback
-      if (callback ~= nil) then
-        callback()
-      end
       
       return true
     end
@@ -270,11 +324,12 @@ end
 idleState = {}
 
 function idleState.enter()
-  if not sex.isOccupied() then
-    return {
-      isOccupied = false
-    }
+  -- Return non-nil if not currently having sex
+  if not sex.isHavingSex() then
+    return true
   end
+  
+  return nil
 end
 
 function idleState.enteringState(stateData)
@@ -282,8 +337,8 @@ function idleState.enteringState(stateData)
 end
 
 function idleState.update(dt, stateData)
-  -- Check if this entity is currently occupied
-  if sex.isOccupied() then
+  -- Check if this entity is having sex
+  if sex.isHavingSex() then
     return true
   end
   
@@ -298,7 +353,8 @@ end
 sexState = {}
 
 function sexState.enter()
-  if sex.isOccupied() and not self.isCumming then
+  -- Return non-nil if is having sex, but not cumming
+  if sex.isHavingSex() and not sex.isCumming() and not sex.isReseting() then
     return true
   end
 end
@@ -312,8 +368,15 @@ function sexState.enteringState(stateData)
 end
 
 function sexState.update(dt, stateData)
-  if not sex.isOccupied() then return true end
-  
+  if not sex.isHavingSex() then
+    return true
+  end
+
+  -- Return true if is cumming
+  if sex.isCumming() then 
+    return sex.tryToCum()
+  end
+
   -- Adjust the tempo of the sex
   adjustTempo(dt)
   
@@ -329,9 +392,7 @@ function sexState.update(dt, stateData)
     sextalk.selectRandom("sexState")
   end)
   
-  return sex.tryToCum(function()
-    self.isCumming = true
-  end)
+  return sex.tryToCum()
 end
 
 function sexState.leavingState(stateData)
@@ -342,28 +403,30 @@ end
 climaxState = {}
 
 function climaxState.enter()
-  if (sex.isOccupied() and self.isCumming) then
+  -- Return non-nil if is having sex and is cumming
+  if (sex.isHavingSex() and sex.isCumming()) then
     return true
   end
 end
 
 function climaxState.enteringState(stateData)
-  animator.setAnimationState("sex", "climax")
+  animator.setAnimationState("sex", "climax", true)
   
-  self.timers.dialog = 0
+  sex.setTimer("dialog", 0)
   
   sextalk.selectRandom("climaxState")
+  
+  animator.setAnimationRate(1)
 end
 
 function climaxState.update(dt, stateData)
-  self.timers.final = self.timers.final + dt
+  if not sex.isHavingSex() then
+    return true
+  end
 
-  if not sex.isOccupied() then return true end
+  local final = sex.getTimer("final")
+  final = sex.setTimer("final", final + dt)
   
-  self.animationRate = 1
-    
-  animator.setAnimationRate(1)
-
   sex.tryToEmote(function() 
     emote.playRandom()
   end)
@@ -372,9 +435,10 @@ function climaxState.update(dt, stateData)
     moan.playRandom("female")
   end)
   
-  if (animator.animationState("sex") == "climax_end" and self.timers.final >= self.sexboundConfig.sex.climaxPause) then
-    self.isCumming = false
-    self.isReseting = true
+  -- if (final >= sex.sexboundConfig.sex.climaxPause) then
+  if (final >= 10) then
+    sex.setIsReseting(true)
+    sex.setIsCumming(false)
     return true
   end
   
@@ -382,10 +446,8 @@ function climaxState.update(dt, stateData)
 end
 
 function climaxState.leavingState(stateData)
-  self.timers.final = 0
+  sex.setTimer("final", 0)
 
-  self.animationRate = 1
-  
   animator.setAnimationRate(1)
 end
 
@@ -393,24 +455,25 @@ end
 exitState = {}
 
 function exitState.enter()
-  if (self.isReseting) then return true end
+  if (sex.isHavingSex() and sex.isReseting()) then 
+    return true 
+  end
 end
 
 function exitState.enteringState(stateData)
-  animator.setAnimationState("sex", "reset")
+  animator.setAnimationState("sex", "reset", true)
 end
 
 function exitState.update(dt, stateData)
-  self.timer.reset = self.timer.reset + dt
-  
-  if (self.timer.reset >= 10) then
-    self.isResiting = false
-    return true
+  if (not sex.getAutoRestart() and not sex.isOccupied()) then
+    sex.setIsHavingSex(false)
   end
+
+  sex.setIsReseting(false)
   
-  return false
+  return true
 end
 
 function exitState.leavingState(stateDate)
-  self.timer.reset = 0
+  --
 end

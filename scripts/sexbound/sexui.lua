@@ -5,9 +5,11 @@ sexui = {}
 sexui.init = function()
   local sexUIConfig = config.getParameter("sexboundConfig").sexui
   
-  util.each(sexUIConfig, function(k,v)
-    self.sexboundConfig.sexui[k] = v
-  end)
+  if (sexUIConfig ~= nil) then
+    util.each(sexUIConfig, function(k,v)
+      self.sexboundConfig.sexui[k] = v
+    end)
+  end
 end
 
 sexui.isEnabled = function()

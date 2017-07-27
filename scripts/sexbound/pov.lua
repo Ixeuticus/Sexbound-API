@@ -8,9 +8,11 @@ pov.init = function()
   
   local povConfig = config.getParameter("sexboundConfig").pov
   
-  util.each(povConfig, function(k,v)
-    self.sexboundConfig.pov[k] = v
-  end)
+  if (povConfig ~= nil) then
+    util.each(povConfig, function(k,v)
+      self.sexboundConfig.pov[k] = v
+    end)
+  end
 end
 
 pov.isEnabled = function()

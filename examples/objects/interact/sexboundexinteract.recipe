@@ -1,0 +1,10 @@
+{
+  "input" : [
+    { "item" : "plantfibre", "count" : 5 }
+  ],
+  "output" : {
+    "item" : "sexboundexinteract",
+    "count" : 1
+  },
+  "groups"  : [ "plain", "all", "objects" ]
+}

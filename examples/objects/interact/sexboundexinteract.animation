@@ -1,0 +1,151 @@
+{
+  "animatedParts" : {
+    "stateTypes" : {
+      "sex" : {
+        "properties" :{},
+        "default" : "idle",
+        "states" : {
+          "climax" : {
+            "frames" : 17,
+            "cycle" : 5,
+            "mode" : "transition",
+            "transition" : "climax_end",
+            "properties" : {
+              "immediateSoundRangeMultiplier" : 0.5
+            },
+            "frameProperties" : {
+              "immediateSound" : [ "", "", "", "", "", "", "/sfx/sexbound/cum/squish.ogg", "", "", "", "", "/sfx/sexbound/cum/squish.ogg", "", "/sfx/sexbound/cum/squish.ogg" ]
+            }
+          },
+        
+          "climax_end" : {
+            "frames" : 1,
+            "cycle"  : 1,
+            "mode"   : "loop"
+          },
+        
+          "idle" : {
+            "frames" : 6,
+            "cycle" : 2,
+            "mode" : "loop"
+          },
+          
+          "mainloop" : {
+            "frames" : 1,
+            "cycle"  : 1,
+            "mode"   : "transition",
+            "transition" : "move"
+          },
+          
+          "move" : {
+            "frames" : 3,
+            "cycle"  : 1,
+            "mode"   : "transition",
+            "transition" : "loop"
+          },
+          
+          "loop" : {
+            "frames" : 6,
+            "cycle" : 0.7,
+            "mode" : "loop",
+            "properties" : {
+              "immediateSoundRangeMultiplier" : 0.3
+            },
+            "frameProperties" : {
+              "immediateSound" : [ "", "", "", "", "", "/sfx/sexbound/hits/splat.ogg" ]
+            }
+          },
+          
+          "reset" : {
+            "frames" : 1,
+            "cycle" : 1,
+            "mode" : "transition",
+            "transition" : "idle"
+          }
+        }
+      }
+    },
+    
+    "parts" : {
+      "body" : {
+        "properties" : {
+          "centered" : false,
+          "zLevel" : 1
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "sexboundexinteract.png:finale.<frame>"
+              }
+            },
+          
+            "climax_end" : {
+              "properties" : {
+                "image" : "sexboundexinteract.png:finale.17"
+              }
+            },
+          
+            "idle" : {
+              "properties" : {
+                "image" : "sexboundexinteract.png:idle.<frame>"
+              }
+            },
+            
+            "loop" : {
+              "properties" : {
+                "image" : "sexboundexinteract.png:loop.<frame>"
+              }
+            },
+            
+            "mainloop" : {
+              "properties" : {
+                "image" : "sexboundexinteract.png:idle.6"
+              }
+            },
+            
+            "move" : {
+              "properties" : {
+                "image" : "sexboundexinteract.png:move.<frame>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "sexboundexinteract.png:finale.17"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  
+  "particleEmitters" : {
+    "emotehappy" : {
+      "emissionRate" : 1,
+      "particles" : [
+        {
+          "particle" : {
+            "type" : "animated",
+            "animation" : "/animations/emotes/happy.animation",
+            "position" : [4, 6],
+            "finalVelocity" : [0, 0],
+            "initialVelocity" : [0, 0],
+            "destructionTime" : 0.2,
+            "destructionAction" : "shrink",
+            "layer" : "front",
+            "timeToLive" : 0.8,
+            "flippable" : false
+          }
+        }
+      ]
+    }
+  },
+  
+  "sounds" : {
+    "sit" : [],
+    "femalemoan" : []
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "frameGrid" : {
+    "size" : [48, 48],
+    "dimensions" : [32, 1],
+    "names" : [
+      [ "idle.1", "idle.2", "idle.3", "idle.4", "idle.5", "idle.6", 
+        "move.1", "move.2", "move.3", "loop.1", "loop.2", "loop.3", "loop.4", "loop.5", "loop.6", 
+        "finale.1", "finale.2", "finale.3", "finale.4", "finale.5", "finale.6", "finale.7", "finale.8", "finale.9", "finale.10",
+        "finale.11", "finale.12", "finale.13", "finale.14", "finale.15", "finale.16", "finale.17"]
+    ]
+  },
+  "aliases" : {
+    "default.0" : "idle.1",
+    "default.default" : "idle.1"
+  }
+}

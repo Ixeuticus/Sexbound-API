@@ -1,0 +1,72 @@
+{
+  "objectName" : "sexboundexinteract",
+  "shortdescription" : "Ex Object Interact",
+  "description" : "Example of Sexbound Enabled Interact Object.",
+  "category" : "other",
+  "rarity" : "Rare",
+  "race" : "generic",
+  "printable" : false,
+  "price" : 500,
+  
+  "apexDescription"    : "This is an example of a Sexbound Enabled Interact Object.",
+  "avianDescription"   : "This is an example of a Sexbound Enabled Interact Object.",
+  "floranDescription"  : "This is an example of a Sexbound Enabled Interact Object.",
+  "glitchDescription"  : "This is an example of a Sexbound Enabled Interact Object.",
+  "humanDescription"   : "This is an example of a Sexbound Enabled Interact Object.",
+  "hylotlDescription"  : "This is an example of a Sexbound Enabled Interact Object.",
+  "novakidDescription" : "This is an example of a Sexbound Enabled Interact Object.",
+
+  "interactive" : true,
+
+  "chatPortrait" : "/interface/chatbubbles/baron.png:<frame>",
+  
+  "inventoryIcon" : "sexboundexinteracticon.png",
+  "orientations" : [
+    {
+      "dualImage" : "sexboundexinteract.png:<color>.<frame>",
+
+      "imagePosition" : [-24, 0],
+      "animationPosition" : [-24, 0],
+      
+      "anchors" : [ "bottom" ],
+      
+      "spaceScan" : 0.1
+    }
+  ],
+  
+  "animation" : "/examples/objects/interact/sexboundexinteract.animation",
+  
+  "scripts" : ["/examples/objects/interact/sexboundexinteract.lua"],
+  
+  "mouthPosition" : [1, 0],
+
+  "sexboundConfig" : {
+    "emote" : {
+      "enabled" : "true"
+    },
+  
+    "moan" : {
+      "enabled" : "true",
+      "pitch" : [1.1, 1.2]
+    },
+    
+    "sex" : {
+      "autoClimax"    : true,
+      
+      "emoteCooldown" : [3, 4],
+      
+      "moanCooldown"  : [3, 4],
+      
+      "talkCooldown"  : 15,
+      
+      "maxTempo" : [2, 3],
+      
+      "sustainedInterval" : [20, 30]
+    },
+    
+    "sextalk" : {
+      "enabled": true,
+      "dialog" : "/examples/objects/interact/dialog.config"
+    }
+  }
+}

@@ -67,10 +67,13 @@ function sextalk.selectRandom(state)
     self.currentDialog = "*Speechless*"
   end
   
-  if (sextalk.method() == "chatbubble") then
-    --object.say(sextalk.currentDialog())
+  if (sextalk.method() == "chatbubblePortrait") then
     object.sayPortrait(sextalk.currentDialog(), portrait.getCurrentPortrait())
   end
+  
+  if (sextalk.method() == "chatbubble") then
+    object.say(sextalk.currentDialog())
+  end 
   
   self.previousDialog = self.currentDialog
   
