@@ -197,6 +197,10 @@ function sex.setIsHavingSex(value)
   self.isHavingSex = value
 end
 
+function sex.getClimaxPause()
+  return self.sexboundConfig.sex.climaxPause
+end
+
 function sex.getTimer(name)
   return self.timers[name]
 end
@@ -435,8 +439,8 @@ function climaxState.update(dt, stateData)
     moan.playRandom("female")
   end)
   
-  -- if (final >= sex.sexboundConfig.sex.climaxPause) then
-  if (final >= 10) then
+  if (final >= sex.getClimaxPause()) then
+  --if (final >= 10) then
     sex.setIsReseting(true)
     sex.setIsCumming(false)
     return true
