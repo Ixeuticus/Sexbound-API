@@ -1,3 +1,9 @@
+--- Sex Module.
+-- @module sex
+sex = {}
+
+sex.majorVersion = 1
+
 require "/scripts/stateMachine.lua"
 require "/scripts/sexbound/pov.lua"
 require "/scripts/sexbound/emote.lua"
@@ -6,10 +12,7 @@ require "/scripts/sexbound/portrait.lua"
 require "/scripts/sexbound/sextalk.lua"
 require "/scripts/sexbound/sexui.lua"
 
-sex = {}
-
-sex.majorVersion = 1
-
+--- Initializes the sex module.
 function sex.init()
   object.setInteractive(true)
 
@@ -121,6 +124,7 @@ function sex.init()
   sexui.init()
 end
 
+---Handles the interact event of the entity.
 function sex.handleInteract()
   self.isHavingSex = true
 
@@ -151,7 +155,9 @@ function sex.getAutoRestart()
   return self.autoRestart
 end
 
--- Call this in your script's update function
+---Updates the timers and state machine.
+--@param dt delta time
+--@param[opt] callback function to execute afters updating timers and state machine
 function sex.loop(dt, callback)
   self.timers.talk  = self.timers.talk  + dt
   
@@ -368,7 +374,7 @@ function sexState.enteringState(stateData)
 
   animator.setAnimationState("sex", "mainloop", stateNew)
   
-  sextalk.selectRandom("sexState")
+  sextalk.sayNext("sexState")
 end
 
 function sexState.update(dt, stateData)
@@ -393,7 +399,7 @@ function sexState.update(dt, stateData)
   end)
   
   sex.tryToTalk(function()
-    sextalk.selectRandom("sexState")
+    sextalk.sayNext("sexState")
   end)
   
   return sex.tryToCum()
@@ -418,7 +424,7 @@ function climaxState.enteringState(stateData)
   
   sex.setTimer("dialog", 0)
   
-  sextalk.selectRandom("climaxState")
+  sextalk.sayNext("climaxState")
   
   animator.setAnimationRate(1)
 end

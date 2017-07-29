@@ -1,3 +1,3 @@
 {
-  "globalIgnore" : ["/.git", ".gitignore", "readme.md"]
+  "globalIgnore" : ["/.git", ".gitignore", "readme.md", "generate-documentation.bat"]
 }

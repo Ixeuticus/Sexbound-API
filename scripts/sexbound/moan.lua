@@ -1,5 +1,10 @@
+--- Moan Module.
+-- @module moan
 moan = {}
 
+require "/scripts/util.lua"
+
+--- Initializes the moan module.
 moan.init = function()
   local moanConfig = config.getParameter("sexboundConfig").moan
 
@@ -23,10 +28,14 @@ moan.init = function()
   animator.setSoundPool("femalemoan", self.femaleMoans)
 end
 
+--- Returns the enabled status of the moan module.
+-- @return boolean enabled
 moan.isEnabled = function()
   return self.sexboundConfig.moan.enabled
 end
 
+--- Calls on the animator to play a random moan sound effect based on the provided gender type.
+--@param gender a string to specify the gender
 moan.playRandom = function(gender)
   if not (moan.isEnabled()) then return false end
 

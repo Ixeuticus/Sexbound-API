@@ -1,7 +1,10 @@
-require "/scripts/util.lua"
-
+--- Pregnant Module.
+-- @module pregnant
 pregnant = {}
 
+require "/scripts/util.lua"
+
+--- Initializes the pregnant module.
 function pregnant.init()
   local pregnantConfig = config.getParameter("sexboundConfig").pregnant
   
@@ -10,11 +13,13 @@ function pregnant.init()
   end)
 end
 
+--- Returns the enabled status of the pregnant module.
+-- @return boolean enabled
 function pregnant.isEnabled()
   return self.sexboundConfig.pregnant.enabled
 end
 
--- Output debug information about the pregnancy
+--- Outputs debug information about the pregnancy with sb.logInfo.
 function pregnant.debugPregnancy()
   if (storage.birthDate ~= nil and storage.birthTime ~= nil) then
     local entityId = entity.id()
@@ -23,12 +28,17 @@ function pregnant.debugPregnancy()
   end
 end
 
+--- Removes the pregnancy status of this entity.
 function pregnant.clear()
   if not pregnant.isEnabled() then return end
 
   cleanupPregnancy()
 end
 
+--- Attempt to make the entity become pregnant.
+-- @param[opt] callback executes inputted function if the entity becomes pregnant.
+-- @return Success: returns the callback function's return value or true
+-- @return Failure: returns false
 function pregnant.tryBecomePregnant(callback)
   if not pregnant.isEnabled() then return end
 
@@ -36,14 +46,24 @@ function pregnant.tryBecomePregnant(callback)
   local chance = util.randomInRange({0.0, 1.0})
   
   -- Compare random chance with fertility. Success on chance is less than or equal to fertility
-  if (chance <= self.sexboundConfig.pregnant.fertility) then 
-    if (becomePregnant()) then
-      callback()
+  if (chance <= self.sexboundConfig.pregnant.fertility and becomePregnant()) then 
+    local output = callback()
+    
+    if (output ~= nil) then
+      return output
     end
+    
+    return true
   end
+  
+  return false
 end
 
-function pregnant.tryGiveBirth()
+--- Attempt to make the entity give birth.
+-- @param[opt] callback executes inputted function if the entity gives birth.
+-- @return Success: returns the callback function's return value or true
+-- @return Failure: returns false
+function pregnant.tryGiveBirth(callback)
   if not pregnant.isEnabled() then return end
 
   -- Check that a birth date has been set
@@ -52,16 +72,25 @@ function pregnant.tryGiveBirth()
     local worldTime = world.day() + world.timeOfDay()
 
     -- If the birth date is today or later then give birth
-    if (worldTime >= birthTime) then
-      return pregnant.giveBirth()
+    if (worldTime >= birthTime and giveBirth()) then
+      local output = callback()
+    
+      if (output ~= nil) then
+        return output
+      end
+    
+      return true
     end
   end
   
   return false
 end
 
-function becomePregnant()
-  if not pregnant.isEnabled() then return end
+--- Private: Makes the entity become pregnant when it is not already pregnant.
+--@return Success: returns true
+--@return Failute: returns false
+local function becomePregnant()
+  if not pregnant.isEnabled() then return false end
 
   local entityId = entity.id()
 
@@ -79,12 +108,11 @@ function becomePregnant()
   -- Create a time to give birth on the birth day
   createBirthTime()
   
-  sb.logInfo("(" .. entityId .. ") is now pregnate and will give birth on " .. storage.birthDate .. " at time " .. storage.birthTime )
-  
   return true
 end
 
-function createBirthday(species)
+--- Private: Creates and stores the birth date for this entity.
+local function createBirthday()
   local dateToday = world.day()
   local trimesterCount = 3
   local trimesterLength = {5, 8}
@@ -107,12 +135,14 @@ function createBirthday(species)
   storage.birthDate = birthDate
 end
 
-function createBirthTime()
+--- Private: Creates and stores the birth time for this entity.
+local function createBirthTime()
   -- Generate random time to give birth
   storage.birthTime = util.randomInRange({0.0, 1.0})
 end
 
-function cleanupPregnancy()
+--- Private: Removes the pregnancy data from this entities storage.
+local function cleanupPregnancy()
   if not pregnant.isEnabled() then return end
 
   storage.isPregnant = false
@@ -120,7 +150,8 @@ function cleanupPregnancy()
   storage.birthTime  = nil
 end
 
-function pregnant.giveBirth()
+-- Private: Automatically cleanup the pregnancy.
+local function giveBirth()
   if not pregnant.isEnabled() then return end
 
   -- Clean up pregnancy after entity gives birth

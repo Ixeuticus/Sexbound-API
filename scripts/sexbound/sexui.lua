@@ -1,7 +1,10 @@
-require "/scripts/util.lua"
-
+--- Sex UI Module.
+-- @module sexui
 sexui = {}
 
+require "/scripts/util.lua"
+
+--- Initializes the sexui module.
 sexui.init = function()
   local sexUIConfig = config.getParameter("sexboundConfig").sexui
   
@@ -12,6 +15,8 @@ sexui.init = function()
   end
 end
 
+--- Returns the enabled status of the sexui module.
+-- @return boolean enabled
 sexui.isEnabled = function()
   if self.sexboundConfig.sexui ~= nil and not isEmpty(self.sexboundConfig.sexui) then
     if (self.sexboundConfig.sexui.enabled ~= nil) then
