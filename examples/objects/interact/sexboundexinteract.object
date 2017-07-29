@@ -47,6 +47,7 @@
   
     "moan" : {
       "enabled" : "true",
+      "gender" : "female",
       "pitch" : [1.1, 1.2]
     },
     

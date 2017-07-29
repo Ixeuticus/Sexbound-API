@@ -13,19 +13,28 @@ moan.init = function()
       self.sexboundConfig.moan[k] = v
     end)
   end
-
-  self.femaleMoans = {
-    "/sfx/sexbound/moans/femalemoan1.ogg",
-    "/sfx/sexbound/moans/femalemoan2.ogg",
-    "/sfx/sexbound/moans/femalemoan3.ogg",
-    "/sfx/sexbound/moans/femalemoan4.ogg",
-    "/sfx/sexbound/moans/femalemoan5.ogg"
-  }
   
-  -- Needs to be implemented
-  self.maleMoans = {}
-
-  animator.setSoundPool("femalemoan", self.femaleMoans)
+  if (animator.hasSound("femalemoan")) then
+    self.femaleMoans = {
+      "/sfx/sexbound/moans/femalemoan1.ogg",
+      "/sfx/sexbound/moans/femalemoan2.ogg",
+      "/sfx/sexbound/moans/femalemoan3.ogg",
+      "/sfx/sexbound/moans/femalemoan4.ogg",
+      "/sfx/sexbound/moans/femalemoan5.ogg"
+    }
+  
+    animator.setSoundPool("femalemoan", self.femaleMoans)
+  end
+  
+  if (animator.hasSound("malemoan")) then
+    self.maleMoans = {
+      "/sfx/sexbound/moans/malemoan1.ogg",
+      "/sfx/sexbound/moans/malemoan2.ogg",
+      "/sfx/sexbound/moans/malemoan3.ogg"
+    }
+    
+    animator.setSoundPool("malemoan", self.maleMoans)
+  end
 end
 
 --- Returns the enabled status of the moan module.
@@ -37,6 +46,10 @@ end
 --- Calls on the animator to play a random moan sound effect based on the provided gender type.
 --@param gender a string to specify the gender
 moan.playRandom = function(gender)
+  if (gender == nil) then
+    gender = self.sexboundConfig.moan.gender
+  end
+
   if not (moan.isEnabled()) then return false end
 
   local pitch = util.randomInRange(self.sexboundConfig.moan.pitch)

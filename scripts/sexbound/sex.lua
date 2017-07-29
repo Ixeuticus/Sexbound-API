@@ -395,7 +395,7 @@ function sexState.update(dt, stateData)
   end)
   
   sex.tryToMoan(function()
-    moan.playRandom("female")
+    moan.playRandom()
   end)
   
   sex.tryToTalk(function()
@@ -442,7 +442,7 @@ function climaxState.update(dt, stateData)
   end)
 
   sex.tryToMoan(function()
-    moan.playRandom("female")
+    moan.playRandom()
   end)
   
   if (final >= sex.getClimaxPause()) then
