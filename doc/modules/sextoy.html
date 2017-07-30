@@ -40,12 +40,12 @@
 <ul class="nowrap">
   <li><a href="../modules/emote.html">emote</a></li>
   <li><a href="../modules/moan.html">moan</a></li>
-  <li><strong>portrait</strong></li>
+  <li><a href="../modules/portrait.html">portrait</a></li>
   <li><a href="../modules/pov.html">pov</a></li>
   <li><a href="../modules/pregnant.html">pregnant</a></li>
   <li><a href="../modules/sex.html">sex</a></li>
   <li><a href="../modules/sextalk.html">sextalk</a></li>
-  <li><a href="../modules/sextoy.html">sextoy</a></li>
+  <li><strong>sextoy</strong></li>
   <li><a href="../modules/sexui.html">sexui</a></li>
 </ul>
 
@@ -53,20 +53,16 @@
 
 <div id="content">
 
-<h1>Module <code>portrait</code></h1>
-<p>Portrait Module.</p>
+<h1>Module <code>sextoy</code></h1>
+<p>Sextoy Module.</p>
 <p></p>
 
 
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#init">init ()</a></td>
-	<td class="summary">Initializes the portrait module.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#getCurrentPortrait">getCurrentPortrait ()</a></td>
-	<td class="summary">Returns the currently set default portrait image.</td>
+	<td class="name" nowrap><a href="#isEnabled">isEnabled ()</a></td>
+	<td class="summary">Returns the enabled status of the sextoy module.</td>
 	</tr>
 </table>
 
@@ -78,32 +74,18 @@
 
     <dl class="function">
     <dt>
-    <a name = "init"></a>
-    <strong>init ()</strong>
+    <a name = "isEnabled"></a>
+    <strong>isEnabled ()</strong>
     </dt>
     <dd>
-    Initializes the portrait module.
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "getCurrentPortrait"></a>
-    <strong>getCurrentPortrait ()</strong>
-    </dt>
-    <dd>
-    Returns the currently set default portrait image.
+    Returns the enabled status of the sextoy module.
 
 
 
     <h3>Returns:</h3>
     <ol>
 
-        string: the image path
+        boolean enabled
     </ol>
 
 
