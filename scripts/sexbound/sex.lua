@@ -6,6 +6,7 @@ sex.majorVersion = 1
 
 require "/scripts/stateMachine.lua"
 require "/scripts/sexbound/pov.lua"
+require "/scripts/sexbound/pregnant.lua"
 require "/scripts/sexbound/emote.lua"
 require "/scripts/sexbound/moan.lua"
 require "/scripts/sexbound/portrait.lua"
@@ -117,6 +118,9 @@ function sex.init()
   
   -- Init pov module
   pov.init()
+  
+  -- Init pregnant module
+  pregnant.init()
   
   -- Init sextalk module
   sextalk.init()
@@ -425,6 +429,9 @@ end
 
 function climaxState.enteringState(stateData)
   animator.setAnimationState("sex", "climax", true)
+  
+  -- Try to become pregnant if enabled
+  pregnant.tryBecomePregnant()
   
   sex.setTimer("dialog", 0)
   
