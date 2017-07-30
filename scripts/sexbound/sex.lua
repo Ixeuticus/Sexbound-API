@@ -10,6 +10,7 @@ require "/scripts/sexbound/emote.lua"
 require "/scripts/sexbound/moan.lua"
 require "/scripts/sexbound/portrait.lua"
 require "/scripts/sexbound/sextalk.lua"
+require "/scripts/sexbound/sextoy.lua"
 require "/scripts/sexbound/sexui.lua"
 
 --- Initializes the sex module.
@@ -119,6 +120,9 @@ function sex.init()
   
   -- Init sextalk module
   sextalk.init()
+  
+  -- Init sextoy module
+  sextoy.init()
   
   -- Init sexui module
   sexui.init()

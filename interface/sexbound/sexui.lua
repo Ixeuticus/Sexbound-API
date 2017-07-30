@@ -36,6 +36,9 @@ function init()
   
   -- Retrieve information about the entity
   sendMessage("retrieveEntityData", nil, true)
+  
+  -- Retrieve information about the sextoys
+  sendMessage("retrieveSextoys", nil, true)
 end
 
 function update(dt)
@@ -43,9 +46,32 @@ function update(dt)
     sendMessage("requestDialog", nil, true)
   end)
 
+  updateMessage("prevSlot1Sextoy", function(result)
+    self.sextoy = result
+    
+    updateSlot1Label()
+  end)
+  
+  updateMessage("nextSlot1Sextoy", function(result)
+    self.sextoy = result
+    
+    updateSlot1Label()
+  end)
+
   -- Check for update on 'retrievePortrait'
   updateMessage("retrievePortrait", function(result)
     self.portrait = result
+  end)
+
+  -- Check for update on 'retrieveSextoys'
+  updateMessage("retrieveSextoys", function(result)
+    self.sextoy = result
+    
+    if (self.sextoy.slot1 ~= nil) then
+      widget.setVisible("sextoySlot1", true)
+
+      updateSlot1Label()
+    end
   end)
   
   -- Send request to get next animation rate data
@@ -286,10 +312,31 @@ function updatePOVAnimation(dt)
   
   -- Render frame
   povCanvas:drawImage(self.pov.image .. "." .. frame, {0,0}, 1, "white", false)
+  
+  -- Render slot1 sex toy over the main image
+  if (self.sextoy.slot1 ~= nil) then
+    if (self.sextoy.slot1.povImage ~= nil) then
+      povCanvas:drawImage(self.sextoy.slot1.povImage .. ":" .. frame, {0,0}, 1, "white", false)
+    end
+  end
+end
+
+function updateSlot1Label()
+  local name = self.sextoy.slot1.name
+  
+  widget.setText("sextoySlot1.labelSlot1", name)
 end
 
 --- Callback functions
 
 function doClimax()
   sendMessage("isClimaxing", nil, true)
+end
+
+function prevSlot1()
+  sendMessage("prevSlot1Sextoy")
+end
+
+function nextSlot1()
+  sendMessage("nextSlot1Sextoy")
 end
