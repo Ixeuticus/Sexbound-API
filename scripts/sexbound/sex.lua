@@ -215,6 +215,10 @@ function sex.getClimaxPause()
   return self.sexboundConfig.sex.climaxPause
 end
 
+function sex.getResetPause()
+  return self.sexboundConfig.sex.resetPause
+end
+
 function sex.getTimer(name)
   return self.timers[name]
 end
@@ -335,7 +339,7 @@ function resetTimers()
   self.timers.talk  = 0
   self.timers.moan  = 0
   self.timers.reset = 0
-  self.timers.final = 0
+  self.timers.climax = 0
 end
 
 --------------------------------------------------------------------------------
@@ -378,9 +382,7 @@ function sexState.enter()
 end
 
 function sexState.enteringState(stateData)
-  local stateNew = true
-
-  animator.setAnimationState("sex", "mainloop", stateNew)
+  animator.setAnimationState("sex", "mainloop", true)
   
   sextalk.sayNext("sexState")
 end
@@ -445,8 +447,8 @@ function climaxState.update(dt, stateData)
     return true
   end
 
-  local final = sex.getTimer("final")
-  final = sex.setTimer("final", final + dt)
+  local climaxTimer = sex.getTimer("climax")
+  climaxTimer = sex.setTimer("climax", climaxTimer + dt)
   
   sex.tryToEmote(function() 
     emote.playRandom()
@@ -455,9 +457,8 @@ function climaxState.update(dt, stateData)
   sex.tryToMoan(function()
     moan.playRandom()
   end)
-  
-  if (final >= sex.getClimaxPause()) then
-  --if (final >= 10) then
+
+  if (climaxTimer >= sex.getClimaxPause()) then
     sex.setIsReseting(true)
     sex.setIsCumming(false)
     return true
@@ -467,7 +468,7 @@ function climaxState.update(dt, stateData)
 end
 
 function climaxState.leavingState(stateData)
-  sex.setTimer("final", 0)
+  sex.setTimer("climax", 0)
 
   animator.setAnimationRate(1)
 end
@@ -482,19 +483,32 @@ function exitState.enter()
 end
 
 function exitState.enteringState(stateData)
+  -- Change animator state to the 'reset' state - starts new.
   animator.setAnimationState("sex", "reset", true)
 end
 
 function exitState.update(dt, stateData)
-  if (not sex.getAutoRestart() and not sex.isOccupied()) then
-    sex.setIsHavingSex(false)
+  if not sex.isHavingSex() then
+    return true
   end
 
-  sex.setIsReseting(false)
+  local resetTimer = sex.getTimer("reset")
+  resetTimer = sex.setTimer("reset", resetTimer + dt)
   
-  return true
+  if ( resetTimer >= sex.getResetPause() ) then
+    -- Determines whether to continue having sex after exitting this state
+    if (not sex.getAutoRestart() or not sex.isOccupied()) then
+      sex.setIsHavingSex(false)
+    end
+    
+    sex.setIsReseting(false)
+  
+    return true
+  end
+  
+  return false
 end
 
 function exitState.leavingState(stateDate)
-  --
+  sex.setTimer("reset", 0)
 end

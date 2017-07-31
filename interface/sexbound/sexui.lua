@@ -104,8 +104,9 @@ function update(dt)
     local stateName = self.entityData.animatorState
     
     local state = {
-      image  = "/interface/sexbound/pov/default.png:default",
+      image  = "/interface/sexbound/pov/default.png",
       frames = 1,
+      frameName = "default",
       cycle  = 1
     }
     
@@ -113,9 +114,7 @@ function update(dt)
       state = result.states[stateName]
     end
     
-    self.pov.image  = state.image
-    self.pov.frames = state.frames
-    self.pov.cycle  = state.cycle
+    self.pov = state
   end)
   
   -- Retrieve information about the dialog from the entity; if not busy
@@ -292,6 +291,11 @@ function updatePOVAnimation(dt)
   self.timers.pov = math.min(cycle, self.timers.pov + dt)
   local frame = math.ceil(self.timers.pov / cycle * self.pov.frames)
   
+  -- Clamp the frame within the specified range
+  if (self.pov.range ~= nil) then
+    frame = util.clamp(frame, self.pov.range[1], self.pov.range[2])
+  end
+  
   -- Reset POV Timer
   if (self.timers.pov >= cycle) then
     self.timers.pov = 0
@@ -310,13 +314,20 @@ function updatePOVAnimation(dt)
     sendMessage("retrieveAnimationData", nil, true)
   end
   
-  -- Render frame
-  povCanvas:drawImage(self.pov.image .. "." .. frame, {0,0}, 1, "white", false)
+  local image = self.pov.image
+  local frameName = self.pov.frameName
+  local animationFrame = image .. ":" .. frameName .. "." .. frame
   
+  -- Render the main image
+  povCanvas:drawImage(animationFrame, {0,0}, 1, "white", false)
+
   -- Render slot1 sex toy over the main image
   if (self.sextoy.slot1 ~= nil) then
     if (self.sextoy.slot1.povImage ~= nil) then
-      povCanvas:drawImage(self.sextoy.slot1.povImage .. ":" .. frame, {0,0}, 1, "white", false)
+      local slot1Image = self.sextoy.slot1.povImage
+      local slot1AnimationFrame = slot1Image .. ":" .. frameName .. "." .. frame
+    
+      povCanvas:drawImage( slot1AnimationFrame, {0,0}, 1, "white", false)
     end
   end
 end

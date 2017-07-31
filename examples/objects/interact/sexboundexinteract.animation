@@ -5,6 +5,8 @@
         "properties" :{},
         "default" : "idle",
         "states" : {
+          "none" : {},
+        
           "climax" : {
             "frames" : 17,
             "cycle" : 5,
@@ -60,7 +62,7 @@
             "frames" : 1,
             "cycle" : 1,
             "mode" : "transition",
-            "transition" : "idle"
+            "transition" : "none"
           }
         }
       }
