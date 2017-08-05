@@ -5,37 +5,12 @@ sextoy = {}
 require "/scripts/util.lua"
 
 sextoy.init = function()
-  -- Handle request for the sextoys
-  message.setHandler("retrieveSextoys", function()
-    local slot1Table = nil
-  
-    if (self.slot1Count > 0) then
-      slot1Table = self.sexboundConfig.sextoy.slot1[self.slot1Current]
-    end
-  
-    return {
-      slot1 = slot1Table
-    }
-  end)
-
-  message.setHandler("prevSlot1Sextoy", function()
-    self.slot1Current = self.slot1Current - 1
+  message.setHandler("changeSlot1Sextoy", function(_, _, change)
+    self.slot1Current = self.slot1Current + change
     
     if (self.slot1Current <= 0) then
       self.slot1Current = self.slot1Count
     end
-    
-    local image = self.sexboundConfig.sextoy.slot1[self.slot1Current].image
-    
-    animator.setGlobalTag("sextoy", image)
-    
-    return {
-      slot1 = self.sexboundConfig.sextoy.slot1[self.slot1Current]
-    }
-  end)
-  
-  message.setHandler("nextSlot1Sextoy", function()
-    self.slot1Current = self.slot1Current + 1
     
     if (self.slot1Current > self.slot1Count) then
       self.slot1Current = 1
@@ -44,12 +19,8 @@ sextoy.init = function()
     local image = self.sexboundConfig.sextoy.slot1[self.slot1Current].image
     
     animator.setGlobalTag("sextoy", image)
-    
-    return {
-      slot1 = self.sexboundConfig.sextoy.slot1[self.slot1Current]
-    }
   end)
-  
+
   local sextoyConfig = config.getParameter("sexboundConfig").sextoy
   
   -- Try to load in sextoy settings

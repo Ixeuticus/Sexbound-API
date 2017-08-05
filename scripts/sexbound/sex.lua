@@ -10,6 +10,7 @@ require "/scripts/sexbound/pregnant.lua"
 require "/scripts/sexbound/emote.lua"
 require "/scripts/sexbound/moan.lua"
 require "/scripts/sexbound/portrait.lua"
+require "/scripts/sexbound/position.lua"
 require "/scripts/sexbound/sextalk.lua"
 require "/scripts/sexbound/sextoy.lua"
 require "/scripts/sexbound/sexui.lua"
@@ -23,26 +24,42 @@ function sex.init()
     return {}
   end)
   
-  -- Handle request for the portrait
-  message.setHandler("retrieveEntityData", function()
-    return {
-      currentState          = self.sexStates.stateDesc(),
-      animatorState         = animator.animationState("sex"),
-      climaxPoints          = self.climaxPoints
-    }
+  message.setHandler("sync-ui", function()
+    local data = {}
+    
+    data.animator = {}
+    data.climax = {}
+    data.sex = {}
+    data.sextalk = {}
+    data.sextoy = {}
+    
+    data.animator.rate = self.animationRate
+    data.animator.currentState = animator.animationState("sex")
+    
+    data.climax.points  = self.climaxPoints
+    
+    data.sex.currentState  = self.sexStates.stateDesc()
+    
+    data.portrait = self.sexboundConfig.portrait
+    
+    data.position = position.selectedSexPosition()
+    
+    data.pov = self.sexboundConfig.pov
+    
+    data.sextalk.currentDialog = sextalk.getCurrentDialog()
+    
+    data.sextoy.slot1 = self.sexboundConfig.sextoy.slot1[self.slot1Current]
+    
+    return data
   end)
   
   -- Handle request to return Animation Data
-  message.setHandler("retrieveAnimationData", function()
-    return {
-      animationRate         = self.animationRate,
-      minTempo              = self.minTempo,
-      nextMinTempo          = self.nextMinTempo,
-      maxTempo              = self.maxTempo,
-      nextMaxTempo          = self.nextMaxTempo,
-      sustainedInterval     = self.sustainedInterval,
-      nextSustainedInterval = self.nextSustainedInterval
-    }
+  message.setHandler("sync-position", function()
+    local data = {}
+    
+    data.position = position.selectedSexPosition()
+    
+    return data
   end)
   
   -- Handle request to check if is occupied
@@ -61,6 +78,8 @@ function sex.init()
     self.sexboundConfig.sex[k] = v
   end)
   
+  self.animationRate = 1
+  
   -- Predefined sex states
   self.sexStates = stateMachine.create({
     "idleState",
@@ -68,20 +87,6 @@ function sex.init()
     "climaxState",
     "exitState"
   })
-  
-  -- Tempo is used to adjust the animation rate
-  self.minTempo = util.randomInRange(self.sexboundConfig.sex.minTempo)
-  self.maxTempo = util.randomInRange(self.sexboundConfig.sex.maxTempo)
-  
-  self.nextMinTempo = util.randomInRange(self.sexboundConfig.sex.minTempo)
-  self.nextMaxTempo = util.randomInRange(self.sexboundConfig.sex.maxTempo)
-  
-  -- The animation rate should start at the min tempo
-  self.animationRate = self.minTempo
-  
-  -- The period of time that the animation rate will increase
-  self.sustainedInterval = util.randomInRange(self.sexboundConfig.sex.sustainedInterval)
-  self.nextSustainedInterval = util.randomInRange(self.sexboundConfig.sex.sustainedInterval)
   
   -- Temp store climax data
   self.climaxPoints = {}
@@ -91,6 +96,8 @@ function sex.init()
   self.climaxPoints.threshold = self.sexboundConfig.sex.climaxThreshold
   self.climaxPoints.autoClimax = self.sexboundConfig.sex.autoClimax
 
+  self.autoMoan = self.sexboundConfig.sex.autoMoan
+  
   self.autoRestart = self.sexboundConfig.sex.autoRestart
   
   -- Temp store cooldown data 
@@ -116,6 +123,9 @@ function sex.init()
   -- Init portrait module
   portrait.init()
   
+  -- Init position module
+  position.init()
+  
   -- Init pov module
   pov.init()
   
@@ -130,6 +140,9 @@ function sex.init()
   
   -- Init sexui module
   sexui.init()
+  
+  -- Change position to default to set the anim rate variables
+  position.changePosition("default")
 end
 
 ---Handles the interact event of the entity.
@@ -157,6 +170,10 @@ end
 
 function sex.getAnimationRate()
   return self.animationRate
+end
+
+function sex.getAutoMoan()
+  return self.autoMoan
 end
 
 function sex.getAutoRestart()
@@ -228,7 +245,7 @@ function sex.setTimer(name, value)
   return self.timers[name]
 end
 
--- Try to Cum
+---Try to Cum.
 function sex.tryToCum(callback)
   if (self.climaxPoints.current >= self.climaxPoints.threshold) then
     local autoClimax = self.climaxPoints.autoClimax
@@ -249,7 +266,7 @@ function sex.tryToCum(callback)
   return false
 end
 
--- Try to Talk
+---Try to Talk.
 function sex.tryToTalk(callback)
   if not (sextalk.isEnabled()) then return false end
 
@@ -269,7 +286,7 @@ function sex.tryToTalk(callback)
   return false
 end
 
--- Try to Emote
+---Try to Emote.
 function sex.tryToEmote(callback)
   if not (emote.isEnabled()) then return false end
 
@@ -289,7 +306,7 @@ function sex.tryToEmote(callback)
   return false
 end
 
--- Try to Moan
+---Try to Moan.
 function sex.tryToMoan(callback)
   if (self.timers.moan >= self.cooldowns.moan) then 
     self.timers.moan = 0
@@ -307,31 +324,34 @@ function sex.tryToMoan(callback)
   return false
 end
 
--- Adjust the tempo of the sex
+---Adjusts the animation rate of the animator.
 function adjustTempo(dt)
-  self.animationRate = self.animationRate + (self.maxTempo / (self.sustainedInterval / dt))
+  local position = position.selectedSexPosition()
+
+  self.animationRate = self.animationRate + (position.maxTempo / (position.sustainedInterval / dt))
   
-  if (self.animationRate > self.maxTempo) then
-    self.animationRate = self.maxTempo
+  if (self.animationRate > position.maxTempo) then
+    self.animationRate = position.maxTempo
   end
   
   animator.setAnimationRate(self.animationRate)
   
-  self.climaxPoints.current = self.climaxPoints.current + ((self.maxTempo * 1) * dt)
+  self.climaxPoints.current = self.climaxPoints.current + ((position.maxTempo * 1) * dt)
   
   self.climaxPoints.current = util.clamp(self.climaxPoints.current, self.climaxPoints.min, self.climaxPoints.max)
   
-  if (self.animationRate >= self.maxTempo) then
-      self.animationRate = self.minTempo
+  if (self.animationRate >= position.maxTempo) then
+      self.animationRate = position.minTempo
       
-      self.maxTempo = self.nextMaxTempo
-      self.nextMaxTempo = util.randomInRange(self.sexboundConfig.sex.maxTempo)
+      position.maxTempo = position.nextMaxTempo
+      position.nextMaxTempo = util.randomInRange(self.sexboundConfig.sex.maxTempo)
       
-      self.sustainedInterval = self.nextSustainedInterval
-      self.nextSustainedInterval = util.randomInRange(self.sexboundConfig.sex.sustainedInterval)
+      position.sustainedInterval = position.nextSustainedInterval
+      position.nextSustainedInterval = util.randomInRange(self.sexboundConfig.sex.sustainedInterval)
   end
 end
 
+---Resets all timers.
 function resetTimers()
   -- Zeroize timers
   self.timers = {}
@@ -343,6 +363,7 @@ function resetTimers()
 end
 
 --------------------------------------------------------------------------------
+
 idleState = {}
 
 function idleState.enter()
@@ -372,6 +393,7 @@ function idleState.leavingState(stateData)
 end
 
 --------------------------------------------------------------------------------
+
 sexState = {}
 
 function sexState.enter()
@@ -382,12 +404,19 @@ function sexState.enter()
 end
 
 function sexState.enteringState(stateData)
-  animator.setAnimationState("sex", "mainloop", true)
+  position.changePosition("default")
+
+  local sexPosition = position.selectedSexPosition()
+  local animState   = sexPosition.animationState
+  
+  animator.setAnimationState("sex", animState, true)
   
   sextalk.sayNext("sexState")
 end
 
 function sexState.update(dt, stateData)
+  local sexPosition = position.selectedSexPosition()
+
   if not sex.isHavingSex() then
     return true
   end
@@ -404,15 +433,21 @@ function sexState.update(dt, stateData)
     emote.playRandom()
   end)
   
-  sex.tryToMoan(function()
-    moan.playRandom()
-  end)
+  if sex.getAutoMoan() then
+    sex.tryToMoan(function()
+      moan.playRandom()
+    end)
+  end
   
   sex.tryToTalk(function()
     sextalk.sayNext("sexState")
   end)
   
-  return sex.tryToCum()
+  if (sexPosition.allowClimax) then
+    return sex.tryToCum()
+  end
+  
+  return false
 end
 
 function sexState.leavingState(stateData)
@@ -420,6 +455,7 @@ function sexState.leavingState(stateData)
 end
 
 --------------------------------------------------------------------------------
+
 climaxState = {}
 
 function climaxState.enter()
@@ -474,6 +510,7 @@ function climaxState.leavingState(stateData)
 end
 
 --------------------------------------------------------------------------------
+
 exitState = {}
 
 function exitState.enter()
