@@ -330,9 +330,7 @@ function adjustTempo(dt)
 
   self.animationRate = self.animationRate + (position.maxTempo / (position.sustainedInterval / dt))
   
-  if (self.animationRate > position.maxTempo) then
-    self.animationRate = position.maxTempo
-  end
+  self.animationRate = util.clamp(self.animationRate, position.minTempo, position.maxTempo)
   
   animator.setAnimationRate(self.animationRate)
   
@@ -344,10 +342,10 @@ function adjustTempo(dt)
       self.animationRate = position.minTempo
       
       position.maxTempo = position.nextMaxTempo
-      position.nextMaxTempo = util.randomInRange(self.sexboundConfig.sex.maxTempo)
+      position.nextMaxTempo = util.randomInRange(position.maxTempo)
       
       position.sustainedInterval = position.nextSustainedInterval
-      position.nextSustainedInterval = util.randomInRange(self.sexboundConfig.sex.sustainedInterval)
+      position.nextSustainedInterval = util.randomInRange(position.sustainedInterval)
   end
 end
 
