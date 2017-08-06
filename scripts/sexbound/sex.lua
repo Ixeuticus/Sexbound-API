@@ -140,9 +140,6 @@ function sex.init()
   
   -- Init sexui module
   sexui.init()
-  
-  -- Change position to default to set the anim rate variables
-  position.changePosition("default")
 end
 
 ---Handles the interact event of the entity.
@@ -404,10 +401,7 @@ end
 function sexState.enteringState(stateData)
   position.changePosition("default")
 
-  local sexPosition = position.selectedSexPosition()
-  local animState   = sexPosition.animationState
-  
-  animator.setAnimationState("sex", animState, true)
+  animator.setAnimationState("sex", "mainloop", true)
   
   sextalk.sayNext("sexState")
 end
@@ -431,7 +425,7 @@ function sexState.update(dt, stateData)
     emote.playRandom()
   end)
   
-  if sex.getAutoMoan() then
+  if (sexPosition.allowMoan) then
     sex.tryToMoan(function()
       moan.playRandom()
     end)
@@ -464,7 +458,9 @@ function climaxState.enter()
 end
 
 function climaxState.enteringState(stateData)
-  animator.setAnimationState("sex", "climax", true)
+  local position = position.selectedSexPosition()
+
+  animator.setAnimationState("sex", position.climaxAnimationState, true)
   
   -- Try to become pregnant if enabled
   pregnant.tryBecomePregnant()

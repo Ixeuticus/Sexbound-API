@@ -74,6 +74,8 @@ function update(dt)
   
   updatePortrait(dt)
   
+  updatePosition()
+  
   updatePOV(dt)
   
   updateSextoy()
@@ -219,6 +221,21 @@ function updatePortrait(dt)
   end
 end
 
+function updatePosition()
+  if (self.data.position == nil) then return end
+  
+  -- Show pov widget when pov module is enabled
+  widget.setVisible("position", true)
+  
+  updatePositionLabel()
+end
+
+function updatePositionLabel()
+  local name = self.data.position.name
+  
+  widget.setText("position.labelPosition", name)
+end
+
 -- Updates the POV based upon the POV data.
 function updatePOV(dt)
   if (self.data.pov == nil) then return end
@@ -323,7 +340,15 @@ end
 
 -- Callback functions
 function doClimax()
-  sendMessage("isClimaxing", nil, true)
+  sendMessage("isClimaxing")
+end
+
+function prevPosition()
+  sendMessage("changePosition", -1)
+end
+
+function nextPosition()
+  sendMessage("changePosition", 1)
 end
 
 function prevSlot1()
