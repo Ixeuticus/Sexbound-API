@@ -9,6 +9,7 @@ require "/scripts/sexbound/pov.lua"
 require "/scripts/sexbound/pregnant.lua"
 require "/scripts/sexbound/emote.lua"
 require "/scripts/sexbound/moan.lua"
+require "/scripts/sexbound/music.lua"
 require "/scripts/sexbound/portrait.lua"
 require "/scripts/sexbound/position.lua"
 require "/scripts/sexbound/sextalk.lua"
@@ -19,6 +20,37 @@ require "/scripts/sexbound/sexui.lua"
 function sex.init()
   object.setInteractive(true)
 
+  message.setHandler("store-player-data", function(_, _, args)
+    local supportedGenders = {"male", "female"}
+    local supportedSpecies = {"human", "novakid"}
+  
+    self.player = args
+    
+    -- check if gender is supported
+    local gender = util.find(supportedGenders, function(genderName)
+      if (self.player.gender == genderName) then
+        return true
+      end
+    end)
+    
+    if (gender == nil) then gender = "male" end
+    
+    -- Set animator global tag "gender"
+    animator.setGlobalTag("gender", self.player.gender)
+    
+    -- check if species is supported
+    local species = util.find(supportedSpecies, function(speciesName)
+      if (self.player.species == speciesName) then
+        return true
+      end
+    end)
+    
+    if (species == nil) then species = "human" end
+    
+    -- Set animator global tag "species"
+    animator.setGlobalTag("species", self.player.species)
+  end)
+  
   message.setHandler("isClimaxing", function()
     self.isCumming = true
     return {}
@@ -45,6 +77,8 @@ function sex.init()
     data.position = position.selectedSexPosition()
     
     data.pov = self.sexboundConfig.pov
+    
+    data.music = self.sexboundConfig.music
     
     data.sextalk.currentDialog = sextalk.getCurrentDialog()
     
@@ -120,6 +154,9 @@ function sex.init()
   -- Init moan module
   moan.init()
   
+  -- Init music module
+  music.init()
+  
   -- Init portrait module
   portrait.init()
   
@@ -140,6 +177,12 @@ function sex.init()
   
   -- Init sexui module
   sexui.init()
+  
+  -- Default animator global tag "gender" is "male"
+  animator.setGlobalTag("gender", "male")
+  
+  -- Default animator global tag "species" is "human"
+  animator.setGlobalTag("species", "human")
 end
 
 ---Handles the interact event of the entity.
@@ -175,6 +218,10 @@ end
 
 function sex.getAutoRestart()
   return self.autoRestart
+end
+
+function sex.getSexState()
+  return self.sexStates
 end
 
 ---Updates the timers and state machine.
@@ -403,7 +450,15 @@ function sexState.enteringState(stateData)
 
   animator.setAnimationState("sex", "mainloop", true)
   
-  sextalk.sayNext("sexState")
+  if (self.sexboundConfig.sextalk.trigger == "statemachine") then
+    sextalk.sayNext("sexState")
+  end
+  
+  if (self.sexboundConfig.sextalk.trigger == "animation") then
+    local animationState = animator.animationState("sex")
+
+    sextalk.sayNext(animationState)
+  end
 end
 
 function sexState.update(dt, stateData)
@@ -418,12 +473,17 @@ function sexState.update(dt, stateData)
     return sex.tryToCum()
   end
 
+  -- Check that the current animation state name matches the sex position state name
+  if (animator.animationState("sex") ~= sexPosition.animationState) then return false end
+  
   -- Adjust the tempo of the sex
   adjustTempo(dt)
   
-  sex.tryToEmote(function() 
-    emote.playRandom()
-  end)
+  if (sexPosition.allowEmote) then
+    sex.tryToEmote(function() 
+      emote.playRandom()
+    end)
+  end
   
   if (sexPosition.allowMoan) then
     sex.tryToMoan(function()
@@ -432,7 +492,15 @@ function sexState.update(dt, stateData)
   end
   
   sex.tryToTalk(function()
-    sextalk.sayNext("sexState")
+    if (self.sexboundConfig.sextalk.trigger == "statemachine") then
+      sextalk.sayNext("sexState")
+    end
+    
+    if (self.sexboundConfig.sextalk.trigger == "animation") then
+      local animationState = animator.animationState("sex")
+
+      sextalk.sayNext(animationState)
+    end
   end)
   
   if (sexPosition.allowClimax) then
@@ -466,8 +534,16 @@ function climaxState.enteringState(stateData)
   pregnant.tryBecomePregnant()
   
   sex.setTimer("dialog", 0)
+
+  if (self.sexboundConfig.sextalk.trigger == "statemachine") then
+    sextalk.sayNext("climaxState")
+  end
   
-  sextalk.sayNext("climaxState")
+  if (self.sexboundConfig.sextalk.trigger == "animation") then
+    local animationState = animator.animationState("sex")
+
+    sextalk.sayNext(animationState)
+  end
   
   animator.setAnimationRate(1)
 end
@@ -541,5 +617,9 @@ function exitState.update(dt, stateData)
 end
 
 function exitState.leavingState(stateDate)
+  self.currentPositionIndex = 1
+  
+  position.changePosition(1)
+
   sex.setTimer("reset", 0)
 end

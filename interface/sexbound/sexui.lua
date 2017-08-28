@@ -35,6 +35,13 @@ function init()
   -- Reset timers 
   resetTimers()
   
+  -- Send initial message to store the player's data
+  sendMessage("store-player-data", {
+    gender  = player.gender(),
+    species = player.species(),
+    uuid    = player.uniqueId()
+  }, false)
+  
   -- Send initial message to sync the ui with the source entity
   sendMessage("sync-ui", nil, true)
   
@@ -62,11 +69,18 @@ function update(dt)
     
     -- Send another message to retrieve the data again
     sendMessage("sync-ui", nil, true)
+    
+    startMusic()
   end)
-  
+
   -- Update message (sync-position)
   updateMessage("sync-position", function(result)
+    -- Clear the position data
+    self.data.position = {}
+  
     self.data = util.mergeTable(self.data, result)
+    
+    sendMessage("sync-position", nil, true)
   end)
   
   -- Update functions
@@ -89,6 +103,14 @@ function clearAll()
   util.each(self.canvas, function(k, v)
     self.canvas[k]:clear()
   end)
+end
+
+function dismissed()
+  -- Reset the entity's position.
+  sendMessage("reset-position")
+  
+  -- Stop playing music
+  stopMusic()
 end
 
 -- Renders the drawables for each canvas.
@@ -124,6 +146,18 @@ function resetTimers()
   self.timers.pov      = 0
   self.timers.dialog   = 0
   self.timers.portrait = 0
+end
+
+function startMusic()
+  if (self.data.music ~= nil and self.data.music.enabled) then
+    world.sendEntityMessage(player.id(), "playAltMusic", self.data.music.tracks, self.data.music.fadeInTime)
+  end
+end
+
+function stopMusic()
+  if (self.data.music ~= nil and self.data.music.enabled) then
+    world.sendEntityMessage(player.id(), "playAltMusic", jarray(), self.data.music.fadeOutTime)
+  end
 end
 
 -- Handles sending a message to the source entity.
@@ -339,6 +373,10 @@ end
 ----------------------------------------------
 
 -- Callback functions
+function customClose()
+  --pane.dismiss()
+end
+
 function doClimax()
   sendMessage("isClimaxing")
 end

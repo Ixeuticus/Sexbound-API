@@ -22,8 +22,10 @@ function sextalk.init()
 
   self.currentDialog = "*Silent*"
   
+  local animationState = animator.animationState("sex")
+  
   -- Select initial dialog
-  sextalk.selectNext("idleState")
+  sextalk.selectNext(animationState)
 end
 
 --- Returns the currently selected dialog.
@@ -75,7 +77,13 @@ end
 function sextalk.selectNext(state)
   if not sextalk.isEnabled() then return nil end
   
-  local currentDialog = selectRandom( self.dialog[state].default.default )
+  local choices = {}
+  
+  if (self.dialog[state] ~= nil) then
+    choices = self.dialog[state].default.default
+  end
+  
+  local currentDialog = selectRandom( choices )
   
   return currentDialog
 end

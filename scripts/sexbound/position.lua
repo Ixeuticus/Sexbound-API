@@ -5,8 +5,17 @@ position = {}
 require "/scripts/util.lua"
 
 --- Initializes the position module.
-position.init = function()  
+position.init = function()
+  -- Handle change position
   message.setHandler("changePosition", function(_, _, change)
+    local sexState = sex.getSexState()
+  
+    -- The state machine must be in the "sexState" state
+    if (sexState.stateDesc() ~= "sexState") then return end
+  
+    -- Check if unique positions have been defined. One is always defined by default.
+    if (self.positionCount <= 1) then return end
+  
     self.currentPositionIndex = self.currentPositionIndex + change
   
     if (self.currentPositionIndex <= 0) then
@@ -19,14 +28,33 @@ position.init = function()
   
     position.changePosition(self.currentPositionIndex)
     
-    animator.setAnimationState("sex", self.currentPosition.animationState)
+    animator.setAnimationState("sex", "position" .. self.currentPositionIndex)
     
-    animator.setGlobalTag("position", self.currentPosition.animationState)
+    if (sextalk.isEnabled()) then
+      if (self.sexboundConfig.sextalk.trigger == "statemachine") then
+        sextalk.sayNext("sexState")
+      end
+      
+      if (self.sexboundConfig.sextalk.trigger == "animation") then
+        local animationState = animator.animationState("sex")
+
+        sextalk.sayNext(animationState)
+      end
+      
+      self.timers.talk = 0
+    end
+  end)
+  
+  -- Handle reset position
+  message.setHandler("reset-position", function()
+    self.currentPositionIndex = 1
+  
+    position.changePosition(1)
   end)
   
   local positionConfig = config.getParameter("sexboundConfig").position
   
-  -- Try to load in sextoy settings
+  -- Try to load in position settings
   if (positionConfig ~= nil) then
     util.each(positionConfig, function(k,v)
       self.sexboundConfig.position[k] = v
