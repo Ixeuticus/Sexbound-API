@@ -42,14 +42,28 @@
 
   "sexboundConfig" : {
     "emote" : {
-      "enabled" : "true"
+      "enabled" : true
     },
   
     "moan" : {
-      "enabled" : "true",
-      "gender" : "female",
-      "pitch" : [1.1, 1.2]
+      "enabled" : true,
+      "gender"  : "female",
+      "pitch"   : [1.1, 1.2]
     },
+    
+    "position" : [
+      {
+        "name" : "Default",
+        "allowClimax" : true,
+        "allowMoan"   : true,
+        "allowEmote"  : true,
+        "animationState" : "loop",
+        "climaxAnimationState" : "climax",
+        "minTempo" : 1,
+        "maxTempo" : [2, 3],
+        "sustainedInterval" : [20, 30]
+      }
+    ],
     
     "sex" : {
       "autoClimax"    : true,
@@ -58,11 +72,7 @@
       
       "moanCooldown"  : [3, 4],
       
-      "talkCooldown"  : 15,
-      
-      "maxTempo" : [2, 3],
-      
-      "sustainedInterval" : [20, 30]
+      "talkCooldown"  : 15
     },
     
     "sextalk" : {
