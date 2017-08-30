@@ -4,17 +4,6 @@ pregnant = {}
 
 require "/scripts/util.lua"
 
---- Initializes the pregnant module.
-function pregnant.init()
-  local pregnantConfig = config.getParameter("sexboundConfig").pregnant
-  
-  if (pregnantConfig ~= nil) then
-    util.each(pregnantConfig, function(k,v)
-      self.sexboundConfig.pregnant[k] = v
-    end)
-  end
-end
-
 --- Returns the enabled status of the pregnant module.
 -- @return boolean enabled
 function pregnant.isEnabled()

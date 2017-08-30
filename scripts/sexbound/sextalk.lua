@@ -11,12 +11,6 @@ function sextalk.init()
     return sextalk.getCurrentDialog()
   end)
   
-  local sexTalkConfig = config.getParameter("sexboundConfig").sextalk
-  
-  util.each(sexTalkConfig, function(k,v)
-    self.sexboundConfig.sextalk[k] = v
-  end)
-  
   -- Load the dialog config file
   self.dialog = root.assetJson(self.sexboundConfig.sextalk.dialog)
 

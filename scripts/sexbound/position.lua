@@ -52,15 +52,6 @@ position.init = function()
     position.changePosition(1)
   end)
   
-  local positionConfig = config.getParameter("sexboundConfig").position
-  
-  -- Try to load in position settings
-  if (positionConfig ~= nil) then
-    util.each(positionConfig, function(k,v)
-      self.sexboundConfig.position[k] = v
-    end)
-  end
-
   -- Set the default position as current
   self.currentPositionIndex = 1
   

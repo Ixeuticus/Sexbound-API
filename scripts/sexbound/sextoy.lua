@@ -21,15 +21,6 @@ sextoy.init = function()
     animator.setGlobalTag("sextoy", image)
   end)
 
-  local sextoyConfig = config.getParameter("sexboundConfig").sextoy
-  
-  -- Try to load in sextoy settings
-  if (sextoyConfig ~= nil) then
-    util.each(sextoyConfig, function(k,v)
-      self.sexboundConfig.sextoy[k] = v
-    end)
-  end
-  
   local slot1 = self.sexboundConfig.sextoy.slot1
   
   self.slot1Count = 0

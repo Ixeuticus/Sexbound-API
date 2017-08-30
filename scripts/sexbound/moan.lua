@@ -6,14 +6,6 @@ require "/scripts/util.lua"
 
 --- Initializes the moan module.
 moan.init = function()
-  local moanConfig = config.getParameter("sexboundConfig").moan
-
-  if (moanConfig ~= nil) then
-    util.each(moanConfig, function(k,v)
-      self.sexboundConfig.moan[k] = v
-    end)
-  end
-  
   if (animator.hasSound("femalemoan")) then
     self.femaleMoans = {
       "/sfx/sexbound/moans/femalemoan1.ogg",

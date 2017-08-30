@@ -10,15 +10,6 @@ portrait.init = function()
   message.setHandler("retrievePortrait", function()
     return self.sexboundConfig.portrait
   end)
-  
-  local portraitConfig = config.getParameter("sexboundConfig").portrait
-  
-  -- Try to load in portrait settings
-  if (portraitConfig ~= nil) then
-    util.each(portraitConfig, function(k,v)
-      self.sexboundConfig.portrait[k] = v
-    end)
-  end
 end
 
 --- Returns the currently set default portrait image.

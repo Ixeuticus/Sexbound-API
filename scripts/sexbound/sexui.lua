@@ -4,17 +4,6 @@ sexui = {}
 
 require "/scripts/util.lua"
 
---- Initializes the sexui module.
-sexui.init = function()
-  local sexUIConfig = config.getParameter("sexboundConfig").sexui
-  
-  if (sexUIConfig ~= nil) then
-    util.each(sexUIConfig, function(k,v)
-      self.sexboundConfig.sexui[k] = v
-    end)
-  end
-end
-
 --- Returns the enabled status of the sexui module.
 -- @return boolean enabled
 sexui.isEnabled = function()

@@ -20,42 +20,34 @@ require "/scripts/sexbound/sexui.lua"
 function sex.init()
   object.setInteractive(true)
 
+  -- Handle message 'store-player-data'. Receives identifying data about the player's character.
   message.setHandler("store-player-data", function(_, _, args)
-    local supportedGenders = {"male", "female"}
-    local supportedSpecies = {"human", "novakid"}
-  
-    self.player = args
-    
-    -- check if gender is supported
-    local gender = util.find(supportedGenders, function(genderName)
-      if (self.player.gender == genderName) then
-        return true
-      end
+    local gender = self.sexboundConfig.sex.defaultPlayerGender -- default is 'male'
+    -- Check if gender is supported by the mod
+    gender = util.find(self.sexboundConfig.sex.supportedPlayerGenders, function(genderName)
+      if (args.gender == genderName) then return args.gender end
     end)
-    
-    if (gender == nil) then gender = "male" end
-    
+
+    local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
+    -- Check if species is supported by the mod
+    species = util.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
+      if (args.species == speciesName) then return args.species end
+    end)
+
     -- Set animator global tag "gender"
-    animator.setGlobalTag("gender", self.player.gender)
-    
-    -- check if species is supported
-    local species = util.find(supportedSpecies, function(speciesName)
-      if (self.player.species == speciesName) then
-        return true
-      end
-    end)
-    
-    if (species == nil) then species = "human" end
+    animator.setGlobalTag("gender",  gender)
     
     -- Set animator global tag "species"
-    animator.setGlobalTag("species", self.player.species)
+    animator.setGlobalTag("species", species)
   end)
   
+  -- Handle message 'isClimaxing'. Receives player's intent to climax.
   message.setHandler("isClimaxing", function()
     self.isCumming = true
     return {}
   end)
   
+  -- Handle message 'sync-ui'. Receives request for data and sends data back.
   message.setHandler("sync-ui", function()
     local data = {}
     
@@ -87,7 +79,7 @@ function sex.init()
     return data
   end)
   
-  -- Handle request to return Animation Data
+  -- Handle message 'sync-position'. Receives request to return sex position data.
   message.setHandler("sync-position", function()
     local data = {}
     
@@ -96,33 +88,18 @@ function sex.init()
     return data
   end)
   
-  -- Handle request to check if is occupied
+  -- Handle message 'isOccupied'. Recieves request to check if is the scripted entity is occupied.
   message.setHandler("isOccupied", function()
     return sex.isOccupied()
   end)
   
-  -- Load the default Sexbound config file
-  self.sexboundConfig = root.assetJson("/scripts/sexbound/default.config")
-  
-  -- Store the custom sex config
-  local sexCustomConfig = config.getParameter("sexboundConfig").sex
-  
-  -- Insert custom sex config
-  util.each(sexCustomConfig, function(k, v)
-    self.sexboundConfig.sex[k] = v
-  end)
-  
-  self.animationRate = 1
+  -- Load the custom configuration
+  self.sexboundConfig = util.mergeTable(root.assetJson("/scripts/sexbound/default.config"), config.getParameter("sexboundConfig"))
   
   -- Predefined sex states
-  self.sexStates = stateMachine.create({
-    "idleState",
-    "sexState",
-    "climaxState",
-    "exitState"
-  })
+  self.sexStates = stateMachine.create({ "idleState", "sexState", "climaxState", "exitState" })
   
-  -- Temp store climax data
+  -- Store climax data in a new table
   self.climaxPoints = {}
   self.climaxPoints.current = 0
   self.climaxPoints.min = self.sexboundConfig.sex.minClimaxPoints
@@ -130,66 +107,31 @@ function sex.init()
   self.climaxPoints.threshold = self.sexboundConfig.sex.climaxThreshold
   self.climaxPoints.autoClimax = self.sexboundConfig.sex.autoClimax
 
-  self.autoMoan = self.sexboundConfig.sex.autoMoan
-  
-  self.autoRestart = self.sexboundConfig.sex.autoRestart
-  
-  -- Temp store cooldown data 
+  -- Temp store cooldown data in a new table
   self.cooldowns = {}
   self.cooldowns.emote = util.randomInRange(self.sexboundConfig.sex.emoteCooldown)
   self.cooldowns.moan  = util.randomInRange(self.sexboundConfig.sex.moanCooldown)
   self.cooldowns.talk  = util.randomInRange(self.sexboundConfig.sex.talkCooldown)
 
-  self.objectType = config.getParameter("objectType")
-  
-  self.isCumming = false
+  self.isCumming   = false
   self.isHavingSex = false
-  self.isReseting = false
+  self.isReseting  = false
   
   resetTimers()
   
-  -- Init emote module
-  emote.init()
-  
-  -- Init moan module
-  moan.init()
-  
-  -- Init music module
-  music.init()
-  
-  -- Init portrait module
-  portrait.init()
-  
-  -- Init position module
-  position.init()
-  
-  -- Init pov module
-  pov.init()
-  
-  -- Init pregnant module
-  pregnant.init()
-  
-  -- Init sextalk module
-  sextalk.init()
-  
-  -- Init sextoy module
-  sextoy.init()
-  
-  -- Init sexui module
-  sexui.init()
-  
-  -- Default animator global tag "gender" is "male"
-  animator.setGlobalTag("gender", "male")
-  
-  -- Default animator global tag "species" is "human"
-  animator.setGlobalTag("species", "human")
+  -- Init specified submodules
+  util.each({"moan", "portrait", "position", "pov", "sextalk", "sextoy"}, function(k, v)
+    _ENV[v].init()
+  end)
+
+  self.animationRate = 1
 end
 
 ---Handles the interact event of the entity.
 function sex.handleInteract()
   self.isHavingSex = true
 
-  -- Invoke script pane which will force player to lounge in the object
+  -- Invoke script pane which will then force player to lounge in the object
   if (sexui.isEnabled()) then
     return {"ScriptPane", "/interface/sexbound/sexui.config"} end
 
@@ -213,11 +155,11 @@ function sex.getAnimationRate()
 end
 
 function sex.getAutoMoan()
-  return self.autoMoan
+  return self.sexboundConfig.sex.autoMoan
 end
 
 function sex.getAutoRestart()
-  return self.autoRestart
+  return self.sexboundConfig.sex.autoRestart
 end
 
 function sex.getSexState()
@@ -235,7 +177,7 @@ function sex.loop(dt, callback)
   self.timers.moan  = self.timers.moan  + dt
   
   -- Check if an this entity is occupied
-  if (self.objectType == "loungeable") then
+  if (config.getParameter("objectType") == "loungeable") then
     if (sex.isOccupied()) then
       self.isHavingSex = true
     else
@@ -404,7 +346,7 @@ function resetTimers()
   self.timers.climax = 0
 end
 
---------------------------------------------------------------------------------
+--[Idle State]-------------------------------------------------------------------------------
 
 idleState = {}
 
@@ -434,7 +376,7 @@ function idleState.leavingState(stateData)
   -- Nothing for now
 end
 
---------------------------------------------------------------------------------
+--[Sex State]--------------------------------------------------------------------------------
 
 sexState = {}
 
@@ -514,7 +456,7 @@ function sexState.leavingState(stateData)
   animator.setAnimationRate(1)
 end
 
---------------------------------------------------------------------------------
+--[Climax State]-----------------------------------------------------------------------------
 
 climaxState = {}
 
@@ -579,7 +521,7 @@ function climaxState.leavingState(stateData)
   animator.setAnimationRate(1)
 end
 
---------------------------------------------------------------------------------
+--[Reset State]------------------------------------------------------------------------------
 
 exitState = {}
 
