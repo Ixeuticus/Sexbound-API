@@ -124,9 +124,17 @@ function render()
   
   -- POV (Render)
   if (self.data.pov ~= nil and self.data.pov.enabled) then
-    -- Draw the current frame
-    self.canvas.pov:drawImage(self.pov.image .. ":" .. self.pov.frameName .. "." .. self.pov.currentFrame, {0,0}, 1, "white", false)
+    local imageName = ""
   
+    if (self.data.pov.matchPlayerGender) then 
+      imageName = util.replaceTag(self.pov.image, "gender", player.gender())
+    else
+      imageName = self.pov.image
+    end
+    
+    -- Draw the current frame
+    self.canvas.pov:drawImage(imageName .. ":" .. self.pov.frameName .. "." .. self.pov.currentFrame, {0,0}, 1, "white", false)
+
     -- Draw slot1 sex toy over the main image
     if (self.data.sextoy ~= nil and self.data.sextoy.slot1 ~= nil) then
       if (self.data.sextoy.slot1.povImage ~= nil) then
