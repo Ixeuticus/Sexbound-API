@@ -2,9 +2,13 @@ require "/scripts/util.lua"
 
 -- Initializes the UI.
 function init()
-  -- Command the player to lounge in the source entity
-  player.lounge(pane.sourceEntity())
+  self.entityType = world.entityType(pane.sourceEntity())
 
+  if (self.entityType ~= "npc") then
+    -- Command the player to lounge in the source entity
+    player.lounge(pane.sourceEntity())
+  end
+  
   -- Storage (Canvas)
   self.canvas = {}
   self.canvas.portrait = widget.bindCanvas("portraitCanvas") -- Bind Portrait Canvas
@@ -35,67 +39,84 @@ function init()
   -- Reset timers 
   resetTimers()
   
+  -- Try to retrieve player's identifying information.
+  local playerData = root.assetJson("/playeridentities.json")
+  
+  local data = {}
+
+  if (playerData[player.uniqueId()] ~= nil) then
+    data.identity = playerData[player.uniqueId()]
+    
+    sb.logInfo(sb.printJson(data.identity))
+  end
+  
+  data.gender  = player.gender()
+  data.species = player.species()
+  data.uuid    = player.uniqueId()
+  
   -- Send initial message to store the player's data
-  sendMessage("store-player-data", {
-    gender  = player.gender(),
-    species = player.species(),
-    uuid    = player.uniqueId()
-  }, false)
+  sendMessage("store-player-data", data, false)
   
-  -- Send initial message to sync the ui with the source entity
-  sendMessage("sync-ui", nil, true)
-  
-  -- Send initial message to obtain the source entity's position data
-  sendMessage("sync-position", nil, true)
+  if (self.entityType ~= "npc") then
+    -- Send initial message to sync the ui with the source entity
+    sendMessage("sync-ui", nil, true)
+    
+    -- Send initial message to obtain the source entity's position data
+    sendMessage("sync-position", nil, true)
+  end
 end
 
 -- Updates the UI.
 function update(dt)
-  -- Update message (sync-ui)
-  updateMessage("sync-ui", function(result)
-    -- Clear the sextoy data
-    self.data.sextoy = {}
-  
-    self.data = util.mergeTable(self.data, result)
+  if (self.entityType ~= "npc") then
+    -- Update message (sync-ui)
+    updateMessage("sync-ui", function(result)
+      -- Clear the sextoy data
+      self.data.sextoy = {}
     
-    if (self.previousDialog ~= self.data.sextalk.currentDialog) then
-      self.previousDialog = self.data.sextalk.currentDialog
+      if (result ~= nil) then
+        self.data = util.mergeTable(self.data, result)
+      end
       
-      self.canAnimatePortrait = true
+      if (self.previousDialog ~= self.data.sextalk.currentDialog) then
+        self.previousDialog = self.data.sextalk.currentDialog
+        
+        self.canAnimatePortrait = true
 
-      -- Set the dialog text to the new dialog
-      widget.setText("sexDialog.text", self.data.sextalk.currentDialog)
-    end
-    
-    -- Send another message to retrieve the data again
-    sendMessage("sync-ui", nil, true)
-    
-    startMusic()
-  end)
+        -- Set the dialog text to the new dialog
+        widget.setText("sexDialog.text", self.data.sextalk.currentDialog)
+      end
+      
+      -- Send another message to retrieve the data again
+      sendMessage("sync-ui", nil, true)
+      
+      startMusic()
+    end)
 
-  -- Update message (sync-position)
-  updateMessage("sync-position", function(result)
-    -- Clear the position data
-    self.data.position = {}
-  
-    self.data = util.mergeTable(self.data, result)
+    -- Update message (sync-position)
+    updateMessage("sync-position", function(result)
+      -- Clear the position data
+      self.data.position = {}
     
-    sendMessage("sync-position", nil, true)
-  end)
-  
-  -- Update functions
-  updateClimaxProgress()
-  
-  updatePortrait(dt)
-  
-  updatePosition()
-  
-  updatePOV(dt)
-  
-  updateSextoy()
-  
-  -- Draw Phase
-  render()
+      self.data = util.mergeTable(self.data, result)
+      
+      sendMessage("sync-position", nil, true)
+    end)
+    
+    -- Update functions
+    updateClimaxProgress()
+    
+    updatePortrait(dt)
+    
+    updatePosition()
+    
+    updatePOV(dt)
+    
+    updateSextoy()
+    
+    -- Draw Phase
+    render()
+  end
 end
 
 -- Clears all canvases.

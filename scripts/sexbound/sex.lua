@@ -17,28 +17,12 @@ require "/scripts/sexbound/sextoy.lua"
 require "/scripts/sexbound/sexui.lua"
 
 --- Initializes the sex module.
-function sex.init()
+function sex.init(callback)
   object.setInteractive(true)
 
   -- Handle message 'store-player-data'. Receives identifying data about the player's character.
   message.setHandler("store-player-data", function(_, _, args)
-    local gender = self.sexboundConfig.sex.defaultPlayerGender -- default is 'male'
-    -- Check if gender is supported by the mod
-    gender = util.find(self.sexboundConfig.sex.supportedPlayerGenders, function(genderName)
-      if (args.gender == genderName) then return args.gender end
-    end)
-
-    local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
-    -- Check if species is supported by the mod
-    species = util.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
-      if (args.species == speciesName) then return args.species end
-    end)
-
-    -- Set animator global tag "gender"
-    animator.setGlobalTag("gender",  gender)
-    
-    -- Set animator global tag "species"
-    animator.setGlobalTag("species", species)
+    sex.setupActor1(args)
   end)
   
   -- Handle message 'isClimaxing'. Receives player's intent to climax.
@@ -125,15 +109,115 @@ function sex.init()
   end)
 
   self.animationRate = 1
+
+    -- Set animator global tag "gender"
+  animator.setGlobalTag("gender",  self.sexboundConfig.sex.defaultPlayerGender)
+  
+  -- Set animator global tag "species"
+  animator.setGlobalTag("species", self.sexboundConfig.sex.defaultPlayerSpecies)
+  
+  animator.setGlobalTag("bodyDirectives",   "")
+  animator.setGlobalTag("hairType",         "")
+  animator.setGlobalTag("hairDirectives",   "")
+  animator.setGlobalTag("facialHairFolder", "default")
+  animator.setGlobalTag("facialHairType",   "default")
+  
+  if (callback ~= nil) then
+    callback()
+  end
+end
+
+function sex.setupActor1(args)
+  self.playerData = args
+  
+  if (self.sexboundConfig == nil) then return end
+  
+  local gender = self.sexboundConfig.sex.defaultPlayerGender -- default is 'male'
+  -- Check if gender is supported by the mod
+  gender = util.find(self.sexboundConfig.sex.supportedPlayerGenders, function(genderName)
+    if (args.gender == genderName) then return args.gender end
+  end)
+
+  local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
+  -- Check if species is supported by the mod
+  species = util.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
+    if (args.species == speciesName) then return args.species end
+  end)
+
+  -- Set animator global tag "gender"
+  animator.setGlobalTag("gender",  gender)
+  
+  -- Set animator global tag "species"
+  animator.setGlobalTag("species", species)
+  
+  local bodyDirectives   = ""
+  local facialHairFolder = "facialhair"
+  local facialHairGroup  = "default"
+  local facialHairType   = "default"
+  local facialMaskFolder = "facialmask"
+  local facialMaskGroup  = "default"
+  local facialMaskType   = "default"
+  local hairType         = "male1"
+  local hairDirectives   = ""
+  
+  -- Set animator global tags for identifying information
+  if (args.identity ~= nil) then
+    if (args.identity.bodyDirectives ~= nil) then bodyDirectives = args.identity.bodyDirectives end
+    if (args.identity.facialHairType ~= nil) then facialHairType = args.identity.facialHairType end
+    if (facialHairType == "") then facialHairType = "default" end
+    if (args.identity.hairType ~= nil) then hairType = args.identity.hairType end
+    if (args.identity.hairDirectives ~= nil) then hairDirectives = args.identity.hairDirectives end
+    
+    if (args.identity.species == "apex") then
+      if (args.identity.facialHairGroup ~= nil) then 
+        facialHairGroup = args.identity.facialHairGroup
+        facialHairFolder = "beard" .. gender -- beard + gender
+      end
+    end
+    
+    if (args.identity.species == "avian") then
+      if (args.identity.facialHairGroup ~= nil) then 
+        facialHairGroup  = args.identity.facialHairGroup
+        facialHairFolder = "fluff"
+        facialMaskFolder  = "beaks"
+        facialMaskType   = args.identity.facialMaskType
+      end
+    end
+    
+    if (args.identity.species == "novakid") then
+      if (args.identity.facialHairGroup ~= nil) then 
+        facialHairGroup = args.identity.facialHairGroup
+        facialHairFolder = "brand"
+      end
+    end
+  end
+  
+  animator.setGlobalTag("bodyDirectives", bodyDirectives)
+  animator.setGlobalTag("hairType", hairType)
+  animator.setGlobalTag("hairDirectives", hairDirectives)
+  animator.setGlobalTag("facialHairFolder", facialHairFolder)
+  animator.setGlobalTag("facialHairType", facialHairType)
+  animator.setGlobalTag("facialMaskFolder", facialMaskFolder)
+  animator.setGlobalTag("facialMaskType", facialMaskType)
 end
 
 ---Handles the interact event of the entity.
-function sex.handleInteract()
+function sex.handleInteract(args)
   self.isHavingSex = true
 
-  -- Invoke script pane which will then force player to lounge in the object
-  if (sexui.isEnabled()) then
-    return {"ScriptPane", "/interface/sexbound/sexui.config"} end
+  -- check if is a player or an npc
+  if (args ~= nil) then
+    local entityType = world.entityType(args.sourceId)
+  
+    if (entityType == "player" and sexui.isEnabled()) then
+      -- Invoke script pane which will then force player to lounge in the object
+      return {"ScriptPane", "/interface/sexbound/sexui.config"}
+    end
+    
+    --if (entityType == "npc") then
+    
+    --end
+  end
 
   return nil
 end
@@ -214,8 +298,16 @@ function sex.setIsHavingSex(value)
   self.isHavingSex = value
 end
 
+function sex.setMoanGender(gender)
+  self.moanGender = gender
+end
+
 function sex.getClimaxPause()
   return self.sexboundConfig.sex.climaxPause
+end
+
+function sex.getSexStateAnimation()
+  return self.sexboundConfig.sex.sexStateAnimation
 end
 
 function sex.getResetPause()
@@ -346,6 +438,23 @@ function resetTimers()
   self.timers.climax = 0
 end
 
+function resetTransformationGroups()
+    util.each({
+      "npc-facial-hair",
+      "npc-facial-mask",
+      "npc-hair",
+      "npc-head",
+      "player-facial-hair",
+      "player-facial-mask",
+      "player-hair",
+      "player-head"
+    }, function(k, v)
+      if animator.hasTransformationGroup(v) then
+        animator.resetTransformationGroup(v)
+      end
+    end)
+end
+
 --[Idle State]-------------------------------------------------------------------------------
 
 idleState = {}
@@ -360,6 +469,8 @@ function idleState.enter()
 end
 
 function idleState.enteringState(stateData)
+  resetTransformationGroups()
+
   animator.setAnimationState("sex", "idle")
 end
 
@@ -390,7 +501,9 @@ end
 function sexState.enteringState(stateData)
   position.changePosition("default")
 
-  animator.setAnimationState("sex", "mainloop", true)
+  position.setupSexPosition()
+  
+  animator.setAnimationState("sex", sex.getSexStateAnimation(), true)
   
   if (self.sexboundConfig.sextalk.trigger == "statemachine") then
     sextalk.sayNext("sexState")
@@ -429,7 +542,7 @@ function sexState.update(dt, stateData)
   
   if (sexPosition.allowMoan) then
     sex.tryToMoan(function()
-      moan.playRandom()
+      moan.playRandom(self.moanGender)
     end)
   end
   
@@ -472,6 +585,8 @@ function climaxState.enteringState(stateData)
 
   animator.setAnimationState("sex", position.climaxAnimationState, true)
   
+  animator.setGlobalTag("positionState", position.animationState)
+  
   -- Try to become pregnant if enabled
   pregnant.tryBecomePregnant()
   
@@ -503,7 +618,7 @@ function climaxState.update(dt, stateData)
   end)
 
   sex.tryToMoan(function()
-    moan.playRandom()
+    moan.playRandom(self.moanGender)
   end)
 
   if (climaxTimer >= sex.getClimaxPause()) then
