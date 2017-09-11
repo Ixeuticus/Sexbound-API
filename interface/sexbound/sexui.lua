@@ -46,16 +46,17 @@ function init()
 
   if (playerData[player.uniqueId()] ~= nil) then
     data.identity = playerData[player.uniqueId()]
-    
-    sb.logInfo(sb.printJson(data.identity))
   end
   
+  data.base    = false
   data.gender  = player.gender()
+  data.role    = "actor1"
   data.species = player.species()
+  data.type    = "player"
   data.uuid    = player.uniqueId()
   
   -- Send initial message to store the player's data
-  sendMessage("store-player-data", data, false)
+  sendMessage("setup-actor", data, false)
   
   if (self.entityType ~= "npc") then
     -- Send initial message to sync the ui with the source entity
@@ -424,4 +425,8 @@ end
 
 function nextSlot1()
   sendMessage("changeSlot1Sextoy", 1)
+end
+
+function switchRole()
+  sendMessage("switch-role")
 end
