@@ -41,7 +41,7 @@ function sextalk.getMode()
 end
 
 --- Private: Selects and set a new random dialog.
---@param table choices from dialog config
+--@param choices from dialog config
 local function selectRandom(choices)
   if not sextalk.isEnabled() then return nil end
 
