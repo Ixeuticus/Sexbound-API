@@ -1,12 +1,13 @@
 require "/scripts/util.lua"
 
+require "/scripts/sexbound/helper.lua"
+
 -- Initializes the UI.
 function init()
   self.entityType = world.entityType(pane.sourceEntity())
 
   if (self.entityType ~= "npc") then
-    -- Command the player to lounge in the source entity
-    player.lounge(pane.sourceEntity())
+    player.lounge(pane.sourceEntity()) -- Command the player to lounge in the source entity
   end
   
   -- Storage (Canvas)
@@ -16,9 +17,6 @@ function init()
   
   -- Storage (Data)
   self.data = {}
-  
-  -- Storage (Messenger)
-  self.messenger = {}
   
   -- Storage (Portrait)
   self.portrait = {}
@@ -55,15 +53,17 @@ function init()
   data.type    = "player"
   data.uuid    = player.uniqueId()
   
+  self.sourceEntity = pane.sourceEntity()
+  
   -- Send initial message to store the player's data
-  sendMessage("setup-actor", data, false)
+  helper.sendMessage(self.sourceEntity, "setup-actor", data, false)
   
   if (self.entityType ~= "npc") then
     -- Send initial message to sync the ui with the source entity
-    sendMessage("sync-ui", nil, true)
+    helper.sendMessage(self.sourceEntity, "sync-ui", nil, true)
     
     -- Send initial message to obtain the source entity's position data
-    sendMessage("sync-position", nil, true)
+    helper.sendMessage(self.sourceEntity, "sync-position", nil, true)
   end
 end
 
@@ -71,7 +71,7 @@ end
 function update(dt)
   if (self.entityType ~= "npc") then
     -- Update message (sync-ui)
-    updateMessage("sync-ui", function(result)
+    helper.updateMessage("sync-ui", function(result)
       -- Clear the sextoy data
       self.data.sextoy = {}
     
@@ -89,19 +89,19 @@ function update(dt)
       end
       
       -- Send another message to retrieve the data again
-      sendMessage("sync-ui", nil, true)
+      helper.sendMessage(self.sourceEntity, "sync-ui", nil, true)
       
       startMusic()
     end)
 
     -- Update message (sync-position)
-    updateMessage("sync-position", function(result)
+    helper.updateMessage("sync-position", function(result)
       -- Clear the position data
       self.data.position = {}
     
       self.data = util.mergeTable(self.data, result)
       
-      sendMessage("sync-position", nil, true)
+      helper.sendMessage(self.sourceEntity, "sync-position", nil, true)
     end)
     
     -- Update functions
@@ -129,7 +129,7 @@ end
 
 function dismissed()
   -- Reset the entity's position.
-  sendMessage("reset-position")
+  helper.sendMessage(self.sourceEntity, "reset-position")
   
   -- Stop playing music
   stopMusic()
@@ -187,41 +187,6 @@ end
 function stopMusic()
   if (self.data.music ~= nil and self.data.music.enabled) then
     world.sendEntityMessage(player.id(), "playAltMusic", jarray(), self.data.music.fadeOutTime)
-  end
-end
-
--- Handles sending a message to the source entity.
-function sendMessage(message, args, wait)
-  if (wait == nil) then wait = false end
-
-  -- Prepare new message to store data
-  if (self.messenger[message] == nil) then
-    self.messenger[message] = {}
-    self.messenger[message].promise = nil
-    self.messenger[message].busy = false
-  end
-  
-  -- If not already busy then send message
-  if not (self.messenger[message].busy) then
-    self.messenger[message].promise = world.sendEntityMessage(pane.sourceEntity(), message, args)
-    
-    self.messenger[message].busy = wait
-  end
-end
-
--- Handles response from the source entity.
-function updateMessage(message, callback)
-  if (self.messenger[message] == nil) then return end
-
-  local promise = self.messenger[message].promise
-
-  if (promise and promise:finished()) then
-    local result = promise:result()
-    
-    self.messenger[message].promise = nil
-    self.messenger[message].busy = false
-    
-    callback(result)
   end
 end
 
@@ -378,7 +343,7 @@ function updatePOV(dt)
     self.data.animator.currentAnimationRate = self.data.animator.currentMinTempo 
     
     -- Send request to get next animation rate data
-    sendMessage("sync-position", nil, true)
+    helper.sendMessage(self.sourceEntity, "sync-position", nil, true)
   end
 end
 
@@ -408,25 +373,25 @@ function customClose()
 end
 
 function doClimax()
-  sendMessage("isClimaxing")
+  helper.sendMessage(self.sourceEntity, "isClimaxing")
 end
 
 function prevPosition()
-  sendMessage("changePosition", -1)
+  helper.sendMessage(self.sourceEntity, "changePosition", -1)
 end
 
 function nextPosition()
-  sendMessage("changePosition", 1)
+  helper.sendMessage(self.sourceEntity, "changePosition", 1)
 end
 
 function prevSlot1()
-  sendMessage("changeSlot1Sextoy", -1)
+  helper.sendMessage(self.sourceEntity, "changeSlot1Sextoy", -1)
 end
 
 function nextSlot1()
-  sendMessage("changeSlot1Sextoy", 1)
+  helper.sendMessage(self.sourceEntity, "changeSlot1Sextoy", 1)
 end
 
 function switchRole()
-  sendMessage("switch-role")
+  helper.sendMessage(self.sourceEntity, "switch-role")
 end

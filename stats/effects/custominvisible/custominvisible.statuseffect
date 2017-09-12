@@ -1,0 +1,8 @@
+{
+  "name" : "custominvisible",
+  "defaultDuration" : 999,
+
+  "scripts" : [
+    "custominvisible.lua"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "frameGrid" : {
+    "size" : [43, 43],
+    "dimensions" : [12, 1],
+    "names" : [
+      [ "climax.1", "climax.2", "climax.3", "climax.4", "climax.5", "climax.6", "climax.7", "climax.8", "climax.9", "climax.10", "climax.11", "climax.12" ]
+    ]
+  }
+}

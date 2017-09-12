@@ -1,0 +1,120 @@
+{
+  "objectName"       : "sexnode",
+  "shortdescription" : "Sex Node",
+  "description"      : "Used to position players and NPCs.",
+  "category"         : "other",
+  "colonyTags"       : ["odd"],
+  "printable"        : false,
+  "scannable"        : false,
+  "price"            : 1,
+  "race"             : "generic",
+  "rarity"           : "Common",
+
+  "inventoryIcon"    : "sexnode.png",
+  "objectType"       : "loungeable",
+  
+  "smashable"        : true,
+  
+  "sitPosition"      : [0, 32],
+  "sitStatusEffects" : [
+    "custominvisible",
+    "sex"
+  ],
+  
+  "animation" : "/objects/sexnode/sexnode.animation",
+  "animationPosition" : [-8, 0],
+  
+  "orientations" : [
+    {
+      "dualImage" : "sexnode.png:<color>.<frame>",
+
+      "imagePosition" : [-8, 0],
+
+      "anchors" : [ "bottom" ],
+      
+      "spaceScan" : 0.99
+    }
+  ],
+
+  "scripts" : ["/objects/sexnode/sexnode.lua"],
+  
+  "sexboundConfig" : {
+    "emote" : {
+      "enabled" : false
+    },
+  
+    "moan" : {
+      "enabled" : true,
+      "pitch" : [1.1, 1.2]
+    },
+    
+    "music" : {
+      "enabled" : false
+    },
+    
+    "position" : [
+      {
+        "name" : "Default",
+        "allowClimax" : true,
+        "allowMoan"   : true,
+        "allowEmote"  : true,
+        "animationState" : "position-1",
+        "climaxAnimationState" : "climax",
+        
+        "actor1FacialHairOffset" : [-0.375, 0],
+        "actor1FacialMaskOffset" : [-0.375, 0],
+        "actor1HairOffset"       : [-0.375, 0],
+        "actor1HeadOffset"       : [0, 0],
+        
+        "actor2FacialHairOffset" : [0.375, -0.125],
+        "actor2FacialMaskOffset" : [0.375, -0.125],
+        "actor2HairOffset"       : [0.375, -0.125],
+        "actor2HeadOffset"       : [0, 0],
+        
+        "minTempo" : 1,
+        "maxTempo" : [2, 3],
+        "sustainedInterval" : [20, 30]
+      }
+    ],
+    
+    "pov" : {
+      "enabled" : false
+    },
+    
+    "sex" : {
+      "autoClimax"    : false,
+      
+      "emoteCooldown" : [3, 4],
+      
+      "moanCooldown"  : [3, 4],
+      
+      "talkCooldown"  : 15,
+      
+      "maxTempo" : [2, 3],
+      
+      "sexStateAnimation" : "position-1",
+      
+      "climaxPause" : 10,
+      
+      "resetPause" : 5,
+      
+      "sustainedInterval" : [20, 30]
+    },
+    
+    "sextalk" : {
+      "enabled": true,
+      "dialog"  : "/objects/sexnode/dialog.config",
+      "method"  : "sexui",
+      "mode"    : "random",
+      "trigger" : "animation"
+    },
+    
+    "sextoy" : {
+      "enabled" : false
+    },
+    
+    "sexui" : {
+      "enabled" : true
+    }
+  }
+}

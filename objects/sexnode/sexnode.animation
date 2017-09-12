@@ -1,0 +1,486 @@
+{
+  "globalTagDefaults" : {
+    "actor1-species"          : "human",
+    "actor1-gender"           : "female",
+    "actor1-bodyDirectives"   : "",
+    "actor1-hairDirectives"   : "",
+    "actor1-hairFolder"       : "hair",
+    "actor1-hairType"         : "fem1",
+    "actor1-facialHairFolder" : "facialhair",
+    "actor1-facialHairType"   : "default",
+    "actor1-facialMaskFolder" : "facialmask",
+    "actor1-facialMaskType"   : "default",
+    "actor2-species"          : "human",
+    "actor2-gender"           : "female",
+    "actor2-bodyDirectives"   : "",
+    "actor2-hairDirectives"   : "",
+    "actor2-hairFolder"       : "hair",
+    "actor2-hairType"         : "fem1",
+    "actor2-facialHairFolder" : "facialhair",
+    "actor2-facialHairType"   : "default",
+    "actor2-facialMaskFolder" : "facialmask",
+    "actor2-facialMaskType"   : "default"
+  },
+
+  "animatedParts" : {
+    "stateTypes" : {
+      "sex" : {
+        "properties" :{},
+        "default" : "idle",
+        "states" : {
+          "none" : {},
+          
+          "climax" : {
+            "frames" : 12,
+            "cycle"  : 4,
+            "mode"   : "transition",
+            "transition" : "reset",
+            "properties" : {
+              "immediateSoundRangeMultiplier" : 0.8
+            },
+            "frameProperties" : {
+              "immediateSound" : ["/sfx/sexbound/cum/squish.ogg", "", "", "", "/sfx/sexbound/cum/squish.ogg", "", "", "", "", "/sfx/sexbound/cum/squish.ogg"]
+            }
+          },
+          
+          "idle" : {
+            "frames" : 1,
+            "cycle"  : 1,
+            "mode"   : "loop"
+          },
+                    
+          "position-1" : {
+            "frames" : 6,
+            "cycle"  : 1,
+            "mode"   : "loop",
+            "properties" : {
+              "immediateSoundRangeMultiplier" : 0.8
+            },
+            "frameProperties" : {
+              "immediateSound" : ["", "", "", "", "/sfx/sexbound/hits/splat.ogg"]
+            }
+          },
+          
+          "reset" : {
+            "frames" : 1,
+            "cycle"  : 1,
+            "mode"   : "loop"
+          }
+        }
+      }
+    },
+    
+    "parts" : {
+      "actor1-head" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor1-head" ],
+          "zLevel" : 1
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "parts/actor1/<actor1-species>/head_<actor1-gender>.png:<positionState>.1<actor1-bodyDirectives>"
+              }
+            },
+          
+            "idle" : {},
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "parts/actor1/<actor1-species>/head_<actor1-gender>.png:position-1.1<actor1-bodyDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "parts/actor1/<actor1-species>/head_<actor1-gender>.png:<positionState>.1<actor1-bodyDirectives>"
+              }
+            }
+          }
+        }
+      },
+    
+      "actor1-hair" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.625],
+          "transformationGroups" : [ "actor1-hair" ],
+          "zLevel" : 2
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-hairFolder>/<actor1-hairType>.png:normal<actor1-hairDirectives>"
+              }
+            },
+          
+            "idle" : {},
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-hairFolder>/<actor1-hairType>.png:normal<actor1-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-hairFolder>/<actor1-hairType>.png:normal<actor1-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+    
+      "actor1-facial-hair" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.625],
+          "transformationGroups" : [ "actor1-facial-hair" ],
+          "zLevel" : 3
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-facialHairFolder>/<actor1-facialHairType>.png:normal<actor1-hairDirectives>"
+              }
+            },
+          
+            "idle" : {},
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-facialHairFolder>/<actor1-facialHairType>.png:normal<actor1-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-facialHairFolder>/<actor1-facialHairType>.png:normal<actor1-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+    
+      "actor1-facial-mask" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.625],
+          "transformationGroups" : [ "actor1-facial-mask" ],
+          "zLevel" : 4
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-facialMaskFolder>/<actor1-facialMaskType>.png:normal<actor1-hairDirectives>"
+              }
+            },
+          
+            "idle" : {},
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-facialMaskFolder>/<actor1-facialMaskType>.png:normal<actor1-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "/humanoid/<actor1-species>/<actor1-facialMaskFolder>/<actor1-facialMaskType>.png:normal<actor1-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+    
+      "actor1-body" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "zLevel" : 5
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "parts/actor1/<actor1-species>/body_<actor1-gender>.png:<positionState>.4<actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+          
+            "idle" : {},
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "parts/actor1/<actor1-species>/body_<actor1-gender>.png:position-1.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "parts/actor1/<actor1-species>/body_<actor1-gender>.png:<positionState>.4<actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
+      "actor2-head" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor2-head" ],
+          "zLevel" : 6
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:<positionState>.1<actor2-bodyDirectives>"
+              }
+            },
+          
+            "idle" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:default.0<actor2-bodyDirectives>"
+              }
+            },
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:position-1.1<actor2-bodyDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:<positionState>.1<actor2-bodyDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
+      "actor2-hair" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0.625, 2.625],
+          "transformationGroups" : [ "actor2-hair" ],
+          "zLevel" : 7
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+          
+            "idle" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
+      "actor2-facial-hair" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0.625, 2.625],
+          "transformationGroups" : [ "actor2-facial-hair" ],
+          "zLevel" : 8
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+          
+            "idle" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
+      "actor2-facial-mask" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0.625, 2.625],
+          "transformationGroups" : [ "actor2-facial-mask" ],
+          "zLevel" : 9
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+          
+            "idle" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
+      "actor2-body" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "zLevel" : 10
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:<positionState>.4<actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+          
+            "idle" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:default.0<actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position-1" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:position-1.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:<positionState>.4<actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
+      "climax" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "zLevel" : 11
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "parts/climax/climax.png:climax.<frame>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "parts/climax/climax.png:climax.12"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  
+  "transformationGroups" : {
+    "actor1-facial-hair" : { "interpolated" : false },
+    "actor1-facial-mask" : { "interpolated" : false },
+    "actor1-hair"        : { "interpolated" : false },
+    "actor1-head"        : { "interpolated" : false },
+    
+    "actor2-facial-hair" : { "interpolated" : false },
+    "actor2-facial-mask" : { "interpolated" : false },
+    "actor2-hair"        : { "interpolated" : false },
+    "actor2-head"        : { "interpolated" : false }
+  },
+  
+  "particleEmitters" : {
+    "emotehappy" : {
+      "emissionRate" : 1,
+      "particles" : [
+        {
+          "particle" : {
+            "type" : "animated",
+            "animation" : "/animations/emotes/happy.animation",
+            "position" : [9, 6],
+            "finalVelocity" : [0, 0],
+            "initialVelocity" : [0, 0],
+            "destructionTime" : 0.2,
+            "destructionAction" : "shrink",
+            "layer" : "front",
+            "timeToLive" : 0.8,
+            "flippable" : false
+          }
+        }
+      ]
+    }
+  },
+  
+  "sounds" : {
+    "femalemoan" : [],
+    "malemoan"   : []
+  }
+}
