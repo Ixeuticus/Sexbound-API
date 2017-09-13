@@ -3,6 +3,7 @@
 - Changed NPCs to respawn upon smashing a sex node.
 - Sex node faces a random direction when spawned in.
 - Refactored code.
+- Bug fixes.
 1.6.0: Added ability to switch actor roles to Sex UI.
 - Refactored code.
 1.5.3: Fixed BuildSexboundAPI.exe runtime errors for some users.
