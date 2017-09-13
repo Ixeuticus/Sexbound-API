@@ -11,15 +11,20 @@
   "rarity"           : "Common",
 
   "inventoryIcon"    : "sexnode.png",
+  
   "objectType"       : "loungeable",
   
   "smashable"        : true,
   
-  "sitPosition"      : [0, 32],
+  "sitAngle" : 90,
+  "sitPosition"      : [0, 24],
+  "sitOrientation" : "lay",
   "sitStatusEffects" : [
     "custominvisible",
     "sex"
   ],
+  
+  "interactive" : true,
   
   "animation" : "/objects/sexnode/sexnode.animation",
   "animationPosition" : [-8, 0],
@@ -30,6 +35,8 @@
 
       "imagePosition" : [-8, 0],
 
+      "renderLayer" : "player",
+      
       "anchors" : [ "bottom" ],
       
       "spaceScan" : 0.99

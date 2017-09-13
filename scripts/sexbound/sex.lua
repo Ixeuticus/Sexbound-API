@@ -252,9 +252,11 @@ function sex.setupActor(args)
   -- Swap actor roles depending on the entity's gender
   if (not args.base and args.gender == "female") then
     if (args.role == "actor1") then
-      storage.npc.role = "actor1"
-    
-      sex.resetActor(storage.npc) -- Swap roles by reseting the NPC
+      if (storage.npc ~= nil) then
+        storage.npc.role = "actor1"
+      
+        sex.resetActor(storage.npc) -- Swap roles by reseting the NPC
+      end
       
       args.role = "actor2"    
     end
@@ -316,7 +318,7 @@ function sex.loop(dt, callback)
   self.timers.talk  = self.timers.talk  + dt
   
   self.timers.emote = self.timers.emote + dt
-  
+
   self.timers.moan  = self.timers.moan  + dt
   
   -- Check if an this entity is occupied

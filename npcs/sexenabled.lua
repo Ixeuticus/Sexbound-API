@@ -1,3 +1,4 @@
+require "/scripts/util.lua"
 require "/scripts/vec2.lua"
 
 require "/scripts/sexbound/helper.lua"
@@ -7,43 +8,25 @@ oldUpdateUniqueId = updateUniqueId
 
 updateUniqueId = function()
   oldUpdateUniqueId() -- Run the previous version of the function.
-  
-  -- Init
-  if not self.initOnce == nil then
-    message.setHandler("retrieve-npc-identity", function()
-      local npcData = {}
-      
-      npcData.identity = npc.humanoidIdentity()
-      npcData.gender   = npcData.identity.gender
-      npcData.species  = npcData.identity.species
-      
-      return npcData
-    end)
-    
-    self.initOnce = true
-  end
-  
-  -- Update
+
+  -- Transform into object when status property 'lust' is true
   if (status.statusProperty("lust") == true) then
     status.setStatusProperty("lust", false)
 
-    if type(handleSex) == "function" then
-      return handleSex()
-    end
+    transformIntoObject()
   end
   
+  -- Handle sex request when status property 'havingSex' is true
   if (status.statusProperty("havingSex") == true) then
     status.setStatusProperty("havingSex", false)
     
-    if type(handleSexRequest) == "function" then
-      return handleSexRequest()
-    end
+    handleSexRequest()
   end
 end
 
 function handleSexRequest(args)
   local position = vec2.floor(entity.position())
-  position[2] = position[2] - 4
+  position[2] = position[2] - 3 -- (3 * 8 = 24)
   
   local entityId = world.objectAt(position)
   
@@ -52,14 +35,16 @@ function handleSexRequest(args)
   end
 end
 
-function handleSex(args)
+function transformIntoObject(args)
   -- Create an object that resembles the npc at the position
-  self.position = vec2.floor(entity.position())
-  self.position[2] = self.position[2] - 2
+  local position = vec2.floor(entity.position())
+  position[2] = position[2] - 2
   
   self.newUniqueId = tostring(sb.makeRandomSource():randu64())
   
-  if (world.placeObject("sexnode", self.position, -1, {uniqueId = self.newUniqueId})) then
+  local faceDirection = util.randomIntInRange({-1, 1})
+  
+  if (world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId})) then
     sendMessage(self.newUniqueId, "setup-actor", "actor2")
   
     unloadNPC()
@@ -88,17 +73,16 @@ function sendMessage(uniqueId, message, role)
 end
 
 function unloadNPC()
-  -- Ensure the NPC doesn't drop its loot
-  npc.setDropPools({})
-  npc.setDeathParticleBurst(nil)
+  npc.setDropPools({}) -- prevent loot drop
+  npc.setDeathParticleBurst(nil) -- prevent death particle effect
   
-  npc.setPersistent(true)
+  npc.setPersistent(true) -- keep the npc loaded in memory
 
   -- Kill the NPC
   status.applySelfDamageRequest({
-    damageType = "IgnoresDef",
-    damage = status.resourceMax("health"),
+    damageType       = "IgnoresDef",
+    damage           = status.resourceMax("health"),
     damageSourceKind = "fire",
-    sourceEntityId = entity.id()
+    sourceEntityId   = entity.id()
   })
 end

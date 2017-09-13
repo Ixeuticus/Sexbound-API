@@ -1,5 +1,7 @@
 1.7.0: Moved sprite sheets from Aphrodite's Bow mod into Sexbound API.
 - Moved reusable logic from Aphrodite's Bow into Sexbound API.
+- Changed NPCs to respawn upon smashing a sex node.
+- Sex node faces a random direction when spawned in.
 - Refactored code.
 1.6.0: Added ability to switch actor roles to Sex UI.
 - Refactored code.
