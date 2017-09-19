@@ -8,7 +8,7 @@ oldUpdateUniqueId = updateUniqueId
 
 updateUniqueId = function()
   oldUpdateUniqueId() -- Run the previous version of the function.
-
+  
   -- Transform into object when status property 'lust' is true
   if (status.statusProperty("lust") == true) then
     status.setStatusProperty("lust", false)

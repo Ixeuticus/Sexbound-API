@@ -18,98 +18,28 @@ require "/scripts/sexbound/sexui.lua"
 
 --- Initializes the sex module.
 function sex.init(callback)
-  object.setInteractive(true)
+  sex.setupHandlers()
   
-  -- Store identifying information about actor
-  message.setHandler("setup-actor", function(_, _, args)
-    sex.setupActor(args)
-  end)
-  
-  -- Handle message 'isClimaxing'. Receives player's intent to climax.
-  message.setHandler("isClimaxing", function()
-    self.isCumming = true
-    return {}
-  end)
-  
-  -- Handle message 'switch-role'. Receives player's intent to switch actor roles.
-  message.setHandler("switch-role", function()
-    if (self.actors[1] == nil or self.actors[2] == nil) then return end
-  
-    if (not isEmpty(self.actors[1]) and not isEmpty(self.actors[2])) then
-      local tempRole = self.actors[1].role
-      self.actors[1].role = self.actors[2].role
-      self.actors[2].role = tempRole
-      
-      sex.resetActor(self.actors[1])
-      sex.resetActor(self.actors[2])
-    end
-  end)
-  
-  -- Handle message 'sync-ui'. Receives request for data and sends data back.
-  message.setHandler("sync-ui", function()
-    local data = {}
-    
-    data.animator = {}
-    data.climax   = {}
-    data.sex      = {}
-    data.sextalk  = {}
-    data.sextoy   = {}
-    
-    data.animator.rate = self.animationRate
-    data.animator.currentState = animator.animationState("sex")
-    
-    data.climax.points  = self.climaxPoints
-    
-    data.sex.currentState  = self.sexStates.stateDesc()
-    
-    data.portrait = self.sexboundConfig.portrait
-    
-    data.position = position.selectedSexPosition()
-    
-    data.pov = self.sexboundConfig.pov
-    
-    data.music = self.sexboundConfig.music
-    
-    data.sextalk.currentDialog = sextalk.getCurrentDialog()
-    
-    data.sextoy.slot1 = self.sexboundConfig.sextoy.slot1[self.slot1Current]
-    
-    return data
-  end)
-  
-  -- Handle message 'sync-position'. Receives request to return sex position data.
-  message.setHandler("sync-position", function()
-    local data = {}
-    
-    data.position = position.selectedSexPosition()
-    
-    return data
-  end)
-  
-  -- Handle message 'isOccupied'. Recieves request to check if is the scripted entity is occupied.
-  message.setHandler("isOccupied", function()
-    return sex.isOccupied()
-  end)
-  
-  -- Load the custom configuration
+  -- Load custom configuration
   self.sexboundConfig = util.mergeTable(root.assetJson("/scripts/sexbound/default.config"), config.getParameter("sexboundConfig"))
   
   -- Predefined sex states
   self.sexStates = stateMachine.create({ "idleState", "sexState", "climaxState", "exitState" })
   
-  -- Temporary actors storage in this object.
+  -- Temporary storage for actors
   self.actors = {}
   self.actorsCount = 0
   
   -- Store climax data in a new table
-  self.climaxPoints = {}
-  self.climaxPoints.current = 0
-  self.climaxPoints.min = self.sexboundConfig.sex.minClimaxPoints
-  self.climaxPoints.max = self.sexboundConfig.sex.maxClimaxPoints
-  self.climaxPoints.threshold = self.sexboundConfig.sex.climaxThreshold
-  self.climaxPoints.autoClimax = self.sexboundConfig.sex.autoClimax
-
-  -- Temp store cooldown data in a new table
+  self.climaxPoints = {
+    current    = 0,
+    min        = self.sexboundConfig.sex.minClimaxPoints,
+    max        = self.sexboundConfig.sex.maxClimaxPoints,
+    threshold  = self.sexboundConfig.sex.climaxThreshold,
+    autoClimax = self.sexboundConfig.sex.autoClimax
+  }
+  
+  -- Temporary storage for cooldowns
   self.cooldowns = {}
   self.cooldowns.emote = util.randomInRange(self.sexboundConfig.sex.emoteCooldown)
   self.cooldowns.moan  = util.randomInRange(self.sexboundConfig.sex.moanCooldown)
@@ -127,40 +57,33 @@ function sex.init(callback)
   end)
 
   self.animationRate = 1
-
-    -- Set animator global tag "gender"
-  animator.setGlobalTag("gender",  self.sexboundConfig.sex.defaultPlayerGender)
   
-  -- Set animator global tag "species"
-  animator.setGlobalTag("species", self.sexboundConfig.sex.defaultPlayerSpecies)
-  
-  animator.setGlobalTag("bodyDirectives",   "")
-  animator.setGlobalTag("hairType",         "")
-  animator.setGlobalTag("hairDirectives",   "")
-  animator.setGlobalTag("facialHairFolder", "default")
-  animator.setGlobalTag("facialHairType",   "default")
+  animator.setGlobalTag("part-actor1-head", "parts/actor1/human/head.png:default.default")
+  animator.setGlobalTag("part-actor1-hair", "/humanoid/human/hair/male1.png:normal")
   
   if (callback ~= nil) then
     callback()
   end
 end
 
-function sex.resetActor(args)
-  local actorLabel = args.role
-  
-  if (actorLabel == nil) then
-    actorLabel = "actor2"
-  end
+function sex.resetActors()
+  if not (self.sexboundConfig.sex.enableActors) then return false end
 
+  util.each(self.actors, function(k, v)
+    sex.resetActor(v, k)
+  end)
+end
+
+function sex.resetActor(args, actorNumber)
   local gender = self.sexboundConfig.sex.defaultPlayerGender -- default is 'male'
   -- Check if gender is supported by the mod
   gender = util.find(self.sexboundConfig.sex.supportedPlayerGenders, function(genderName)
     if (args.gender == genderName) then return args.gender end
   end)
 
-  if (actorLabel == "actor2") then
-    sex.setMoanGender(gender)
-  end
+  args.gender = gender
+  
+  if (self.actorsCount == 2 and actorNumber == 2) then sex.setMoanGender(gender) end
   
   local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
   -- Check if species is supported by the mod
@@ -168,6 +91,8 @@ function sex.resetActor(args)
    if (args.species == speciesName) then return args.species end
   end)
 
+  args.species = species
+  
   local bodyDirectives   = ""
   local facialHairFolder = "facialhair"
   local facialHairGroup  = "default"
@@ -181,13 +106,11 @@ function sex.resetActor(args)
   
   -- Set animator global tag "gender"
   animator.setGlobalTag("gender",  gender)
-  
-  animator.setGlobalTag(actorLabel .. "-gender",  gender)
+  animator.setGlobalTag("actor" .. actorNumber .. "-gender",  gender)
   
   -- Set animator global tag "species"
   animator.setGlobalTag("species", species)
-  
-  animator.setGlobalTag(actorLabel .. "-species", species)
+  animator.setGlobalTag("actor" .. actorNumber .. "-species", species)
   
   -- Set animator global tags for identifying information
   if (args.identity ~= nil) then
@@ -221,19 +144,52 @@ function sex.resetActor(args)
         facialHairFolder = "brand"
       end
     end
+    
+    local position = position.selectedSexPosition().animationState
+  
+    if (animator.animationState("sex") == "idle") then
+      position = "idle"
+    end
+    
+    if (animator.animationState("sex") == "climax") then
+      position = position .. "-climax"
+    end
+    
+    if (animator.animationState("sex") == "reset") then
+      position = position .. "-reset"
+    end
+    
+    local role = "actor" .. actorNumber
+    
+    local partHead = "parts/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives
+    animator.setGlobalTag("part-" .. role .. "-head", partHead)
+
+    local partHair = "/humanoid/" .. args.species .. "/" .. hairFolder .. "/" .. hairType .. ".png:normal" .. hairDirectives
+    animator.setGlobalTag("part-" .. role .. "-hair", partHair)
+    
+    local partFacialHair = "/humanoid/" .. args.species .. "/" .. facialHairFolder .. "/" .. facialHairType .. ".png:normal" .. hairDirectives
+    animator.setGlobalTag("part-" .. role .. "-facial-hair", partFacialHair)
+    
+    local partFacialMask = "/humanoid/" .. args.species .. "/" .. facialMaskFolder .. "/" .. facialMaskType .. ".png:normal" .. hairDirectives
+    animator.setGlobalTag("part-" .. role .. "-facial-mask", partFacialMask)
+    
+    local partBody = "parts/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
+    animator.setGlobalTag("part-" .. role .. "-body", partBody)
   end
   
-  animator.setGlobalTag(actorLabel .. "-bodyDirectives",   bodyDirectives)
-  animator.setGlobalTag(actorLabel .. "-hairFolder",       hairFolder)
-  animator.setGlobalTag(actorLabel .. "-hairType",         hairType)
-  animator.setGlobalTag(actorLabel .. "-hairDirectives",   hairDirectives)
-  animator.setGlobalTag(actorLabel .. "-facialHairFolder", facialHairFolder)
-  animator.setGlobalTag(actorLabel .. "-facialHairType",   facialHairType)
-  animator.setGlobalTag(actorLabel .. "-facialMaskFolder", facialMaskFolder)
-  animator.setGlobalTag(actorLabel .. "-facialMaskType",   facialMaskType)
+  animator.setGlobalTag("actor" .. actorNumber .. "-bodyDirectives",   bodyDirectives)
+  animator.setGlobalTag("actor" .. actorNumber .. "-hairFolder",       hairFolder)
+  animator.setGlobalTag("actor" .. actorNumber .. "-hairType",         hairType)
+  animator.setGlobalTag("actor" .. actorNumber .. "-hairDirectives",   hairDirectives)
+  animator.setGlobalTag("actor" .. actorNumber .. "-facialHairFolder", facialHairFolder)
+  animator.setGlobalTag("actor" .. actorNumber .. "-facialHairType",   facialHairType)
+  animator.setGlobalTag("actor" .. actorNumber .. "-facialMaskFolder", facialMaskFolder)
+  animator.setGlobalTag("actor" .. actorNumber .. "-facialMaskType",   facialMaskType)
 end
 
 function sex.setupActor(args)
+  if not (self.sexboundConfig.sex.enableActors) then return false end
+
   -- Permenantly store first actor if it is an 'npc' entity type
   if (args.entityType == "npc" and isEmpty(self.actors)) then
     self.actorsCount = 1
@@ -241,29 +197,20 @@ function sex.setupActor(args)
     storage.npc = args
     
     self.actors = {}
-    
-    self.actors[ self.actorsCount ] = args
   else
     self.actorsCount = self.actorsCount + 1
-    
-    self.actors[ self.actorsCount ] = args
   end
-
-  -- Swap actor roles depending on the entity's gender
-  if (not args.base and args.gender == "female") then
-    if (args.role == "actor1") then
-      if (storage.npc ~= nil) then
-        storage.npc.role = "actor1"
-      
-        sex.resetActor(storage.npc) -- Swap roles by reseting the NPC
-      end
-      
-      args.role = "actor2"    
+  
+  self.actors[ self.actorsCount ] = args
+  
+  if (self.actorsCount == 2) then
+    if (self.actors[1].gender == "female" and self.actors[2].gender == "male") then
+     sex.switchRole(true) -- True to skip reset
     end
   end
   
-  -- Reset the actor's global animator tags
-  sex.resetActor(args)
+  -- Reset the actors
+  sex.resetActors()
 end
 
 ---Handles the interact event of the entity.
@@ -293,6 +240,10 @@ function sex.isOccupied()
   end
   
   return false
+end
+
+function sex.getActors()
+  return self.actors
 end
 
 function sex.getAnimationRate()
@@ -382,6 +333,80 @@ end
 function sex.setTimer(name, value)
   self.timers[name] = value
   return self.timers[name]
+end
+
+function sex.switchRole(skipReset)
+    table.insert(self.actors, 1, table.remove(self.actors, #self.actors)) -- Shift actors
+  
+    if not (skipReset) then
+      sex.resetActors()
+    end
+end
+
+function sex.setupHandlers()
+  -- Handle message 'setup-actor'. Stores identifying information about actor.
+  message.setHandler("setup-actor", function(_, _, args)
+    --sex.clearActors()
+  
+    sex.setupActor(args)
+  end)
+  
+  -- Handle message 'isClimaxing'. Receives player's intent to climax.
+  message.setHandler("isClimaxing", function()
+    self.isCumming = true
+    return {}
+  end)
+  
+  -- Handle message 'switch-role'. Receives player's intent to switch actor roles.
+  message.setHandler("switch-role", function()
+    sex.switchRole()
+  end)
+  
+  -- Handle message 'sync-ui'. Receives request for data and sends data back.
+  message.setHandler("sync-ui", function()
+    local data = {}
+    
+    data.animator = {}
+    data.climax   = {}
+    data.sex      = {}
+    data.sextalk  = {}
+    data.sextoy   = {}
+    
+    data.animator.rate = self.animationRate
+    data.animator.currentState = animator.animationState("sex")
+    
+    data.climax.points  = self.climaxPoints
+    
+    data.sex.currentState  = self.sexStates.stateDesc()
+    
+    data.portrait = self.sexboundConfig.portrait
+    
+    data.position = position.selectedSexPosition()
+    
+    data.pov = self.sexboundConfig.pov
+    
+    data.music = self.sexboundConfig.music
+    
+    data.sextalk.currentDialog = sextalk.getCurrentDialog()
+    
+    data.sextoy.slot1 = self.sexboundConfig.sextoy.slot1[self.slot1Current]
+    
+    return data
+  end)
+  
+  -- Handle message 'sync-position'. Receives request to return sex position data.
+  message.setHandler("sync-position", function()
+    local data = {}
+    
+    data.position = position.selectedSexPosition()
+    
+    return data
+  end)
+  
+  -- Handle message 'isOccupied'. Recieves request to check if is the scripted entity is occupied.
+  message.setHandler("isOccupied", function()
+    return sex.isOccupied()
+  end)
 end
 
 ---Try to Cum.
@@ -517,6 +542,23 @@ function resetTransformationGroups()
     end)
 end
 
+function sex.clearActors()
+  util.each(self.actors, function(k, v)
+    local role = "actor" .. k
+    local default = "parts/default.png:default"
+    
+    animator.setGlobalTag("part-" .. role .. "-body",        default)
+    animator.setGlobalTag("part-" .. role .. "-head",        default)
+    animator.setGlobalTag("part-" .. role .. "-hair",        default)
+    animator.setGlobalTag("part-" .. role .. "-facial-hair", default)
+    animator.setGlobalTag("part-" .. role .. "-facial-mask", default)
+  end)
+  
+  self.actorsCount = 1
+  
+  self.actors = {}
+end
+
 --[Idle State]-------------------------------------------------------------------------------
 
 idleState = {}
@@ -531,23 +573,20 @@ function idleState.enter()
 end
 
 function idleState.enteringState(stateData)
+  animator.setAnimationState("sex", "idle")
+
   resetTransformationGroups()
   
   if (not isEmpty(self.actors)) then
     if (not sex.isOccupied()) then
-      self.actors[1].role = "actor2"
-      
-      -- Clear other actors
-      self.actorsCount = 1
-      
-      self.actors[2] = {}
+      sex.clearActors()
+    
+      self.actors[1] = storage.npc
     end
     
     -- Reset main actors
-    sex.resetActor(self.actors[1])
+    sex.resetActors()
   end
-  
-  animator.setAnimationState("sex", "idle")
 end
 
 function idleState.update(dt, stateData)
@@ -580,6 +619,8 @@ function sexState.enteringState(stateData)
   position.setupSexPosition()
   
   animator.setAnimationState("sex", sex.getSexStateAnimation(), true)
+  
+  sex.resetActors()
   
   if (self.sexboundConfig.sextalk.trigger == "statemachine") then
     sextalk.sayNext("sexState")

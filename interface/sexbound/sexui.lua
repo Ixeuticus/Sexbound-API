@@ -6,14 +6,15 @@ require "/scripts/sexbound/helper.lua"
 function init()
   self.entityType = world.entityType(pane.sourceEntity())
 
-  if (self.entityType ~= "npc") then
-    player.lounge(pane.sourceEntity()) -- Command the player to lounge in the source entity
-  end
+  --if (self.entityType == "object") then
+  player.lounge(pane.sourceEntity()) -- Command the player to lounge in the source entity
+  --end
   
   -- Storage (Canvas)
   self.canvas = {}
-  self.canvas.portrait = widget.bindCanvas("portraitCanvas") -- Bind Portrait Canvas
-  self.canvas.pov      = widget.bindCanvas("pov.canvas")     -- Bind POV Canvas
+  self.canvas.userInput = widget.bindCanvas("inputCanvas")    -- Bind Input Canvas
+  self.canvas.portrait  = widget.bindCanvas("portraitCanvas") -- Bind Portrait Canvas
+  self.canvas.pov       = widget.bindCanvas("pov.canvas")     -- Bind POV Canvas
   
   -- Storage (Data)
   self.data = {}

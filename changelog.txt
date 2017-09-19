@@ -1,3 +1,7 @@
+1.8.0: Added new doggy style sex position.
+- Fixed BuildSexboundData bug for some users.
+- Refactored code.
+- Bug fixes.
 1.7.0: Moved sprite sheets from Aphrodite's Bow mod into Sexbound API.
 - Moved reusable logic from Aphrodite's Bow into Sexbound API.
 - Changed NPCs to respawn upon smashing a sex node.

@@ -76,23 +76,38 @@ function sextalk.selectNext(state)
   
   local choices = {}
   
+  local actors = sex.getActors()
+  
   local actor1Species = "default"
   local actor2Species = "default"
 
-  -- Check if actor 1 (players) npc is defined.
-  if (self.playerData ~= nil and self.dialog[state][self.playerData.species] ~= nil) then
-    actor1Species = self.playerData.species
+  if not isEmpty(actors) then
+    if actors[1] ~= nil and actors[1].species ~= nil then
+      actor1Species = actors[1].species
+    
+      if (self.dialog[state][actor1Species] ~= nil) then
+        actor1Species = actors[1].species
+      else
+        actor1Species = "default"
+      end
+    end
+    
+    if actors[2] ~= nil and actors[2].species ~= nil then
+      actor2Species = actors[2].species
+    
+      if (self.dialog[state][actor1Species][actor2Species] ~= nil) then
+        actor2Species = actors[2].species
+      else
+        actor1Species = "default"
+        actor2Species = "default"
+      end
+    end
   end
   
-  -- Check if actor 2 (npc) species is defined.
-  if (self.npcData ~= nil and self.dialog[state][actor1Species][self.npcData.identity.species] ~= nil) then
-    actor2Species = self.npcData.identity.species
-  else
-    actor1Species = "default"
-  end
-
+  choices = self.dialog[state][actor1Species][actor2Species]
+  
   -- Select and return a random dialog choice.
-  return selectRandom( self.dialog[state][actor1Species][actor2Species] )
+  return selectRandom(choices)
 end
 
 ---Outputs the dialog via the entity's say function.

@@ -1,22 +1,35 @@
 {
   "frameGrid" : {
     "size" : [43, 43],
-    "dimensions" : [5, 1],
+    "dimensions" : [5, 2],
     "names" : [
-      [ "default.0", "standingbehind.1", "standingbehind.2", "standingbehind.3", "standingbehind.4" ]
+      ["default.0", "standingbehind.1", "standingbehind.2", "standingbehind.3", "standingbehind.4" ],
+      ["doggy-idle.1", "kneelingdoggy.1", "kneelingdoggy.2", "kneelingdoggy.3", "kneelingdoggy.4" ]
     ]
   },
   "aliases" : {
     "default.default" : "default.0",
     "default.1"       : "default.0",
     
-    "position-1.1"    : "standingbehind.1",
-    "position-1.2"    : "standingbehind.2",
-    "position-1.3"    : "standingbehind.3",
-    "position-1.4"    : "standingbehind.2",
-    "position-1.5"    : "standingbehind.1",
-    "position-1.6"    : "standingbehind.4",
+    "idle.1"          : "default.0",
     
-    "climax.1"        : "standingbehind.4"
+    "position1.1"    : "standingbehind.1",
+    "position1.2"    : "standingbehind.2",
+    "position1.3"    : "standingbehind.3",
+    "position1.4"    : "standingbehind.4",
+    "position1.5"    : "standingbehind.3",
+    "position1.6"    : "standingbehind.2",
+    "position1.7"    : "standingbehind.1",
+    
+    "position2.1"    : "kneelingdoggy.1",
+    "position2.2"    : "kneelingdoggy.2",
+    "position2.3"    : "kneelingdoggy.3",
+    "position2.4"    : "kneelingdoggy.4",
+    "position2.5"    : "kneelingdoggy.3",
+    "position2.6"    : "kneelingdoggy.2",
+    "position2.7"    : "kneelingdoggy.1",
+    
+    "position1-climax.1" : "standingbehind.4",
+    "position1-reset.1" : "standingbehind.4"
   }
 }

@@ -1,5 +1,17 @@
 {
   "globalTagDefaults" : {
+    "part-actor1-body"        : "parts/default.png:default",
+    "part-actor1-head"        : "parts/default.png:default",
+    "part-actor1-hair"        : "parts/default.png:default",
+    "part-actor1-facial-hair" : "parts/default.png:default",
+    "part-actor1-facial-mask" : "parts/default.png:default",
+  
+    "part-actor2-body"        : "parts/default.png:default",
+    "part-actor2-head"        : "parts/default.png:default",
+    "part-actor2-hair"        : "parts/default.png:default",
+    "part-actor2-facial-hair" : "parts/default.png:default",
+    "part-actor2-facial-mask" : "parts/default.png:default",
+    
     "actor1-species"          : "human",
     "actor1-gender"           : "female",
     "actor1-bodyDirectives"   : "",
@@ -10,6 +22,7 @@
     "actor1-facialHairType"   : "default",
     "actor1-facialMaskFolder" : "facialmask",
     "actor1-facialMaskType"   : "default",
+    
     "actor2-species"          : "human",
     "actor2-gender"           : "female",
     "actor2-bodyDirectives"   : "",
@@ -49,15 +62,27 @@
             "mode"   : "loop"
           },
                     
-          "position-1" : {
-            "frames" : 6,
+          "position1" : {
+            "frames" : 7,
             "cycle"  : 1,
             "mode"   : "loop",
             "properties" : {
               "immediateSoundRangeMultiplier" : 0.8
             },
             "frameProperties" : {
-              "immediateSound" : ["", "", "", "", "/sfx/sexbound/hits/splat.ogg"]
+              "immediateSound" : ["", "", "", "/sfx/sexbound/hits/splat.ogg"]
+            }
+          },
+          
+          "position2" : {
+            "frames" : 7,
+            "cycle"  : 1,
+            "mode"   : "loop",
+            "properties" : {
+              "immediateSoundRangeMultiplier" : 0.8
+            },
+            "frameProperties" : {
+              "immediateSound" : ["", "", "", "/sfx/sexbound/hits/splat.ogg"]
             }
           },
           
@@ -83,21 +108,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "parts/actor1/<actor1-species>/head_<actor1-gender>.png:<positionState>.1<actor1-bodyDirectives>"
+                "image" : "<part-actor1-head>"
               }
             },
-          
-            "idle" : {},
             
-            "position-1" : {
+            "idle" : {
               "properties" : {
-                "image" : "parts/actor1/<actor1-species>/head_<actor1-gender>.png:position-1.1<actor1-bodyDirectives>"
+                "image" : "<part-actor1-head>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor1-head>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-head>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "parts/actor1/<actor1-species>/head_<actor1-gender>.png:<positionState>.1<actor1-bodyDirectives>"
+                "image" : "<part-actor1-head>"
               }
             }
           }
@@ -107,7 +142,7 @@
       "actor1-hair" : {
         "properties" : {
           "centered" : true,
-          "offset" : [0, 2.625],
+          "offset" : [-0.625, 2.625],
           "transformationGroups" : [ "actor1-hair" ],
           "zLevel" : 2
         },
@@ -116,21 +151,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-hairFolder>/<actor1-hairType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-hair>"
               }
             },
-          
-            "idle" : {},
-            
-            "position-1" : {
+
+            "idle" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-hairFolder>/<actor1-hairType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-hair>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor1-hair>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-hair>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-hairFolder>/<actor1-hairType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-hair>"
               }
             }
           }
@@ -140,7 +185,7 @@
       "actor1-facial-hair" : {
         "properties" : {
           "centered" : true,
-          "offset" : [0, 2.625],
+          "offset" : [-0.625, 2.625],
           "transformationGroups" : [ "actor1-facial-hair" ],
           "zLevel" : 3
         },
@@ -149,21 +194,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-facialHairFolder>/<actor1-facialHairType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-facial-hair>"
               }
             },
-          
-            "idle" : {},
             
-            "position-1" : {
+            "idle" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-facialHairFolder>/<actor1-facialHairType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-facial-hair>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor1-facial-hair>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-facial-hair>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-facialHairFolder>/<actor1-facialHairType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-facial-hair>"
               }
             }
           }
@@ -173,7 +228,7 @@
       "actor1-facial-mask" : {
         "properties" : {
           "centered" : true,
-          "offset" : [0, 2.625],
+          "offset" : [-0.625, 2.625],
           "transformationGroups" : [ "actor1-facial-mask" ],
           "zLevel" : 4
         },
@@ -182,21 +237,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-facialMaskFolder>/<actor1-facialMaskType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-facial-mask>"
               }
             },
-          
-            "idle" : {},
             
-            "position-1" : {
+            "idle" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-facialMaskFolder>/<actor1-facialMaskType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-facial-mask>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor1-facial-mask>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-facial-mask>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "/humanoid/<actor1-species>/<actor1-facialMaskFolder>/<actor1-facialMaskType>.png:normal<actor1-hairDirectives>"
+                "image" : "<part-actor1-facial-mask>"
               }
             }
           }
@@ -214,21 +279,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "parts/actor1/<actor1-species>/body_<actor1-gender>.png:<positionState>.4<actor1-bodyDirectives><actor1-hairDirectives>"
+                "image" : "<part-actor1-body>.1<actor1-bodyDirectives><actor1-hairDirectives>"
               }
             },
-          
-            "idle" : {},
             
-            "position-1" : {
+            "idle" : {
               "properties" : {
-                "image" : "parts/actor1/<actor1-species>/body_<actor1-gender>.png:position-1.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+                "image" : "<part-actor1-body>.1<actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor1-body>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-body>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "parts/actor1/<actor1-species>/body_<actor1-gender>.png:<positionState>.4<actor1-bodyDirectives><actor1-hairDirectives>"
+                "image" : "<part-actor1-body>.1<actor1-bodyDirectives><actor1-hairDirectives>"
               }
             }
           }
@@ -247,25 +322,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:<positionState>.1<actor2-bodyDirectives>"
+                "image" : "<part-actor2-head>"
               }
             },
           
             "idle" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:default.0<actor2-bodyDirectives>"
+                "image" : "<part-actor2-head>"
               }
             },
             
-            "position-1" : {
+            "position1" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:position-1.1<actor2-bodyDirectives>"
+                "image" : "<part-actor2-head>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-head>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/head_<actor2-gender>.png:<positionState>.1<actor2-bodyDirectives>"
+                "image" : "<part-actor2-head>"
               }
             }
           }
@@ -284,25 +365,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-hair>"
               }
             },
           
             "idle" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-hair>"
               }
             },
             
-            "position-1" : {
+            "position1" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-hair>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-hair>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-hairFolder>/<actor2-hairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-hair>"
               }
             }
           }
@@ -321,25 +408,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-hair>"
               }
             },
           
             "idle" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-hair>"
               }
             },
             
-            "position-1" : {
+            "position1" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-hair>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-facial-hair>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialHairFolder>/<actor2-facialHairType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-hair>"
               }
             }
           }
@@ -358,25 +451,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-mask>"
               }
             },
           
             "idle" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-mask>"
               }
             },
             
-            "position-1" : {
+            "position1" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-mask>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-facial-mask>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "/humanoid/<actor2-species>/<actor2-facialMaskFolder>/<actor2-facialMaskType>.png:normal<actor2-hairDirectives>"
+                "image" : "<part-actor2-facial-mask>"
               }
             }
           }
@@ -394,25 +493,31 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:<positionState>.4<actor2-bodyDirectives><actor2-hairDirectives>"
+                "image" : "<part-actor2-body>.1<actor2-bodyDirectives><actor2-hairDirectives>"
               }
             },
           
             "idle" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:default.0<actor2-bodyDirectives><actor2-hairDirectives>"
+                "image" : "<part-actor2-body>.1<actor2-bodyDirectives><actor2-hairDirectives>"
               }
             },
             
-            "position-1" : {
+            "position1" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:position-1.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+                "image" : "<part-actor2-body>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-body>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "parts/actor2/<actor2-species>/body_<actor2-gender>.png:<positionState>.4<actor2-bodyDirectives><actor2-hairDirectives>"
+                "image" : "<part-actor2-body>.1<actor2-bodyDirectives><actor2-hairDirectives>"
               }
             }
           }

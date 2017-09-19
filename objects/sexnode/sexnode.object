@@ -17,7 +17,7 @@
   "smashable"        : true,
   
   "sitAngle" : 90,
-  "sitPosition"      : [0, 24],
+  "sitPosition" : [0, 24],
   "sitOrientation" : "lay",
   "sitStatusEffects" : [
     "custominvisible",
@@ -52,7 +52,7 @@
   
     "moan" : {
       "enabled" : true,
-      "pitch" : [1.1, 1.2]
+      "pitch"   : [1.1, 1.2]
     },
     
     "music" : {
@@ -61,16 +61,18 @@
     
     "position" : [
       {
-        "name" : "Default",
+        "name" : "From Behind",
+        
         "allowClimax" : true,
         "allowMoan"   : true,
         "allowEmote"  : true,
-        "animationState" : "position-1",
+        
+        "animationState"       : "position1",
         "climaxAnimationState" : "climax",
         
-        "actor1FacialHairOffset" : [-0.375, 0],
-        "actor1FacialMaskOffset" : [-0.375, 0],
-        "actor1HairOffset"       : [-0.375, 0],
+        "actor1FacialHairOffset" : [0.5, 0],
+        "actor1FacialMaskOffset" : [0.5, 0],
+        "actor1HairOffset"       : [0.5, 0],
         "actor1HeadOffset"       : [0, 0],
         
         "actor2FacialHairOffset" : [0.375, -0.125],
@@ -81,6 +83,34 @@
         "minTempo" : 1,
         "maxTempo" : [2, 3],
         "sustainedInterval" : [20, 30]
+      },
+      
+      {
+        "name" : "Doggy",
+        
+        "allowClimax" : true,
+        "allowMoan"   : true,
+        "allowEmote"  : true,
+        
+        "animationState"       : "position2",
+        "climaxAnimationState" : "climax",
+        
+        "actor1FacialHairOffset" : [0.5, -0.495],
+        "actor1FacialMaskOffset" : [0.5, -0.495],
+        "actor1HairOffset"       : [0.5, -0.495],
+        "actor1HeadOffset"       : [0, 0],
+        
+        "actor2HairFlip"         : true,
+        "actor2FacialHairFlip"   : true,
+        "actor2FacialMaskFlip"   : true,
+        "actor2FacialHairOffset" : [0, -1.245],
+        "actor2FacialMaskOffset" : [0, -1.245],
+        "actor2HairOffset"       : [0, -1.245],
+        "actor2HeadOffset"       : [0, 0],
+        
+        "minTempo" : 2,
+        "maxTempo" : [3, 5],
+        "sustainedInterval" : [20, 30]
       }
     ],
     
@@ -89,6 +119,8 @@
     },
     
     "sex" : {
+      "enableActors" : true,
+    
       "autoClimax"    : false,
       
       "emoteCooldown" : [3, 4],
@@ -97,9 +129,9 @@
       
       "talkCooldown"  : 15,
       
-      "maxTempo" : [2, 3],
+      "maxTempo"      : [2, 4],
       
-      "sexStateAnimation" : "position-1",
+      "sexStateAnimation" : "position1",
       
       "climaxPause" : 10,
       
