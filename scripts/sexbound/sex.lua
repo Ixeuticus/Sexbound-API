@@ -58,9 +58,6 @@ function sex.init(callback)
 
   self.animationRate = 1
   
-  animator.setGlobalTag("part-actor1-head", "parts/actor1/human/head.png:default.default")
-  animator.setGlobalTag("part-actor1-hair", "/humanoid/human/hair/male1.png:normal")
-  
   if (callback ~= nil) then
     callback()
   end
@@ -161,7 +158,7 @@ function sex.resetActor(args, actorNumber)
     
     local role = "actor" .. actorNumber
     
-    local partHead = "parts/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives
+    local partHead = "/objects/sexnode/parts/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives
     animator.setGlobalTag("part-" .. role .. "-head", partHead)
 
     local partHair = "/humanoid/" .. args.species .. "/" .. hairFolder .. "/" .. hairType .. ".png:normal" .. hairDirectives
@@ -173,7 +170,7 @@ function sex.resetActor(args, actorNumber)
     local partFacialMask = "/humanoid/" .. args.species .. "/" .. facialMaskFolder .. "/" .. facialMaskType .. ".png:normal" .. hairDirectives
     animator.setGlobalTag("part-" .. role .. "-facial-mask", partFacialMask)
     
-    local partBody = "parts/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
+    local partBody = "/objects/sexnode/parts/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
     animator.setGlobalTag("part-" .. role .. "-body", partBody)
   end
   
@@ -187,22 +184,19 @@ function sex.resetActor(args, actorNumber)
   animator.setGlobalTag("actor" .. actorNumber .. "-facialMaskType",   facialMaskType)
 end
 
-function sex.setupActor(args)
+function sex.setupActor(args, storeActor)
   if not (self.sexboundConfig.sex.enableActors) then return false end
 
+  self.actorsCount = self.actorsCount + 1
+  
   -- Permenantly store first actor if it is an 'npc' entity type
-  if (args.entityType == "npc" and isEmpty(self.actors)) then
-    self.actorsCount = 1
-    
+  if (storeActor) then
     storage.npc = args
-    
-    self.actors = {}
-  else
-    self.actorsCount = self.actorsCount + 1
   end
   
   self.actors[ self.actorsCount ] = args
   
+  -- Swap roles between male and female by default
   if (self.actorsCount == 2) then
     if (self.actors[1].gender == "female" and self.actors[2].gender == "male") then
      sex.switchRole(true) -- True to skip reset
@@ -346,9 +340,12 @@ end
 function sex.setupHandlers()
   -- Handle message 'setup-actor'. Stores identifying information about actor.
   message.setHandler("setup-actor", function(_, _, args)
-    --sex.clearActors()
+    sex.setupActor(args, false)
+  end)
   
-    sex.setupActor(args)
+  -- Handle message 'store-actor'. Permentantly stores identifying information about actor.
+  message.setHandler("store-actor", function(_, _, args)
+    sex.setupActor(args, true)
   end)
   
   -- Handle message 'isClimaxing'. Receives player's intent to climax.
@@ -359,7 +356,9 @@ function sex.setupHandlers()
   
   -- Handle message 'switch-role'. Receives player's intent to switch actor roles.
   message.setHandler("switch-role", function()
-    sex.switchRole()
+    if not (self.isCumming) then
+      sex.switchRole()
+    end
   end)
   
   -- Handle message 'sync-ui'. Receives request for data and sends data back.
@@ -545,7 +544,7 @@ end
 function sex.clearActors()
   util.each(self.actors, function(k, v)
     local role = "actor" .. k
-    local default = "parts/default.png:default"
+    local default = "/objects/sexnode/parts/default.png:default"
     
     animator.setGlobalTag("part-" .. role .. "-body",        default)
     animator.setGlobalTag("part-" .. role .. "-head",        default)
@@ -554,7 +553,7 @@ function sex.clearActors()
     animator.setGlobalTag("part-" .. role .. "-facial-mask", default)
   end)
   
-  self.actorsCount = 1
+  self.actorsCount = 0
   
   self.actors = {}
 end
@@ -581,7 +580,11 @@ function idleState.enteringState(stateData)
     if (not sex.isOccupied()) then
       sex.clearActors()
     
-      self.actors[1] = storage.npc
+      if (storage.npc ~= nil) then
+        self.actors[1] = storage.npc
+        
+        self.actorsCount = 1
+      end
     end
     
     -- Reset main actors
@@ -724,6 +727,8 @@ end
 
 function climaxState.update(dt, stateData)
   if not sex.isHavingSex() then
+    sex.setIsCumming(false)
+    
     return true
   end
 
@@ -791,9 +796,11 @@ function exitState.update(dt, stateData)
 end
 
 function exitState.leavingState(stateDate)
-  self.currentPositionIndex = 1
+  if not sex.isOccupied() then
+    self.currentPositionIndex = 1
+    
+    position.changePosition(1)
+  end
   
-  position.changePosition(1)
-
   sex.setTimer("reset", 0)
 end

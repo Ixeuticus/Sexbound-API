@@ -13,7 +13,12 @@
     
     "idle.1"          : "default.0",
     
-    "position1.1"     : "frombehind.1",
-    "position2.1"     : "kneelingdoggy.1"
+    "position1.1"        : "frombehind.1",
+    "position1-climax.1" : "frombehind.1",
+    "position1-reset.1"  : "frombehind.1",
+    
+    "position2.1"        : "kneelingdoggy.1",
+    "position2-climax.1" : "frombehind.1",
+    "position2-reset.1"    : "kneelingdoggy.1"
   }
 }

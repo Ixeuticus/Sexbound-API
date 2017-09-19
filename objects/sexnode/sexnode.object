@@ -103,9 +103,9 @@
         "actor2HairFlip"         : true,
         "actor2FacialHairFlip"   : true,
         "actor2FacialMaskFlip"   : true,
-        "actor2FacialHairOffset" : [0, -1.245],
-        "actor2FacialMaskOffset" : [0, -1.245],
-        "actor2HairOffset"       : [0, -1.245],
+        "actor2FacialHairOffset" : [0, -1.240],
+        "actor2FacialMaskOffset" : [0, -1.240],
+        "actor2HairOffset"       : [0, -1.240],
         "actor2HeadOffset"       : [0, 0],
         
         "minTempo" : 2,

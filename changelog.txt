@@ -1,3 +1,6 @@
+1.8.1: Removed penis from female avian.
+- Fixed bug that prevented fenerox species from functioning.
+- Fixed various other bugs.
 1.8.0: Added new doggy style sex position.
 - Fixed BuildSexboundData bug for some users.
 - Refactored code.

@@ -31,7 +31,7 @@ function handleSexRequest(args)
   local entityId = world.objectAt(position)
   
   if (entityId ~= nil) then
-    sendMessage(entityId, "setup-actor", "actor1")
+    sendMessage(entityId, "setup-actor")
   end
 end
 
@@ -42,30 +42,24 @@ function transformIntoObject(args)
   
   self.newUniqueId = tostring(sb.makeRandomSource():randu64())
   
-  local faceDirection = util.randomIntInRange({-1, 1})
+  local faceDirection = util.randomDirection()
   
   if (world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId})) then
-    sendMessage(self.newUniqueId, "setup-actor", "actor2")
+    sendMessage(self.newUniqueId, "store-actor")
   
     unloadNPC()
   end
 end
 
 function sendMessage(uniqueId, message, role)
-  local base = false
-  
-  if (role == "actor2") then base = true end
-
   local data = {
-    base       = base,
     entityType = entity.entityType(),
     identity   = npc.humanoidIdentity(),
     gender     = npc.humanoidIdentity().gender,
     species    = npc.humanoidIdentity().species,
     level      = npc.level(),
     seed       = npc.seed(),
-    type       = npc.npcType(),
-    role       = role
+    type       = npc.npcType()
   }
   
   -- Send the identifying information to the object to be stored.

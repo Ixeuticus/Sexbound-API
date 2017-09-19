@@ -12,7 +12,7 @@ function init()
 
   sex.init(function()
     if (storage.npc ~= nil) then
-      sex.setupActor(storage.npc)
+      sex.setupActor(storage.npc, false)
     end
   end)
 end
