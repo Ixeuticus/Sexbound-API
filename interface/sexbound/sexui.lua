@@ -45,11 +45,15 @@ function init()
 
   if (playerData[player.uniqueId()] ~= nil) then
     data.identity = playerData[player.uniqueId()]
+  else
+    player.radioMessage({
+      messageId = "missingplayerid",
+      unique    = false,
+      text      = "^orange;Warning:^reset; Sexbound could not determine your player's identity! Run the ^green;BuildSexboundData^reset; executable file within your 'mods' folder to fix this!"
+    })
   end
   
-  data.base    = false
   data.gender  = player.gender()
-  data.role    = "actor1"
   data.species = player.species()
   data.type    = "player"
   data.uuid    = player.uniqueId()

@@ -1,3 +1,6 @@
+1.9.0: Added radio message to inform players to run BuildSexboundData executable.
+- Player identity is now randomly generated when the player identity is missing.
+- Bug fixes.
 1.8.1: Removed penis from female avian.
 - Fixed bug that prevented fenerox species from functioning.
 - Fixed various other bugs.

@@ -66,6 +66,9 @@ end
 function sex.resetActors()
   if not (self.sexboundConfig.sex.enableActors) then return false end
 
+  -- Reset actors' global animator tags
+  sex.resetGlobalTags()
+  
   util.each(self.actors, function(k, v)
     sex.resetActor(v, k)
   end)
@@ -91,13 +94,13 @@ function sex.resetActor(args, actorNumber)
   args.species = species
   
   local bodyDirectives   = ""
-  local facialHairFolder = "facialhair"
-  local facialHairGroup  = "default"
-  local facialHairType   = "default"
-  local facialMaskFolder = "facialmask"
-  local facialMaskGroup  = "default"
-  local facialMaskType   = "default"
-  local hairType         = "male1"
+  local facialHairFolder = "default"
+  local facialHairGroup  = ""
+  local facialHairType   = ""
+  local facialMaskFolder = "default"
+  local facialMaskGroup  = ""
+  local facialMaskType   = ""
+  local hairType         = ""
   local hairFolder       = "hair"
   local hairDirectives   = ""
   
@@ -111,77 +114,131 @@ function sex.resetActor(args, actorNumber)
   
   -- Set animator global tags for identifying information
   if (args.identity ~= nil) then
-    if (args.identity.bodyDirectives ~= nil) then bodyDirectives = args.identity.bodyDirectives end
-    if (args.identity.facialHairType ~= nil) then facialHairType = args.identity.facialHairType end
-    if (facialHairType == "") then facialHairType = "default" end
-    if (args.identity.hairType ~= nil) then hairType = args.identity.hairType end
-    if (args.identity.hairDirectives ~= nil) then hairDirectives = args.identity.hairDirectives end
-    
-    if (args.identity.species == "apex") then
-      hairFolder = hairFolder .. gender
-    
-      if (args.identity.facialHairGroup ~= nil) then 
-        facialHairGroup = args.identity.facialHairGroup
-        facialHairFolder = "beard" .. gender -- beard + gender
-      end
-    end
-    
-    if (args.identity.species == "avian") then
-      if (args.identity.facialHairGroup ~= nil) then 
-        facialHairGroup  = args.identity.facialHairGroup
-        facialHairFolder = "fluff"
-        facialMaskFolder  = "beaks"
-        facialMaskType   = args.identity.facialMaskType
-      end
-    end
-    
-    if (args.identity.species == "novakid") then
-      if (args.identity.facialHairGroup ~= nil) then 
-        facialHairGroup = args.identity.facialHairGroup
-        facialHairFolder = "brand"
-      end
-    end
-    
-    local position = position.selectedSexPosition().animationState
-  
-    if (animator.animationState("sex") == "idle") then
-      position = "idle"
-    end
-    
-    if (animator.animationState("sex") == "climax") then
-      position = position .. "-climax"
-    end
-    
-    if (animator.animationState("sex") == "reset") then
-      position = position .. "-reset"
-    end
-    
-    local role = "actor" .. actorNumber
-    
-    local partHead = "/objects/sexnode/parts/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives
-    animator.setGlobalTag("part-" .. role .. "-head", partHead)
-
-    local partHair = "/humanoid/" .. args.species .. "/" .. hairFolder .. "/" .. hairType .. ".png:normal" .. hairDirectives
-    animator.setGlobalTag("part-" .. role .. "-hair", partHair)
-    
-    local partFacialHair = "/humanoid/" .. args.species .. "/" .. facialHairFolder .. "/" .. facialHairType .. ".png:normal" .. hairDirectives
-    animator.setGlobalTag("part-" .. role .. "-facial-hair", partFacialHair)
-    
-    local partFacialMask = "/humanoid/" .. args.species .. "/" .. facialMaskFolder .. "/" .. facialMaskType .. ".png:normal" .. hairDirectives
-    animator.setGlobalTag("part-" .. role .. "-facial-mask", partFacialMask)
-    
-    local partBody = "/objects/sexnode/parts/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
-    animator.setGlobalTag("part-" .. role .. "-body", partBody)
+    if (args.identity.bodyDirectives  ~= nil) then bodyDirectives  = args.identity.bodyDirectives  end
+    if (args.identity.facialHairGroup ~= nil) then facialHairGroup = args.identity.facialHairGroup end
+    if (args.identity.facialHairType  ~= nil) then facialHairType  = args.identity.facialHairType  end
+    if (args.identity.facialMaskGroup ~= nil) then facialMaskGroup = args.identity.facialMaskGroup end
+    if (args.identity.facialMaskType  ~= nil) then facialMaskType  = args.identity.facialMaskType  end
+    if (args.identity.hairType        ~= nil) then hairType        = args.identity.hairType        end
+    if (args.identity.hairDirectives  ~= nil) then hairDirectives  = args.identity.hairDirectives  end
   end
   
-  animator.setGlobalTag("actor" .. actorNumber .. "-bodyDirectives",   bodyDirectives)
-  animator.setGlobalTag("actor" .. actorNumber .. "-hairFolder",       hairFolder)
-  animator.setGlobalTag("actor" .. actorNumber .. "-hairType",         hairType)
-  animator.setGlobalTag("actor" .. actorNumber .. "-hairDirectives",   hairDirectives)
-  animator.setGlobalTag("actor" .. actorNumber .. "-facialHairFolder", facialHairFolder)
-  animator.setGlobalTag("actor" .. actorNumber .. "-facialHairType",   facialHairType)
-  animator.setGlobalTag("actor" .. actorNumber .. "-facialMaskFolder", facialMaskFolder)
-  animator.setGlobalTag("actor" .. actorNumber .. "-facialMaskType",   facialMaskType)
+  -- Make changes to position based on animation state
+  local position = position.selectedSexPosition().animationState
+
+  if (animator.animationState("sex") == "idle") then
+    position = "idle"
+  end
+  
+  if (animator.animationState("sex") == "climax") then
+    position = position .. "-climax"
+  end
+  
+  if (animator.animationState("sex") == "reset") then
+    position = position .. "-reset"
+  end
+  
+  -- Make species specific adjustments
+  
+  if (species == "apex") then
+    hairFolder = "hair" .. gender -- 'hair' + gender
+    facialHairFolder = "beard" .. gender -- 'beard' + gender
+  end
+  
+  if (species == "avian") then
+    facialHairFolder = "fluff"
+    facialMaskFolder = "beaks"
+  end
+  
+  if (species == "novakid") then
+    facialHairFolder = "brand"
+  end
+  
+  if (hairType == "") then
+    -- Handle default hair type for apex, avian, floran, glitch, hylotl
+    util.each({"apex", "avian", "floran", "glitch", "hylotl"}, function(k, v)
+      if (species == v) then
+        hairType = "1"
+        return true
+      end
+    end)
+    
+    -- Handle default hair type for fenerox, human, novakid
+    util.each({"fenerox", "human", "novakid"}, function(k, v)
+      if (species == v) then
+        if (gender == "male") then
+          hairType = "male1"
+        else
+          hairType = "fem1"
+        end
+        return true
+      end
+    end)
+  end
+  
+  -- Handle default facial hair type for apex, avian, novakid
+  if (facialHairType == "") then
+    util.each({"apex", "avian", "novakid"}, function(k, v)
+      if (species == v) then
+        facialHairType = "1"
+        return true
+      end
+    end)
+  end
+  
+  -- Handle default facial mask type for avian
+  if (facialMaskType == "") then
+    if (species == "avian") then
+      facialMaskType = "1"
+    end
+  end
+  
+  -- Establish actor's role
+  local role = "actor" .. actorNumber
+  
+  local defaultPath = "/objects/sexnode/parts/default.png:default"
+  
+  -- Create the global tags
+  local partHead = "/objects/sexnode/parts/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives .. hairDirectives
+  animator.setGlobalTag("part-" .. role .. "-head", partHead)
+  
+  local partBody = "/objects/sexnode/parts/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
+  animator.setGlobalTag("part-" .. role .. "-body", partBody)
+  
+  if (facialHairType ~= "") then
+    local partFacialHair = "/humanoid/" .. args.species .. "/" .. facialHairFolder .. "/" .. facialHairType .. ".png:normal" .. hairDirectives
+    animator.setGlobalTag("part-" .. role .. "-facial-hair", partFacialHair)
+  else
+    animator.setGlobalTag("part-" .. role .. "-facial-hair", defaultPath)
+  end
+  
+  animator.setGlobalTag(role .. "-facialHairType", facialHairType)
+  
+  if (facialMaskType ~= "") then
+    local partFacialMask = "/humanoid/" .. args.species .. "/" .. facialMaskFolder .. "/" .. facialMaskType .. ".png:normal" .. hairDirectives
+    animator.setGlobalTag("part-" .. role .. "-facial-mask", partFacialMask)
+  else
+    animator.setGlobalTag("part-" .. role .. "-facial-mask", defaultPath)
+  end
+
+  animator.setGlobalTag(role .. "-facialMaskType", facialMaskType)
+  
+  if (hairType ~= "") then
+    local partHair = "/humanoid/" .. args.species .. "/" .. hairFolder .. "/" .. hairType .. ".png:normal" .. bodyDirectives .. hairDirectives
+    animator.setGlobalTag("part-" .. role .. "-hair", partHair)
+  else
+    animator.setGlobalTag("part-" .. role .. "-hair", defaultPath)
+  end
+  
+  animator.setGlobalTag(role .. "-hairType", hairType)
+  
+  animator.setGlobalTag(role .. "-bodyDirectives",   bodyDirectives)
+  animator.setGlobalTag(role .. "-hairFolder",       hairFolder)
+
+  animator.setGlobalTag(role .. "-hairDirectives",   hairDirectives)
+  animator.setGlobalTag(role .. "-facialHairFolder", facialHairFolder)
+  
+  animator.setGlobalTag(role .. "-facialMaskFolder", facialMaskFolder)
 end
 
 function sex.setupActor(args, storeActor)
@@ -195,6 +252,50 @@ function sex.setupActor(args, storeActor)
   end
   
   self.actors[ self.actorsCount ] = args
+  
+  if (self.actors[ self.actorsCount ].identity == nil) then
+    local identity = {}
+  
+    -- Check species is supported
+    local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
+    -- Check if species is supported by the mod
+    species = util.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
+     if (args.species == speciesName) then return args.species end
+    end)
+    
+    local speciesConfig = root.assetJson("/species/" .. species .. ".species")
+    
+    identity.bodyDirectives = ""
+    
+    util.each(util.randomChoice(speciesConfig.bodyColor), function(k, v)
+      identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
+    end)
+    
+    util.each(util.randomChoice(speciesConfig.undyColor), function(k, v)
+      identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
+    end)
+    
+    identity.hairDirectives = ""
+    
+    util.each(util.randomChoice(speciesConfig.hairColor), function(k, v)
+      identity.hairDirectives = identity.hairDirectives .. "?replace=" .. k .. "=" .. v 
+    end)
+    
+    local genderCount = 1
+    
+    if (args.gender == "female") then genderCount = 2 end
+    
+    local hair = speciesConfig.genders[genderCount].hair
+    if not isEmpty(hair) then identity.hairType = util.randomChoice(hair) end
+    
+    local facialHair = speciesConfig.genders[genderCount].facialHair
+    if not isEmpty(facialHair) then identity.facialHairType = util.randomChoice(facialHair) end
+    
+    local facialMask = speciesConfig.genders[genderCount].facialMask
+    if not isEmpty(facialMask) then identity.facialMaskType = util.randomChoice(facialMask) end
+    
+    self.actors[ self.actorsCount ].identity = identity
+  end
   
   -- Swap roles between male and female by default
   if (self.actorsCount == 2) then
@@ -541,7 +642,7 @@ function resetTransformationGroups()
     end)
 end
 
-function sex.clearActors()
+function sex.resetGlobalTags()
   util.each(self.actors, function(k, v)
     local role = "actor" .. k
     local default = "/objects/sexnode/parts/default.png:default"
@@ -552,7 +653,11 @@ function sex.clearActors()
     animator.setGlobalTag("part-" .. role .. "-facial-hair", default)
     animator.setGlobalTag("part-" .. role .. "-facial-mask", default)
   end)
-  
+end
+
+function sex.clearActors()
+  sex.resetGlobalTags()
+
   self.actorsCount = 0
   
   self.actors = {}
