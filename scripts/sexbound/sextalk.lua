@@ -2,7 +2,7 @@
 -- @module sextalk
 sextalk = {}
 
-require "/scripts/util.lua"
+require "/scripts/sexbound/helper.lua"
 
 --- Initializes the sextalk module.
 function sextalk.init()
@@ -51,7 +51,7 @@ local function selectRandom(choices)
   if not isEmpty(choices) then
     -- Try not to repeat the last dialog
     for i=1,5 do
-      selection = util.randomChoice(choices)
+      selection = helper.randomChoice(choices)
       
       if (selection ~= currentDialog) then
         break

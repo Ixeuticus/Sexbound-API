@@ -2,8 +2,6 @@
 -- @module pov
 pov = {}
 
-require "/scripts/util.lua"
-
 --- Initializes the pov module.
 pov.init = function()
   -- Handle request for the portrait

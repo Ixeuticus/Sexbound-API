@@ -2,7 +2,7 @@
 -- @module pregnant
 pregnant = {}
 
-require "/scripts/util.lua"
+require "/scripts/sexbound/helper.lua"
 
 --- Returns the enabled status of the pregnant module.
 -- @return boolean enabled
@@ -44,7 +44,7 @@ local function createBirthday()
   end
   
   for i=1,self.sexboundConfig.pregnant.trimesterCount do
-    birthDate = birthDate + util.randomIntInRange(self.sexboundConfig.pregnant.trimesterLength)
+    birthDate = birthDate + helper.randomIntInRange(self.sexboundConfig.pregnant.trimesterLength)
   end
 
   storage.birthDate = birthDate
@@ -53,7 +53,7 @@ end
 --- Private: Creates and stores the birth time for this entity.
 local function createBirthTime()
   -- Generate random time to give birth
-  storage.birthTime = util.randomInRange({0.0, 1.0})
+  storage.birthTime = helper.randomInRange({0.0, 1.0})
 end
 
 --- Private: Makes the entity become pregnant when it is not already pregnant.
@@ -89,7 +89,7 @@ function pregnant.tryBecomePregnant(callback)
   if not pregnant.isEnabled() then return end
 
   -- Generate random chance of becoming pregnant
-  local chance = util.randomInRange({0.0, 1.0})
+  local chance = helper.randomInRange({0.0, 1.0})
   
   -- Compare random chance with fertility. Success on chance is less than or equal to fertility
   if (chance <= self.sexboundConfig.pregnant.fertility and becomePregnant()) then 

@@ -2,7 +2,7 @@
 -- @module position
 position = {}
 
-require "/scripts/util.lua"
+require "/scripts/sexbound/helper.lua"
 
 --- Initializes the position module.
 position.init = function()
@@ -64,7 +64,7 @@ position.init = function()
   
   -- Count positions
   if (self.sexboundConfig.position ~= nil) then
-    util.each(self.sexboundConfig.position, function(k, v)
+    helper.each(self.sexboundConfig.position, function(k, v)
       self.positionCount = self.positionCount + 1
     end)
   end
@@ -100,14 +100,14 @@ position.setupSexPosition = function()
   self.currentPosition = position
 
   -- Modify the position data
-  self.currentPosition.minTempo     = util.randomInRange(minTempo)
-  self.currentPosition.nextMinTempo = util.randomInRange(minTempo)
+  self.currentPosition.minTempo     = helper.randomInRange(minTempo)
+  self.currentPosition.nextMinTempo = helper.randomInRange(minTempo)
   
-  self.currentPosition.maxTempo     = util.randomInRange(maxTempo)
-  self.currentPosition.nextMaxTempo = util.randomInRange(maxTempo)
+  self.currentPosition.maxTempo     = helper.randomInRange(maxTempo)
+  self.currentPosition.nextMaxTempo = helper.randomInRange(maxTempo)
   
-  self.currentPosition.sustainedInterval     = util.randomInRange(sustainedInterval)
-  self.currentPosition.nextSustainedInterval = util.randomInRange(sustainedInterval)
+  self.currentPosition.sustainedInterval     = helper.randomInRange(sustainedInterval)
+  self.currentPosition.nextSustainedInterval = helper.randomInRange(sustainedInterval)
   
   if (self.isHavingSex) then
     -- Move the player's facial hair to the correct spot

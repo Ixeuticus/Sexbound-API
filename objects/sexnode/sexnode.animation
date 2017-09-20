@@ -1,16 +1,16 @@
 {
   "globalTagDefaults" : {
-    "part-actor1-body"        : "parts/default.png:default",
-    "part-actor1-head"        : "parts/default.png:default",
-    "part-actor1-hair"        : "parts/default.png:default",
-    "part-actor1-facial-hair" : "parts/default.png:default",
-    "part-actor1-facial-mask" : "parts/default.png:default",
+    "part-actor1-body"        : "/artwork/humanoid/default.png:default",
+    "part-actor1-head"        : "/artwork/humanoid/default.png:default",
+    "part-actor1-hair"        : "/artwork/humanoid/default.png:default",
+    "part-actor1-facial-hair" : "/artwork/humanoid/default.png:default",
+    "part-actor1-facial-mask" : "/artwork/humanoid/default.png:default",
   
-    "part-actor2-body"        : "parts/default.png:default",
-    "part-actor2-head"        : "parts/default.png:default",
-    "part-actor2-hair"        : "parts/default.png:default",
-    "part-actor2-facial-hair" : "parts/default.png:default",
-    "part-actor2-facial-mask" : "parts/default.png:default",
+    "part-actor2-body"        : "/artwork/humanoid/default.png:default",
+    "part-actor2-head"        : "/artwork/humanoid/default.png:default",
+    "part-actor2-hair"        : "/artwork/humanoid/default.png:default",
+    "part-actor2-facial-hair" : "/artwork/humanoid/default.png:default",
+    "part-actor2-facial-mask" : "/artwork/humanoid/default.png:default",
     
     "actor1-species"          : "human",
     "actor1-gender"           : "female",
@@ -535,13 +535,13 @@
           "sex" : {
             "climax" : {
               "properties" : {
-                "image" : "parts/climax/climax.png:climax.<frame>"
+                "image" : "/artwork/humanoid/climax/climax.png:climax.<frame>"
               }
             },
             
             "reset" : {
               "properties" : {
-                "image" : "parts/climax/climax.png:climax.12"
+                "image" : "/artwork/humanoid/climax/climax.png:climax.12"
               }
             }
           }

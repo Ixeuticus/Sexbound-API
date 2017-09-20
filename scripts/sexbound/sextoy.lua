@@ -2,7 +2,7 @@
 -- @module sextoy
 sextoy = {}
 
-require "/scripts/util.lua"
+require "/scripts/sexbound/helper.lua"
 
 sextoy.init = function()
   message.setHandler("changeSlot1Sextoy", function(_, _, change)
@@ -27,7 +27,7 @@ sextoy.init = function()
   
   -- Count slots in slot 1
   if (slot1 ~= nil) then
-    util.each(slot1, function(k, v)
+    helper.each(slot1, function(k, v)
       self.slot1Count = self.slot1Count + 1
     end)
   end

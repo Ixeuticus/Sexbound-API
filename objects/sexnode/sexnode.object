@@ -27,19 +27,17 @@
   "interactive" : true,
   
   "animation" : "/objects/sexnode/sexnode.animation",
-  "animationPosition" : [-8, 0],
+  "animationPosition" : [-4, 0],
   
   "orientations" : [
     {
       "dualImage" : "sexnode.png:<color>.<frame>",
 
-      "imagePosition" : [-8, 0],
+      "imagePosition" : [-4, 0],
 
       "renderLayer" : "player",
       
-      "anchors" : [ "bottom" ],
-      
-      "spaceScan" : 0.99
+      "anchors" : [ "bottom" ]
     }
   ],
 

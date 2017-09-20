@@ -2,8 +2,6 @@
 -- @module portrait
 portrait = {}
 
-require "/scripts/util.lua"
-
 --- Initializes the portrait module.
 portrait.init = function()
   -- Handle request for the portrait

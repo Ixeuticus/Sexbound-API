@@ -2,6 +2,64 @@
 -- @module helper
 helper = {}
 
+require "/scripts/util.lua"
+
+---Wrapper function for util.clamp
+-- @param value Numerical value to operate on
+-- @param min Minimum value to return
+-- @param max Maximum value to return
+helper.clamp = function(value, min, max)
+  return util.clamp(value, min, max)
+end
+
+---Wrapper function for util.each
+-- @param t Data as table
+-- @param callback Callback function. Takes arguments k = key and v = value.
+helper.each = function(t, callback)
+  return util.each(t, callback)
+end
+
+---Wrapper function for util.find
+-- @param t Data as table
+-- @param predicate
+-- @param index
+helper.find = function(t, predicate, index)
+  return util.find(t, predicate, index)
+end
+
+---Wrapper function for util.mergeTable
+-- @param t1 Data for table 1
+-- @param t2 Data for table 2
+helper.mergeTable = function(t1, t2)
+  return util.mergeTable(t1, t2)
+end
+
+---Wrapper function for util.randomChoice
+-- @param options table
+helper.randomChoice = function(options)
+  return util.randomChoice(options)
+end
+
+---Wrapper function for util.randomInRange
+-- @param numberRange Range of numbers
+helper.randomInRange = function(numberRange)
+  return util.randomInRange(numberRange)
+end
+
+---Wrapper function for util.randomIntInRange
+-- @param numberRange Range of numbers
+helper.randomIntInRange = function(numberRange)
+  return util.randomIntInRange(numberRange)
+end
+
+---Wrapper function for util.replaceTag
+-- @param data Data to scan for tags
+-- @param tagName String The name of the tagName
+-- @param tagValue String value to assign to the tag
+helper.replaceTag = function(data, tagName, tagValue)
+  return util.replaceTag(data, tagName, tagValue)
+end
+
 ---Creates and stores a new message.
 -- @param message reference name of the message.
 helper.resetMessenger = function(message)

@@ -2,7 +2,7 @@
 -- @module moan
 moan = {}
 
-require "/scripts/util.lua"
+require "/scripts/sexbound/helper.lua"
 
 --- Initializes the moan module.
 moan.init = function()
@@ -44,7 +44,7 @@ moan.playRandom = function(gender)
 
   if not (moan.isEnabled()) then return false end
 
-  local pitch = util.randomInRange(self.sexboundConfig.moan.pitch)
+  local pitch = helper.randomInRange(self.sexboundConfig.moan.pitch)
   
   -- Check if animator has sound
   if (animator.hasSound(gender .. "moan")) then

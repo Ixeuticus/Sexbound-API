@@ -16,12 +16,14 @@ require "/scripts/sexbound/sextalk.lua"
 require "/scripts/sexbound/sextoy.lua"
 require "/scripts/sexbound/sexui.lua"
 
+require "/scripts/sexbound/helper.lua"
+
 --- Initializes the sex module.
 function sex.init(callback)
   sex.setupHandlers()
   
   -- Load custom configuration
-  self.sexboundConfig = util.mergeTable(root.assetJson("/scripts/sexbound/default.config"), config.getParameter("sexboundConfig"))
+  self.sexboundConfig = helper.mergeTable(root.assetJson("/scripts/sexbound/default.config"), config.getParameter("sexboundConfig"))
   
   -- Predefined sex states
   self.sexStates = stateMachine.create({ "idleState", "sexState", "climaxState", "exitState" })
@@ -41,9 +43,9 @@ function sex.init(callback)
   
   -- Temporary storage for cooldowns
   self.cooldowns = {}
-  self.cooldowns.emote = util.randomInRange(self.sexboundConfig.sex.emoteCooldown)
-  self.cooldowns.moan  = util.randomInRange(self.sexboundConfig.sex.moanCooldown)
-  self.cooldowns.talk  = util.randomInRange(self.sexboundConfig.sex.talkCooldown)
+  self.cooldowns.emote = helper.randomInRange(self.sexboundConfig.sex.emoteCooldown)
+  self.cooldowns.moan  = helper.randomInRange(self.sexboundConfig.sex.moanCooldown)
+  self.cooldowns.talk  = helper.randomInRange(self.sexboundConfig.sex.talkCooldown)
 
   self.isCumming   = false
   self.isHavingSex = false
@@ -52,7 +54,7 @@ function sex.init(callback)
   resetTimers()
   
   -- Init specified submodules
-  util.each({"moan", "portrait", "position", "pov", "sextalk", "sextoy"}, function(k, v)
+  helper.each({"moan", "portrait", "position", "pov", "sextalk", "sextoy"}, function(k, v)
     _ENV[v].init()
   end)
 
@@ -69,7 +71,7 @@ function sex.resetActors()
   -- Reset actors' global animator tags
   sex.resetGlobalTags()
   
-  util.each(self.actors, function(k, v)
+  helper.each(self.actors, function(k, v)
     sex.resetActor(v, k)
   end)
 end
@@ -77,7 +79,7 @@ end
 function sex.resetActor(args, actorNumber)
   local gender = self.sexboundConfig.sex.defaultPlayerGender -- default is 'male'
   -- Check if gender is supported by the mod
-  gender = util.find(self.sexboundConfig.sex.supportedPlayerGenders, function(genderName)
+  gender = helper.find(self.sexboundConfig.sex.supportedPlayerGenders, function(genderName)
     if (args.gender == genderName) then return args.gender end
   end)
 
@@ -87,7 +89,7 @@ function sex.resetActor(args, actorNumber)
   
   local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
   -- Check if species is supported by the mod
-  species = util.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
+  species = helper.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
    if (args.species == speciesName) then return args.species end
   end)
 
@@ -156,7 +158,7 @@ function sex.resetActor(args, actorNumber)
   
   if (hairType == "") then
     -- Handle default hair type for apex, avian, floran, glitch, hylotl
-    util.each({"apex", "avian", "floran", "glitch", "hylotl"}, function(k, v)
+    helper.each({"apex", "avian", "floran", "glitch", "hylotl"}, function(k, v)
       if (species == v) then
         hairType = "1"
         return true
@@ -164,7 +166,7 @@ function sex.resetActor(args, actorNumber)
     end)
     
     -- Handle default hair type for fenerox, human, novakid
-    util.each({"fenerox", "human", "novakid"}, function(k, v)
+    helper.each({"fenerox", "human", "novakid"}, function(k, v)
       if (species == v) then
         if (gender == "male") then
           hairType = "male1"
@@ -178,7 +180,7 @@ function sex.resetActor(args, actorNumber)
   
   -- Handle default facial hair type for apex, avian, novakid
   if (facialHairType == "") then
-    util.each({"apex", "avian", "novakid"}, function(k, v)
+    helper.each({"apex", "avian", "novakid"}, function(k, v)
       if (species == v) then
         facialHairType = "1"
         return true
@@ -196,13 +198,13 @@ function sex.resetActor(args, actorNumber)
   -- Establish actor's role
   local role = "actor" .. actorNumber
   
-  local defaultPath = "/objects/sexnode/parts/default.png:default"
+  local defaultPath = "/artwork/humanoid/default.png:default"
   
   -- Create the global tags
-  local partHead = "/objects/sexnode/parts/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives .. hairDirectives
+  local partHead = "/artwork/humanoid/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives .. hairDirectives
   animator.setGlobalTag("part-" .. role .. "-head", partHead)
   
-  local partBody = "/objects/sexnode/parts/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
+  local partBody = "/artwork/humanoid/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
   animator.setGlobalTag("part-" .. role .. "-body", partBody)
   
   if (facialHairType ~= "") then
@@ -259,7 +261,7 @@ function sex.setupActor(args, storeActor)
     -- Check species is supported
     local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
     -- Check if species is supported by the mod
-    species = util.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
+    species = helper.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
      if (args.species == speciesName) then return args.species end
     end)
     
@@ -267,17 +269,17 @@ function sex.setupActor(args, storeActor)
     
     identity.bodyDirectives = ""
     
-    util.each(util.randomChoice(speciesConfig.bodyColor), function(k, v)
+    helper.each(helper.randomChoice(speciesConfig.bodyColor), function(k, v)
       identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
     end)
     
-    util.each(util.randomChoice(speciesConfig.undyColor), function(k, v)
+    helper.each(helper.randomChoice(speciesConfig.undyColor), function(k, v)
       identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
     end)
     
     identity.hairDirectives = ""
     
-    util.each(util.randomChoice(speciesConfig.hairColor), function(k, v)
+    helper.each(helper.randomChoice(speciesConfig.hairColor), function(k, v)
       identity.hairDirectives = identity.hairDirectives .. "?replace=" .. k .. "=" .. v 
     end)
     
@@ -286,13 +288,13 @@ function sex.setupActor(args, storeActor)
     if (args.gender == "female") then genderCount = 2 end
     
     local hair = speciesConfig.genders[genderCount].hair
-    if not isEmpty(hair) then identity.hairType = util.randomChoice(hair) end
+    if not isEmpty(hair) then identity.hairType = helper.randomChoice(hair) end
     
     local facialHair = speciesConfig.genders[genderCount].facialHair
-    if not isEmpty(facialHair) then identity.facialHairType = util.randomChoice(facialHair) end
+    if not isEmpty(facialHair) then identity.facialHairType = helper.randomChoice(facialHair) end
     
     local facialMask = speciesConfig.genders[genderCount].facialMask
-    if not isEmpty(facialMask) then identity.facialMaskType = util.randomChoice(facialMask) end
+    if not isEmpty(facialMask) then identity.facialMaskType = helper.randomChoice(facialMask) end
     
     self.actors[ self.actorsCount ].identity = identity
   end
@@ -537,7 +539,7 @@ function sex.tryToTalk(callback)
   if (self.timers.talk >= self.cooldowns.talk) then
     self.timers.talk = 0
   
-    self.cooldowns.talk = util.randomInRange(self.sexboundConfig.sex.talkCooldown)
+    self.cooldowns.talk = helper.randomInRange(self.sexboundConfig.sex.talkCooldown)
   
     -- Execute your talk logic as a callback
     if (callback ~= nil) then
@@ -557,7 +559,7 @@ function sex.tryToEmote(callback)
   if (self.timers.emote >= self.cooldowns.emote) then 
     self.timers.emote = 0
     
-    self.cooldowns.emote = util.randomInRange(self.sexboundConfig.sex.emoteCooldown)
+    self.cooldowns.emote = helper.randomInRange(self.sexboundConfig.sex.emoteCooldown)
     
     -- Execute your emote logic as a callback
     if (callback ~= nil) then
@@ -575,7 +577,7 @@ function sex.tryToMoan(callback)
   if (self.timers.moan >= self.cooldowns.moan) then 
     self.timers.moan = 0
     
-    self.cooldowns.moan  = util.randomInRange(self.sexboundConfig.sex.moanCooldown)
+    self.cooldowns.moan  = helper.randomInRange(self.sexboundConfig.sex.moanCooldown)
     
     -- Execute your moan logic as a callback
     if (callback ~= nil) then
@@ -594,22 +596,22 @@ function adjustTempo(dt)
 
   self.animationRate = self.animationRate + (position.maxTempo / (position.sustainedInterval / dt))
   
-  self.animationRate = util.clamp(self.animationRate, position.minTempo, position.maxTempo)
+  self.animationRate = helper.clamp(self.animationRate, position.minTempo, position.maxTempo)
   
   animator.setAnimationRate(self.animationRate)
   
   self.climaxPoints.current = self.climaxPoints.current + ((position.maxTempo * 1) * dt)
   
-  self.climaxPoints.current = util.clamp(self.climaxPoints.current, self.climaxPoints.min, self.climaxPoints.max)
+  self.climaxPoints.current = helper.clamp(self.climaxPoints.current, self.climaxPoints.min, self.climaxPoints.max)
   
   if (self.animationRate >= position.maxTempo) then
       self.animationRate = position.minTempo
       
       position.maxTempo = position.nextMaxTempo
-      position.nextMaxTempo = util.randomInRange(position.maxTempo)
+      position.nextMaxTempo = helper.randomInRange(position.maxTempo)
       
       position.sustainedInterval = position.nextSustainedInterval
-      position.nextSustainedInterval = util.randomInRange(position.sustainedInterval)
+      position.nextSustainedInterval = helper.randomInRange(position.sustainedInterval)
   end
 end
 
@@ -625,7 +627,7 @@ function resetTimers()
 end
 
 function resetTransformationGroups()
-    util.each({
+    helper.each({
       "actor1-facial-hair",
       "actor1-facial-mask",
       "actor1-hair",
@@ -643,9 +645,9 @@ function resetTransformationGroups()
 end
 
 function sex.resetGlobalTags()
-  util.each(self.actors, function(k, v)
+  helper.each(self.actors, function(k, v)
     local role = "actor" .. k
-    local default = "/objects/sexnode/parts/default.png:default"
+    local default = "/artwork/humanoid/default.png:default"
     
     animator.setGlobalTag("part-" .. role .. "-body",        default)
     animator.setGlobalTag("part-" .. role .. "-head",        default)

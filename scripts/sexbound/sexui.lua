@@ -2,8 +2,6 @@
 -- @module sexui
 sexui = {}
 
-require "/scripts/util.lua"
-
 --- Returns the enabled status of the sexui module.
 -- @return boolean enabled
 sexui.isEnabled = function()

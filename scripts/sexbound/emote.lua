@@ -2,7 +2,7 @@
 -- @module emote
 emote = {}
 
-require "/scripts/util.lua"
+require "/scripts/sexbound/helper.lua"
 
 --- Returns the enabled status of the emote module.
 -- @return boolean enabled
@@ -14,5 +14,5 @@ end
 emote.playRandom = function()
   if not (emote.isEnabled()) then return false end
 
-  animator.burstParticleEmitter(util.randomChoice(self.sexboundConfig.emote.sequence))
+  animator.burstParticleEmitter(helper.randomChoice(self.sexboundConfig.emote.sequence))
 end

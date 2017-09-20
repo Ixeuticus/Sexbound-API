@@ -1,5 +1,3 @@
-require "/scripts/util.lua"
-
 require "/scripts/sexbound/helper.lua"
 
 -- Initializes the UI.
@@ -81,7 +79,7 @@ function update(dt)
       self.data.sextoy = {}
     
       if (result ~= nil) then
-        self.data = util.mergeTable(self.data, result)
+        self.data = helper.mergeTable(self.data, result)
       end
       
       if (self.previousDialog ~= self.data.sextalk.currentDialog) then
@@ -104,7 +102,7 @@ function update(dt)
       -- Clear the position data
       self.data.position = {}
     
-      self.data = util.mergeTable(self.data, result)
+      self.data = helper.mergeTable(self.data, result)
       
       helper.sendMessage(self.sourceEntity, "sync-position", nil, true)
     end)
@@ -127,7 +125,7 @@ end
 
 -- Clears all canvases.
 function clearAll()
-  util.each(self.canvas, function(k, v)
+  helper.each(self.canvas, function(k, v)
     self.canvas[k]:clear()
   end)
 end
@@ -154,7 +152,7 @@ function render()
     local imageName = ""
   
     if (self.data.pov.matchPlayerGender) then 
-      imageName = util.replaceTag(self.pov.image, "gender", player.gender())
+      imageName = helper.replaceTag(self.pov.image, "gender", player.gender())
     else
       imageName = self.pov.image
     end
@@ -327,7 +325,7 @@ function updatePOV(dt)
   
   -- Clamp the frame within the specified range
   if (self.pov.range ~= nil) then
-    frame = util.clamp(frame, self.pov.range[1], self.pov.range[2])
+    frame = helper.clamp(frame, self.pov.range[1], self.pov.range[2])
   end
   
   -- Store the current frame for the renderer to reference
