@@ -80,6 +80,8 @@
         "offsetClimax" : [[-0.125, 0.0], [0.0, 0.0]],
         "offsetHead"   : [[-0.250, 0.0], [1.0, -0.130]],
         
+        "possiblePregnancy" : [false, true],
+        
         "flipBody" : [false, false],
         "flipHead" : [false, false],
         
@@ -104,6 +106,8 @@
         "offsetClimax" : [[-0.125, 0.0], [0.0, 0.0]],
         "offsetHead"   : [[-0.5, -0.5], [-1.125, -1.26]],
         
+        "possiblePregnancy" : [false, true],
+        
         "flipBody" : [false, false],
         "flipHead" : [false,  true],
         
@@ -115,6 +119,16 @@
     
     "pov" : {
       "enabled" : false
+    },
+    
+    "pregnant" : {
+      "enabled" : true,
+      
+      "fertility" : 1.0,
+      
+      "trimesterCount" : 1,
+    
+      "trimesterLength" : [3, 5]
     },
     
     "sex" : {

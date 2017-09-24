@@ -41,6 +41,7 @@ function init()
   
   local data = {}
 
+  -- Find identifying data of the player or output radio message
   if (playerData[player.uniqueId()] ~= nil) then
     data.identity = playerData[player.uniqueId()]
   else
@@ -51,6 +52,7 @@ function init()
     })
   end
   
+  data.id      = player.id()
   data.gender  = player.gender()
   data.species = player.species()
   data.type    = "player"

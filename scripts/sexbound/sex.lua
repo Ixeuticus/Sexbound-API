@@ -2,6 +2,8 @@
 -- @module sex
 sex = {}
 
+sex.data = {}
+
 sex.majorVersion = 1
 
 require "/scripts/stateMachine.lua"
@@ -51,7 +53,7 @@ function sex.init(callback)
   sex.setupTimers()
   
   -- Init specified submodules
-  helper.each({"actor", "moan", "portrait", "position", "pov", "sextalk", "sextoy"}, function(k, v)
+  helper.each({"moan", "portrait", "position", "pov", "pregnant", "sextalk", "sextoy"}, function(k, v)
     _ENV[v].init()
   end)
 
@@ -188,6 +190,20 @@ function sex.setupHandlers()
     self.isCumming = true
     self.climaxPoints.current = 0
     return {}
+  end)
+  
+  -- Handle message 'setup-actor'. Stores identifying information about actor.
+  message.setHandler("setup-actor", function(_, _, args)
+    if (args.type == "player") then
+      sex.data.player = args
+    end
+  
+    if (actor.isEnabled) then actor.setupActor(args, false) end 
+  end)
+  
+  -- Handle message 'store-actor'. Permentantly stores identifying information about actor.
+  message.setHandler("store-actor", function(_, _, args)
+    if (actor.isEnabled) then actor.setupActor(args, true) end
   end)
   
   -- Handle message 'switch-role'. Receives player's intent to switch actor roles.
@@ -407,8 +423,10 @@ function idleState.enteringState(stateData)
     actor.resetTransformationGroups()
     
     if (not sex.isOccupied()) then
-      actor.clearActors()
+      sex.data.player = nil
     
+      actor.clearActors()
+      
       if (storage.npc ~= nil) then
         actor.data.list[1] = storage.npc
         
@@ -512,9 +530,6 @@ function climaxState.enteringState(stateData)
     animator.setAnimationState("sex", sex.defaultStateAnimation("climaxState"), true)
   end
   
-  -- If pregnant module is enable then try to become pregnant 
-  if (pregnant.isEnabled()) then pregnant.tryBecomePregnant() end
-  
   sex.setTimer("dialog", 0)
   
   sex.talk()
@@ -543,6 +558,9 @@ function climaxState.update(dt, stateData)
 end
 
 function climaxState.leavingState(stateData)
+  -- If pregnant module is enable then try to become pregnant 
+  if (pregnant.isEnabled()) then pregnant.tryBecomePregnant() end
+  
   sex.setTimer("climax", 0)
   
   sex.setIsCumming(false)

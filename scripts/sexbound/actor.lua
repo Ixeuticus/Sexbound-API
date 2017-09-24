@@ -7,18 +7,6 @@ actor.data = {
   list  = {}
 }
 
-actor.init = function()
-  -- Handle message 'setup-actor'. Stores identifying information about actor.
-  message.setHandler("setup-actor", function(_, _, args)
-    actor.setupActor(args, false)
-  end)
-  
-  -- Handle message 'store-actor'. Permentantly stores identifying information about actor.
-  message.setHandler("store-actor", function(_, _, args)
-    actor.setupActor(args, true)
-  end)
-end
-
 actor.isEnabled = function()
   return self.sexboundConfig.actor.enabled
 end
@@ -261,13 +249,17 @@ end
 -- @param args table of identifiying data
 -- @param Boolean store permenantly
 actor.setupActor = function(args, storeActor)
-  if not (actor.isEnabled()) then return false end
-  
   actor.data.count = actor.data.count + 1
   
   -- Permenantly store first actor if it is an 'npc' entity type
   if (storeActor) then
-    storage.npc = args
+    storage.npc  = args
+    sex.data.npc = args
+    
+    -- Store any prior pregnancy
+    if (args.pregnant ~= nil and args.pregnant.isPregnant) then
+      storage.pregnant = args.pregnant
+    end
   end
   
   actor.data.list[ actor.data.count ] = args

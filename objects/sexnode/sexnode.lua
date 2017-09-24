@@ -17,6 +17,10 @@ function init()
   end)
 end
 
+function uninit()
+  object.smash(true)
+end
+
 --- Hook - Handles object's death.
 function die()
   respawnNPC()
@@ -26,9 +30,9 @@ end
 function update(dt)
   sex.loop(dt)
   
-  self.tranceTimer = self.tranceTimer + dt
+  local worldTime = world.day() + world.timeOfDay()
   
-  if (self.tranceTimer >= self.tranceTimeout) then
+  if not sex.isHavingSex() and (worldTime >= self.tranceTimeout) then
     object.smash(true)
   end
 end
@@ -46,7 +50,19 @@ function respawnNPC()
   if (storage.npc ~= nil) then
     local position = vec2.add(object.position(), {0, 5})
   
-    world.spawnNpc(position, storage.npc.species, storage.npc.type, storage.npc.level, storage.npc.seed)
+    local parameters = nil
+  
+    if (pregnant.isPregnant()) then
+      parameters = {
+        statusControllerSettings = {
+          statusProperties = {
+            pregnant = storage.pregnant
+          }
+        }
+      }
+    end
+    
+    world.spawnNpc(position, storage.npc.species, storage.npc.type, storage.npc.level, storage.npc.seed, parameters)
   end
 end
 
@@ -54,7 +70,5 @@ end
 function resetTranceTimer()
   storage.isInTrance = true
 
-  self.tranceTimer = 0
-
-  self.tranceTimeout = 300 -- 5 minutes
+  self.tranceTimeout = world.day() + world.timeOfDay() + 0.2
 end
