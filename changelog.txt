@@ -1,3 +1,8 @@
+1.10.0: Male players and male NPCs can now make female NPCs become pregnant.
+- NPCs can now automatically climax when having sex with other NPCs.
+- Reorganized art assets into artwork folder.
+- Fixed animation rate slow down bug which occured after climaxing.
+- Refactored code / misc. bug fixes.
 1.9.0: Added radio message to inform players to run BuildSexboundData executable.
 - Player identity is now randomly generated when the player identity is missing.
 - Bug fixes.
