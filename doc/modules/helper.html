@@ -38,6 +38,7 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
+  <li><a href="../modules/actor.html">actor</a></li>
   <li><a href="../modules/emote.html">emote</a></li>
   <li><strong>helper</strong></li>
   <li><a href="../modules/moan.html">moan</a></li>
@@ -64,6 +65,42 @@
 <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" nowrap><a href="#clamp">clamp (value, min, max)</a></td>
+	<td class="summary">Wrapper function for util.clamp</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#each">each (t, callback)</a></td>
+	<td class="summary">Wrapper function for util.each</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#find">find (t, predicate, index)</a></td>
+	<td class="summary">Wrapper function for util.find</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#mergeTable">mergeTable (t1, t2)</a></td>
+	<td class="summary">Wrapper function for util.mergeTable</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#randomChoice">randomChoice (options)</a></td>
+	<td class="summary">Wrapper function for util.randomChoice</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#randomDirection">randomDirection ()</a></td>
+	<td class="summary">Wrapper function for util.randomDirection</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#randomInRange">randomInRange (numberRange)</a></td>
+	<td class="summary">Wrapper function for util.randomInRange</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#randomIntInRange">randomIntInRange (numberRange)</a></td>
+	<td class="summary">Wrapper function for util.randomIntInRange</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#replaceTag">replaceTag (data, tagName, tagValue)</a></td>
+	<td class="summary">Wrapper function for util.replaceTag</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#resetMessenger">resetMessenger (message)</a></td>
 	<td class="summary">Creates and stores a new message.</td>
 	</tr>
@@ -84,6 +121,204 @@
     <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
+    <dt>
+    <a name = "clamp"></a>
+    <strong>clamp (value, min, max)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.clamp
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+         Numerical value to operate on
+        </li>
+        <li><span class="parameter">min</span>
+         Minimum value to return
+        </li>
+        <li><span class="parameter">max</span>
+         Maximum value to return
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "each"></a>
+    <strong>each (t, callback)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.each
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         Data as table
+        </li>
+        <li><span class="parameter">callback</span>
+         Callback function. Takes arguments k = key and v = value.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "find"></a>
+    <strong>find (t, predicate, index)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.find
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+         Data as table
+        </li>
+        <li><span class="parameter">predicate</span>
+
+        </li>
+        <li><span class="parameter">index</span>
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "mergeTable"></a>
+    <strong>mergeTable (t1, t2)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.mergeTable
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t1</span>
+         Data for table 1
+        </li>
+        <li><span class="parameter">t2</span>
+         Data for table 2
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "randomChoice"></a>
+    <strong>randomChoice (options)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.randomChoice
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">options</span>
+         table
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "randomDirection"></a>
+    <strong>randomDirection ()</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.randomDirection
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "randomInRange"></a>
+    <strong>randomInRange (numberRange)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.randomInRange
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">numberRange</span>
+         Range of numbers
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "randomIntInRange"></a>
+    <strong>randomIntInRange (numberRange)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.randomIntInRange
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">numberRange</span>
+         Range of numbers
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "replaceTag"></a>
+    <strong>replaceTag (data, tagName, tagValue)</strong>
+    </dt>
+    <dd>
+    Wrapper function for util.replaceTag
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+         Data to scan for tags
+        </li>
+        <li><span class="parameter">tagName</span>
+         String The name of the tagName
+        </li>
+        <li><span class="parameter">tagValue</span>
+         String value to assign to the tag
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
     <dt>
     <a name = "resetMessenger"></a>
     <strong>resetMessenger (message)</strong>
@@ -163,7 +398,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-09-17 18:37:10 </i>
+<i style="float:right;">Last updated 2017-09-24 22:56:07 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
