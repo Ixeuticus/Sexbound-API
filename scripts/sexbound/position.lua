@@ -3,6 +3,7 @@
 position = {}
 
 require "/scripts/sexbound/helper.lua"
+require "/scripts/vec2.lua"
 
 --- Initializes the position module.
 position.init = function()
@@ -30,7 +31,7 @@ position.init = function()
     
     animator.setAnimationState("sex", "position" .. self.currentPositionIndex)
 
-    sex.resetActors()
+    actor.resetAllActors()
     
     if (sextalk.isEnabled()) then
       if (self.sexboundConfig.sextalk.trigger == "statemachine") then
@@ -80,24 +81,92 @@ function position.reset()
 
   animator.setAnimationState("sex", position.selectedSexPosition().animationState)
 
-  sex.resetActors()
+  actor.resetAllActors()
+end
+
+position.adjustTransformations = function()
+  actor.resetTransformationGroups()
+
+  local maxActors = 2
+  local offsetAll = {0, 0}
+  
+  if (self.currentPosition.maxAllowedActors ~= nil) then
+    maxActors = self.currentPosition.maxAllowedActors -- Normally is 2
+  end
+  
+  for i=1, maxActors do
+    offsetAll = {0, 0}
+  
+    if (self.currentPosition.offsetAll ~= nil) then
+      offsetAll = self.currentPosition.offsetAll[i]
+    end
+  
+    helper.each({"Body", "Climax", "Head"}, function(k2, v2)
+      if (self.currentPosition["offset" .. v2] ~= nil) then
+        position.translateParts(i, v2, self.currentPosition["offset" .. v2][i], offsetAll)
+      end
+        
+      if (self.currentPosition["flip" .. v2] ~= nil and self.currentPosition["flip" .. v2][i] == true) then
+        position.flipParts(i, v2)
+      end
+    end)
+  end
+end
+
+position.translateParts = function(actorNumber, partName, offset, globalOffset)
+  local partsList = {}
+  table.insert(partsList, 1, partName)
+  
+  if (partName == "Body") then partsList = {"ArmBack", "ArmFront", "Body"} end
+  
+  if (partName == "Head") then partsList = {"FacialHair", "FacialMask", "Hair", "Head"} end
+  
+  helper.each(partsList, function(k, v)
+    if (animator.hasTransformationGroup("actor" .. actorNumber .. v)) then
+      position.translatePart(actorNumber, v, vec2.add(offset, globalOffset))
+    end
+  end)
+end
+
+position.translatePart = function(actorNumber, partName, offset)
+  animator.resetTransformationGroup("actor" .. actorNumber .. partName)
+  
+  animator.translateTransformationGroup("actor" .. actorNumber .. partName, offset)
+end
+
+position.flipParts = function(actorNumber, partName)
+  local partsList = {}
+  table.insert(partsList, 1, partName)
+  
+  if (partName == "Body") then partsList = {"ArmBack", "ArmFront", "Body"} end
+  
+  if (partName == "Head") then partsList = {"FacialHair", "FacialMask", "Hair", "Head"} end
+  
+  helper.each(partsList, function(k, v)
+    if (animator.hasTransformationGroup("actor" .. actorNumber .. v)) then
+      position.flipPart(actorNumber, v)
+    end
+  end)
+end
+
+position.flipPart = function(actorNumber, partName)
+  if (animator.hasTransformationGroup("actor" .. actorNumber .. partName)) then
+    animator.scaleTransformationGroup("actor" .. actorNumber .. partName, {-1, 1}, {0, 0})
+  end
 end
 
 position.setupSexPosition = function()
-  local position = self.sexboundConfig.position[self.currentPositionIndex]
+  self.currentPosition = self.sexboundConfig.position[self.currentPositionIndex]
 
-  local minTempo          = position.minTempo
-  local maxTempo          = position.maxTempo
-  local sustainedInterval = position.sustainedInterval
+  local minTempo          = self.currentPosition.minTempo
+  local maxTempo          = self.currentPosition.maxTempo
+  local sustainedInterval = self.currentPosition.sustainedInterval
   
-  if ( minTempo == nil ) then minTempo = 1 end
+  if ( minTempo == nil ) then self.currentPosition.minTempo = 1 end
   
-  if ( maxTempo == nil ) then maxTempo = 1 end
+  if ( maxTempo == nil ) then self.currentPosition.maxTempo = 1 end
   
-  if ( sustainedInterval == nil ) then sustainedInterval = 1 end
-  
-  -- Store the position data
-  self.currentPosition = position
+  if ( sustainedInterval == nil ) then self.currentPosition.sustainedInterval = 1 end
 
   -- Modify the position data
   self.currentPosition.minTempo     = helper.randomInRange(minTempo)
@@ -109,99 +178,7 @@ position.setupSexPosition = function()
   self.currentPosition.sustainedInterval     = helper.randomInRange(sustainedInterval)
   self.currentPosition.nextSustainedInterval = helper.randomInRange(sustainedInterval)
   
-  if (self.isHavingSex) then
-    -- Move the player's facial hair to the correct spot
-    if (animator.hasTransformationGroup("actor1-facial-hair")) then
-      if (self.currentPosition.actor1FacialHairOffset ~= nil) then
-        animator.resetTransformationGroup("actor1-facial-hair")
-        
-        animator.translateTransformationGroup("actor1-facial-hair", self.currentPosition.actor1FacialHairOffset)
-      end
-      
-      if (self.currentPosition.actor1FacialHairFlip) then
-        animator.scaleTransformationGroup("actor1-facial-hair", {-1, 1}, {1, 1})
-      end
-    end
-    
-    -- Move the players's facial mask to the correct spot
-    if (animator.hasTransformationGroup("actor1-facial-mask")) then
-      if (self.currentPosition.actor1FacialMaskOffset ~= nil) then
-        animator.resetTransformationGroup("actor1-facial-mask")
-        
-        animator.translateTransformationGroup("actor1-facial-mask", self.currentPosition.actor1FacialMaskOffset)
-      end
-      
-      if (self.currentPosition.actor1FacialMaskFlip) then
-        animator.scaleTransformationGroup("actor1-facial-mask", {-1, 1}, {1, 1})
-      end
-    end
-    
-    -- Move the player's hair to the correct spot
-    if (animator.hasTransformationGroup("actor1-hair")) then
-      animator.resetTransformationGroup("actor1-hair")
-      
-      if (self.currentPosition.actor1HairOffset ~= nil) then
-        animator.translateTransformationGroup("actor1-hair", self.currentPosition.actor1HairOffset)
-      end
-      
-      if (self.currentPosition.actor1HairFlip) then
-        animator.scaleTransformationGroup("actor1-hair", {-1, 1}, {1, 1})
-      end
-    end
-
-    -- Move the player's head to the correct spot
-    if (animator.hasTransformationGroup("actor1-head") and self.currentPosition.actor1HeadOffset ~= nil) then
-      animator.resetTransformationGroup("actor1-head")
-      
-      animator.translateTransformationGroup("actor1-head", self.currentPosition.actor1HeadOffset)
-    end
-  
-    -- Move the npc's facial hair to the correct spot
-    if (animator.hasTransformationGroup("actor2-facial-hair")) then
-      if (self.currentPosition.actor2FacialHairOffset ~= nil) then
-        animator.resetTransformationGroup("actor2-facial-hair")
-        
-        animator.translateTransformationGroup("actor2-facial-hair", self.currentPosition.actor2FacialHairOffset)
-      end
-      
-      if (self.currentPosition.actor2FacialHairFlip) then
-        animator.scaleTransformationGroup("actor2-facial-hair", {-1, 1}, {1, 1})
-      end
-    end
-    
-    -- Move the npc's facial mask to the correct spot
-    if (animator.hasTransformationGroup("actor2-facial-mask")) then
-      if (self.currentPosition.actor2FacialMaskOffset ~= nil) then
-        animator.resetTransformationGroup("actor2-facial-mask")
-        
-        animator.translateTransformationGroup("actor2-facial-mask", self.currentPosition.actor2FacialMaskOffset)
-      end
-      
-      if (self.currentPosition.actor2FacialMaskFlip) then
-        animator.scaleTransformationGroup("actor2-facial-mask", {-1, 1}, {1, 1})
-      end
-    end
-
-    -- Move the npc's hair to the correct spot
-    if (animator.hasTransformationGroup("actor2-hair")) then
-      animator.resetTransformationGroup("actor2-hair")
-      
-      if (self.currentPosition.actor2HairOffset ~= nil) then
-        animator.translateTransformationGroup("actor2-hair", self.currentPosition.actor2HairOffset)
-      end
-
-      if (self.currentPosition.actor2HairFlip) then
-        animator.scaleTransformationGroup("actor2-hair", {-1, 1}, {1, 1})
-      end
-    end
-
-    -- Move the npc's head to the correct spot
-    if (animator.hasTransformationGroup("actor2-head") and self.currentPosition.actor2HeadOffset ~= nil) then
-      animator.resetTransformationGroup("actor2-head")
-      
-      animator.translateTransformationGroup("actor2-head", self.currentPosition.actor2HeadOffset)
-    end
-  end
+  position.adjustTransformations()
 end
 
 position.changePosition = function(index)

@@ -86,8 +86,6 @@ end
 -- @return Success: returns the callback function's return value or true
 -- @return Failure: returns false
 function pregnant.tryBecomePregnant(callback)
-  if not pregnant.isEnabled() then return end
-
   -- Generate random chance of becoming pregnant
   local chance = helper.randomInRange({0.0, 1.0})
   

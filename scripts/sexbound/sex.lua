@@ -7,6 +7,7 @@ sex.majorVersion = 1
 require "/scripts/stateMachine.lua"
 require "/scripts/sexbound/pov.lua"
 require "/scripts/sexbound/pregnant.lua"
+require "/scripts/sexbound/actor.lua"
 require "/scripts/sexbound/emote.lua"
 require "/scripts/sexbound/moan.lua"
 require "/scripts/sexbound/music.lua"
@@ -28,10 +29,6 @@ function sex.init(callback)
   -- Predefined sex states
   self.sexStates = stateMachine.create({ "idleState", "sexState", "climaxState", "exitState" })
   
-  -- Temporary storage for actors
-  self.actors = {}
-  self.actorsCount = 0
-  
   -- Store climax data in a new table
   self.climaxPoints = {
     current    = 0,
@@ -51,10 +48,10 @@ function sex.init(callback)
   self.isHavingSex = false
   self.isReseting  = false
   
-  resetTimers()
+  sex.setupTimers()
   
   -- Init specified submodules
-  helper.each({"moan", "portrait", "position", "pov", "sextalk", "sextoy"}, function(k, v)
+  helper.each({"actor", "moan", "portrait", "position", "pov", "sextalk", "sextoy"}, function(k, v)
     _ENV[v].init()
   end)
 
@@ -65,249 +62,30 @@ function sex.init(callback)
   end
 end
 
-function sex.resetActors()
-  if not (self.sexboundConfig.sex.enableActors) then return false end
+---Updates the timers and state machine.
+-- @param dt delta time
+-- @param[opt] callback function to execute afters updating timers and state machine
+function sex.loop(dt, callback)
+  -- Updates all timers
+  sex.updateTimers({"emote", "moan", "talk"}, dt)
 
-  -- Reset actors' global animator tags
-  sex.resetGlobalTags()
+  -- Check if an this entity is occupied
+  if (config.getParameter("objectType") == "loungeable") then
+    self.isHavingSex = sex.isOccupied()
+  end
   
-  helper.each(self.actors, function(k, v)
-    sex.resetActor(v, k)
+  -- Update the curent state machine state
+  self.sexStates.update(dt)
+  
+  -- Try to talk
+  sex.tryToTalk(function()
+    sex.talk()
   end)
-end
-
-function sex.resetActor(args, actorNumber)
-  local gender = self.sexboundConfig.sex.defaultPlayerGender -- default is 'male'
-  -- Check if gender is supported by the mod
-  gender = helper.find(self.sexboundConfig.sex.supportedPlayerGenders, function(genderName)
-    if (args.gender == genderName) then return args.gender end
-  end)
-
-  args.gender = gender
   
-  if (self.actorsCount == 2 and actorNumber == 2) then sex.setMoanGender(gender) end
-  
-  local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
-  -- Check if species is supported by the mod
-  species = helper.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
-   if (args.species == speciesName) then return args.species end
-  end)
-
-  args.species = species
-  
-  local bodyDirectives   = ""
-  local facialHairFolder = "default"
-  local facialHairGroup  = ""
-  local facialHairType   = ""
-  local facialMaskFolder = "default"
-  local facialMaskGroup  = ""
-  local facialMaskType   = ""
-  local hairType         = ""
-  local hairFolder       = "hair"
-  local hairDirectives   = ""
-  
-  -- Set animator global tag "gender"
-  animator.setGlobalTag("gender",  gender)
-  animator.setGlobalTag("actor" .. actorNumber .. "-gender",  gender)
-  
-  -- Set animator global tag "species"
-  animator.setGlobalTag("species", species)
-  animator.setGlobalTag("actor" .. actorNumber .. "-species", species)
-  
-  -- Set animator global tags for identifying information
-  if (args.identity ~= nil) then
-    if (args.identity.bodyDirectives  ~= nil) then bodyDirectives  = args.identity.bodyDirectives  end
-    if (args.identity.facialHairGroup ~= nil) then facialHairGroup = args.identity.facialHairGroup end
-    if (args.identity.facialHairType  ~= nil) then facialHairType  = args.identity.facialHairType  end
-    if (args.identity.facialMaskGroup ~= nil) then facialMaskGroup = args.identity.facialMaskGroup end
-    if (args.identity.facialMaskType  ~= nil) then facialMaskType  = args.identity.facialMaskType  end
-    if (args.identity.hairType        ~= nil) then hairType        = args.identity.hairType        end
-    if (args.identity.hairDirectives  ~= nil) then hairDirectives  = args.identity.hairDirectives  end
+  -- Execute your logic as a callback within this sex loop
+  if (callback ~= nil) then
+    callback()
   end
-  
-  -- Make changes to position based on animation state
-  local position = position.selectedSexPosition().animationState
-
-  if (animator.animationState("sex") == "idle") then
-    position = "idle"
-  end
-  
-  if (animator.animationState("sex") == "climax") then
-    position = position .. "-climax"
-  end
-  
-  if (animator.animationState("sex") == "reset") then
-    position = position .. "-reset"
-  end
-  
-  -- Make species specific adjustments
-  
-  if (species == "apex") then
-    hairFolder = "hair" .. gender -- 'hair' + gender
-    facialHairFolder = "beard" .. gender -- 'beard' + gender
-  end
-  
-  if (species == "avian") then
-    facialHairFolder = "fluff"
-    facialMaskFolder = "beaks"
-  end
-  
-  if (species == "novakid") then
-    facialHairFolder = "brand"
-  end
-  
-  if (hairType == "") then
-    -- Handle default hair type for apex, avian, floran, glitch, hylotl
-    helper.each({"apex", "avian", "floran", "glitch", "hylotl"}, function(k, v)
-      if (species == v) then
-        hairType = "1"
-        return true
-      end
-    end)
-    
-    -- Handle default hair type for fenerox, human, novakid
-    helper.each({"fenerox", "human", "novakid"}, function(k, v)
-      if (species == v) then
-        if (gender == "male") then
-          hairType = "male1"
-        else
-          hairType = "fem1"
-        end
-        return true
-      end
-    end)
-  end
-  
-  -- Handle default facial hair type for apex, avian, novakid
-  if (facialHairType == "") then
-    helper.each({"apex", "avian", "novakid"}, function(k, v)
-      if (species == v) then
-        facialHairType = "1"
-        return true
-      end
-    end)
-  end
-  
-  -- Handle default facial mask type for avian
-  if (facialMaskType == "") then
-    if (species == "avian") then
-      facialMaskType = "1"
-    end
-  end
-  
-  -- Establish actor's role
-  local role = "actor" .. actorNumber
-  
-  local defaultPath = "/artwork/humanoid/default.png:default"
-  
-  -- Create the global tags
-  local partHead = "/artwork/humanoid/" .. role .. "/" .. args.species .. "/head.png:" .. position .. ".1" .. bodyDirectives .. hairDirectives
-  animator.setGlobalTag("part-" .. role .. "-head", partHead)
-  
-  local partBody = "/artwork/humanoid/" .. role .. "/" .. args.species  .. "/body_" .. args.gender .. ".png:" .. position
-  animator.setGlobalTag("part-" .. role .. "-body", partBody)
-  
-  if (facialHairType ~= "") then
-    local partFacialHair = "/humanoid/" .. args.species .. "/" .. facialHairFolder .. "/" .. facialHairType .. ".png:normal" .. hairDirectives
-    animator.setGlobalTag("part-" .. role .. "-facial-hair", partFacialHair)
-  else
-    animator.setGlobalTag("part-" .. role .. "-facial-hair", defaultPath)
-  end
-  
-  animator.setGlobalTag(role .. "-facialHairType", facialHairType)
-  
-  if (facialMaskType ~= "") then
-    local partFacialMask = "/humanoid/" .. args.species .. "/" .. facialMaskFolder .. "/" .. facialMaskType .. ".png:normal" .. hairDirectives
-    animator.setGlobalTag("part-" .. role .. "-facial-mask", partFacialMask)
-  else
-    animator.setGlobalTag("part-" .. role .. "-facial-mask", defaultPath)
-  end
-
-  animator.setGlobalTag(role .. "-facialMaskType", facialMaskType)
-  
-  if (hairType ~= "") then
-    local partHair = "/humanoid/" .. args.species .. "/" .. hairFolder .. "/" .. hairType .. ".png:normal" .. bodyDirectives .. hairDirectives
-    animator.setGlobalTag("part-" .. role .. "-hair", partHair)
-  else
-    animator.setGlobalTag("part-" .. role .. "-hair", defaultPath)
-  end
-  
-  animator.setGlobalTag(role .. "-hairType", hairType)
-  
-  animator.setGlobalTag(role .. "-bodyDirectives",   bodyDirectives)
-  animator.setGlobalTag(role .. "-hairFolder",       hairFolder)
-
-  animator.setGlobalTag(role .. "-hairDirectives",   hairDirectives)
-  animator.setGlobalTag(role .. "-facialHairFolder", facialHairFolder)
-  
-  animator.setGlobalTag(role .. "-facialMaskFolder", facialMaskFolder)
-end
-
-function sex.setupActor(args, storeActor)
-  if not (self.sexboundConfig.sex.enableActors) then return false end
-
-  self.actorsCount = self.actorsCount + 1
-  
-  -- Permenantly store first actor if it is an 'npc' entity type
-  if (storeActor) then
-    storage.npc = args
-  end
-  
-  self.actors[ self.actorsCount ] = args
-  
-  if (self.actors[ self.actorsCount ].identity == nil) then
-    local identity = {}
-  
-    -- Check species is supported
-    local species = self.sexboundConfig.sex.defaultPlayerSpecies -- default is 'human'
-    -- Check if species is supported by the mod
-    species = helper.find(self.sexboundConfig.sex.supportedPlayerSpecies, function(speciesName)
-     if (args.species == speciesName) then return args.species end
-    end)
-    
-    local speciesConfig = root.assetJson("/species/" .. species .. ".species")
-    
-    identity.bodyDirectives = ""
-    
-    helper.each(helper.randomChoice(speciesConfig.bodyColor), function(k, v)
-      identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
-    end)
-    
-    helper.each(helper.randomChoice(speciesConfig.undyColor), function(k, v)
-      identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
-    end)
-    
-    identity.hairDirectives = ""
-    
-    helper.each(helper.randomChoice(speciesConfig.hairColor), function(k, v)
-      identity.hairDirectives = identity.hairDirectives .. "?replace=" .. k .. "=" .. v 
-    end)
-    
-    local genderCount = 1
-    
-    if (args.gender == "female") then genderCount = 2 end
-    
-    local hair = speciesConfig.genders[genderCount].hair
-    if not isEmpty(hair) then identity.hairType = helper.randomChoice(hair) end
-    
-    local facialHair = speciesConfig.genders[genderCount].facialHair
-    if not isEmpty(facialHair) then identity.facialHairType = helper.randomChoice(facialHair) end
-    
-    local facialMask = speciesConfig.genders[genderCount].facialMask
-    if not isEmpty(facialMask) then identity.facialMaskType = helper.randomChoice(facialMask) end
-    
-    self.actors[ self.actorsCount ].identity = identity
-  end
-  
-  -- Swap roles between male and female by default
-  if (self.actorsCount == 2) then
-    if (self.actors[1].gender == "female" and self.actors[2].gender == "male") then
-     sex.switchRole(true) -- True to skip reset
-    end
-  end
-  
-  -- Reset the actors
-  sex.resetActors()
 end
 
 ---Handles the interact event of the entity.
@@ -340,7 +118,7 @@ function sex.isOccupied()
 end
 
 function sex.getActors()
-  return self.actors
+  return actor.data.list
 end
 
 function sex.getAnimationRate()
@@ -359,108 +137,63 @@ function sex.getSexState()
   return self.sexStates
 end
 
----Updates the timers and state machine.
---@param dt delta time
---@param[opt] callback function to execute afters updating timers and state machine
-function sex.loop(dt, callback)
-  self.timers.talk  = self.timers.talk  + dt
-  
-  self.timers.emote = self.timers.emote + dt
-
-  self.timers.moan  = self.timers.moan  + dt
-  
-  -- Check if an this entity is occupied
-  if (config.getParameter("objectType") == "loungeable") then
-    if (sex.isOccupied()) then
-      self.isHavingSex = true
-    else
-      self.isHavingSex = false
-    end
-  end
-  
-  -- Update the state
-  self.sexStates.update(dt)
-  
-  -- Execute your logic as a callback within this sex loop
-  if (callback ~= nil) then
-    callback()
-  end
-end
-
-function sex.isCumming()
+sex.isCumming = function()
   return self.isCumming
 end
 
-function sex.setIsCumming(value)
+sex.setIsCumming = function(value)
   self.isCumming = value
 end
 
-function sex.setIsReseting(value)
+sex.setIsReseting = function(value)
   self.isReseting = value
 end
 
-function sex.isReseting()
+sex.isReseting = function()
   return self.isReseting
 end
 
-function sex.setIsHavingSex(value)
+sex.setIsHavingSex = function(value)
   self.isHavingSex = value
 end
 
-function sex.setMoanGender(gender)
+sex.setMoanGender = function(gender)
   self.moanGender = gender
 end
 
-function sex.getClimaxPause()
+sex.getClimaxPause = function()
   return self.sexboundConfig.sex.climaxPause
 end
 
-function sex.getSexStateAnimation()
-  return self.sexboundConfig.sex.sexStateAnimation
+sex.defaultStateAnimation = function(stateName)
+  return self.sexboundConfig.sex[stateName .. "Animation"]
 end
 
-function sex.getResetPause()
+sex.getResetPause = function()
   return self.sexboundConfig.sex.resetPause
 end
 
-function sex.getTimer(name)
+sex.getTimer = function(name)
   return self.timers[name]
 end
 
-function sex.setTimer(name, value)
+sex.setTimer = function(name, value)
   self.timers[name] = value
   return self.timers[name]
 end
 
-function sex.switchRole(skipReset)
-    table.insert(self.actors, 1, table.remove(self.actors, #self.actors)) -- Shift actors
-  
-    if not (skipReset) then
-      sex.resetActors()
-    end
-end
-
-function sex.setupHandlers()
-  -- Handle message 'setup-actor'. Stores identifying information about actor.
-  message.setHandler("setup-actor", function(_, _, args)
-    sex.setupActor(args, false)
-  end)
-  
-  -- Handle message 'store-actor'. Permentantly stores identifying information about actor.
-  message.setHandler("store-actor", function(_, _, args)
-    sex.setupActor(args, true)
-  end)
-  
+function sex.setupHandlers()  
   -- Handle message 'isClimaxing'. Receives player's intent to climax.
   message.setHandler("isClimaxing", function()
     self.isCumming = true
+    self.climaxPoints.current = 0
     return {}
   end)
   
   -- Handle message 'switch-role'. Receives player's intent to switch actor roles.
   message.setHandler("switch-role", function()
-    if not (self.isCumming) then
-      sex.switchRole()
+    if not self.isCumming and not self.isReseting then
+      actor.switchRole()
     end
   end)
   
@@ -511,18 +244,46 @@ function sex.setupHandlers()
   end)
 end
 
+---Setup all internal timers.
+sex.setupTimers = function()
+  self.timers = {
+    climax = 0,
+    emote  = 0,
+    moan   = 0,
+    reset  = 0,
+    talk   = 0
+  }
+end
+
+---Automatically say next sextalk dialog.
+sex.talk = function()
+  if (sextalk.getTrigger() == "statemachine") then
+    sextalk.sayNext( self.sexStates.stateDesc() )
+  end
+  
+  if (sextalk.getTrigger() == "animation") then
+    sextalk.sayNext( animator.animationState("sex") )
+  end
+end
+
 ---Try to Cum.
 function sex.tryToCum(callback)
   if (self.climaxPoints.current >= self.climaxPoints.threshold) then
-    local autoClimax = self.climaxPoints.autoClimax
-
     -- Execute your cum logic as a callback
     if (callback ~= nil) then
       callback()
     end
     
-    if (autoClimax or self.isCumming) then
+    -- All NPC-to-NPC interactions will automatically climax
+    if (actor.isEnabled() and not actor.hasPlayer()) then
+      self.climaxPoints.current = 0
       self.isCumming = true
+      
+      return true
+    end
+    
+    -- Automatically climax in the case that it is set to true
+    if (self.climaxPoints.autoClimax or self.isCumming) then
       self.climaxPoints.current = 0
       
       return true
@@ -590,79 +351,40 @@ function sex.tryToMoan(callback)
   return false
 end
 
----Adjusts the animation rate of the animator.
-function adjustTempo(dt)
-  local position = position.selectedSexPosition()
-
-  self.animationRate = self.animationRate + (position.maxTempo / (position.sustainedInterval / dt))
-  
-  self.animationRate = helper.clamp(self.animationRate, position.minTempo, position.maxTempo)
-  
-  animator.setAnimationRate(self.animationRate)
-  
-  self.climaxPoints.current = self.climaxPoints.current + ((position.maxTempo * 1) * dt)
-  
-  self.climaxPoints.current = helper.clamp(self.climaxPoints.current, self.climaxPoints.min, self.climaxPoints.max)
-  
-  if (self.animationRate >= position.maxTempo) then
-      self.animationRate = position.minTempo
-      
-      position.maxTempo = position.nextMaxTempo
-      position.nextMaxTempo = helper.randomInRange(position.maxTempo)
-      
-      position.sustainedInterval = position.nextSustainedInterval
-      position.nextSustainedInterval = helper.randomInRange(position.sustainedInterval)
-  end
-end
-
----Resets all timers.
-function resetTimers()
-  -- Zeroize timers
-  self.timers = {}
-  self.timers.emote = 0
-  self.timers.talk  = 0
-  self.timers.moan  = 0
-  self.timers.reset = 0
-  self.timers.climax = 0
-end
-
-function resetTransformationGroups()
-    helper.each({
-      "actor1-facial-hair",
-      "actor1-facial-mask",
-      "actor1-hair",
-      "actor1-head",
-    
-      "actor2-facial-hair",
-      "actor2-facial-mask",
-      "actor2-hair",
-      "actor2-head"
-    }, function(k, v)
-      if animator.hasTransformationGroup(v) then
-        animator.resetTransformationGroup(v)
-      end
-    end)
-end
-
-function sex.resetGlobalTags()
-  helper.each(self.actors, function(k, v)
-    local role = "actor" .. k
-    local default = "/artwork/humanoid/default.png:default"
-    
-    animator.setGlobalTag("part-" .. role .. "-body",        default)
-    animator.setGlobalTag("part-" .. role .. "-head",        default)
-    animator.setGlobalTag("part-" .. role .. "-hair",        default)
-    animator.setGlobalTag("part-" .. role .. "-facial-hair", default)
-    animator.setGlobalTag("part-" .. role .. "-facial-mask", default)
+---Updates all specified timers with the Delta Time
+-- @param list of timers names
+-- @param dt Delta Time
+sex.updateTimers = function(timers, dt)
+  helper.each(timers, function(k, v)
+    self.timers[v] = self.timers[v] + dt
   end)
 end
 
-function sex.clearActors()
-  sex.resetGlobalTags()
+---Adjusts the animation rate of the animator.
+sex.adjustTempo = function(dt)
+  local sexPosition  = position.selectedSexPosition()
 
-  self.actorsCount = 0
+  self.animationRate = self.animationRate + (sexPosition.maxTempo / (sexPosition.sustainedInterval / dt))
   
-  self.actors = {}
+  self.animationRate = helper.clamp(self.animationRate, sexPosition.minTempo, sexPosition.maxTempo)
+  
+  -- Set the animator's animation rate
+  animator.setAnimationRate(self.animationRate)
+  
+  -- Calculate the climax points
+  self.climaxPoints.current = self.climaxPoints.current + ((sexPosition.maxTempo * 1) * dt)
+  
+  self.climaxPoints.current = helper.clamp(self.climaxPoints.current, self.climaxPoints.min, self.climaxPoints.max)
+  
+  if (self.animationRate >= sexPosition.maxTempo) then
+      self.animationRate = sexPosition.minTempo
+      
+      sexPosition.maxTempo = sexPosition.nextMaxTempo
+      sexPosition.nextMaxTempo = helper.randomInRange(sexPosition.maxTempo)
+      
+      sexPosition.sustainedInterval = sexPosition.nextSustainedInterval
+      sexPosition.nextSustainedInterval = helper.randomInRange(sexPosition.sustainedInterval)
+  end
 end
 
 --[Idle State]-------------------------------------------------------------------------------
@@ -670,32 +392,31 @@ end
 idleState = {}
 
 function idleState.enter()
-  -- Return non-nil if not currently having sex
-  if not sex.isHavingSex() then
-    return true
-  end
-  
-  return nil
+  if not sex.isHavingSex() then return true end
 end
 
 function idleState.enteringState(stateData)
-  animator.setAnimationState("sex", "idle")
+  -- Set the default state animation for the idleState state. Start new animation.
+  animator.setAnimationState("sex", sex.defaultStateAnimation("idleState"), true)
 
-  resetTransformationGroups()
+  -- Clear climax points
+  self.climaxPoints.current = 0
   
-  if (not isEmpty(self.actors)) then
+  -- Reset all actors.
+  if (actor.isEnabled() and actor.hasActors()) then
+    actor.resetTransformationGroups()
+    
     if (not sex.isOccupied()) then
-      sex.clearActors()
+      actor.clearActors()
     
       if (storage.npc ~= nil) then
-        self.actors[1] = storage.npc
+        actor.data.list[1] = storage.npc
         
-        self.actorsCount = 1
+        actor.data.count = 1
       end
     end
     
-    -- Reset main actors
-    sex.resetActors()
+    actor.resetAllActors()
   end
 end
 
@@ -717,77 +438,52 @@ end
 sexState = {}
 
 function sexState.enter()
-  -- Return non-nil if is having sex, but not cumming
-  if sex.isHavingSex() and not sex.isCumming() and not sex.isReseting() then
-    return true
-  end
+  if sex.isHavingSex() and not sex.isCumming() and not sex.isReseting() then return true end
 end
 
 function sexState.enteringState(stateData)
+  -- Set the default state animation for the sexState state. Start new animation.
+  animator.setAnimationState("sex", sex.defaultStateAnimation("sexState"), true)
+
   position.changePosition("default")
-
+  
   position.setupSexPosition()
-  
-  animator.setAnimationState("sex", sex.getSexStateAnimation(), true)
-  
-  sex.resetActors()
-  
-  if (self.sexboundConfig.sextalk.trigger == "statemachine") then
-    sextalk.sayNext("sexState")
-  end
-  
-  if (self.sexboundConfig.sextalk.trigger == "animation") then
-    local animationState = animator.animationState("sex")
 
-    sextalk.sayNext(animationState)
-  end
+  actor.resetAllActors()
+  
+  sex.talk()
 end
 
 function sexState.update(dt, stateData)
+  if not sex.isHavingSex() then return true end
+  if sex.isCumming() then return true end
+  
   local sexPosition = position.selectedSexPosition()
-
-  if not sex.isHavingSex() then
-    return true
-  end
-
-  -- Return true if is cumming
-  if sex.isCumming() then 
-    return sex.tryToCum()
-  end
-
-  -- Check that the current animation state name matches the sex position state name
-  if (animator.animationState("sex") ~= sexPosition.animationState) then return false end
   
-  -- Adjust the tempo of the sex
-  adjustTempo(dt)
+  -- Try to climax
+  if (sexPosition.allowClimax) then 
+    sex.tryToCum()
+  end
   
+  -- Try to emote
   if (sexPosition.allowEmote) then
     sex.tryToEmote(function() 
       emote.playRandom()
     end)
   end
   
+  -- Try to moan
   if (sexPosition.allowMoan) then
     sex.tryToMoan(function()
       moan.playRandom(self.moanGender)
     end)
   end
   
-  sex.tryToTalk(function()
-    if (self.sexboundConfig.sextalk.trigger == "statemachine") then
-      sextalk.sayNext("sexState")
-    end
-    
-    if (self.sexboundConfig.sextalk.trigger == "animation") then
-      local animationState = animator.animationState("sex")
-
-      sextalk.sayNext(animationState)
-    end
-  end)
+  -- Adjust the tempo of the sex
+  sex.adjustTempo(dt)
   
-  if (sexPosition.allowClimax) then
-    return sex.tryToCum()
-  end
+  -- Check that the current animation state name matches the sex position state name
+  if (animator.animationState("sex") ~= sexPosition.animationState) then return false end
   
   return false
 end
@@ -801,43 +497,31 @@ end
 climaxState = {}
 
 function climaxState.enter()
-  -- Return non-nil if is having sex and is cumming
   if (sex.isHavingSex() and sex.isCumming()) then
     return true
   end
 end
 
 function climaxState.enteringState(stateData)
-  local position = position.selectedSexPosition()
-
-  animator.setAnimationState("sex", position.climaxAnimationState, true)
+  local sexPosition = position.selectedSexPosition()
   
-  animator.setGlobalTag("positionState", position.animationState)
+  -- Get climax animation state for position or use default climax animation state
+  if (sexPosition.climaxAnimationState ~= nil) then
+    animator.setAnimationState("sex", sexPosition.climaxAnimationState, true)
+  else
+    animator.setAnimationState("sex", sex.defaultStateAnimation("climaxState"), true)
+  end
   
-  -- Try to become pregnant if enabled
-  pregnant.tryBecomePregnant()
+  -- If pregnant module is enable then try to become pregnant 
+  if (pregnant.isEnabled()) then pregnant.tryBecomePregnant() end
   
   sex.setTimer("dialog", 0)
-
-  if (self.sexboundConfig.sextalk.trigger == "statemachine") then
-    sextalk.sayNext("climaxState")
-  end
   
-  if (self.sexboundConfig.sextalk.trigger == "animation") then
-    local animationState = animator.animationState("sex")
-
-    sextalk.sayNext(animationState)
-  end
-  
-  animator.setAnimationRate(1)
+  sex.talk()
 end
 
 function climaxState.update(dt, stateData)
-  if not sex.isHavingSex() then
-    sex.setIsCumming(false)
-    
-    return true
-  end
+  if not sex.isHavingSex() then return true end
 
   local climaxTimer = sex.getTimer("climax")
   climaxTimer = sex.setTimer("climax", climaxTimer + dt)
@@ -852,7 +536,6 @@ function climaxState.update(dt, stateData)
 
   if (climaxTimer >= sex.getClimaxPause()) then
     sex.setIsReseting(true)
-    sex.setIsCumming(false)
     return true
   end
   
@@ -861,8 +544,8 @@ end
 
 function climaxState.leavingState(stateData)
   sex.setTimer("climax", 0)
-
-  animator.setAnimationRate(1)
+  
+  sex.setIsCumming(false)
 end
 
 --[Reset State]------------------------------------------------------------------------------
@@ -870,18 +553,21 @@ end
 exitState = {}
 
 function exitState.enter()
-  if (sex.isHavingSex() and sex.isReseting()) then 
-    return true 
+  if (sex.isHavingSex() and sex.isReseting()) then
+    return true
   end
 end
 
 function exitState.enteringState(stateData)
-  -- Change animator state to the 'reset' state - starts new.
-  animator.setAnimationState("sex", "reset", true)
+  animator.setAnimationState("sex", sex.defaultStateAnimation("exitState"), true) -- Change animation state
 end
 
 function exitState.update(dt, stateData)
   if not sex.isHavingSex() then
+    self.currentPositionIndex = 1
+    
+    position.changePosition(1)
+    
     return true
   end
 
@@ -890,12 +576,10 @@ function exitState.update(dt, stateData)
   
   if ( resetTimer >= sex.getResetPause() ) then
     -- Determines whether to continue having sex after exitting this state
-    if (not sex.getAutoRestart() or not sex.isOccupied()) then
+    if not sex.getAutoRestart() then
       sex.setIsHavingSex(false)
     end
-    
-    sex.setIsReseting(false)
-  
+
     return true
   end
   
@@ -903,11 +587,7 @@ function exitState.update(dt, stateData)
 end
 
 function exitState.leavingState(stateDate)
-  if not sex.isOccupied() then
-    self.currentPositionIndex = 1
-    
-    position.changePosition(1)
-  end
-  
   sex.setTimer("reset", 0)
+  
+  sex.setIsReseting(false)
 end

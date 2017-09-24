@@ -5,7 +5,7 @@ sextalk = {}
 require "/scripts/sexbound/helper.lua"
 
 --- Initializes the sextalk module.
-function sextalk.init()
+sextalk.init = function ()
   -- Handle request for current dialog
   message.setHandler("requestDialog", function()
     return sextalk.getCurrentDialog()
@@ -24,20 +24,32 @@ end
 
 --- Returns the currently selected dialog.
 --@return string: current dialog text
-function sextalk.getCurrentDialog()
+sextalk.getCurrentDialog = function()
   return self.currentDialog
 end
 
 --- Returns the current method used to select dialog.
 --@return string: method name
-function sextalk.getMethod()
+sextalk.getMethod = function()
   return self.sexboundConfig.sextalk.method
 end
 
 --- Returns the current mode used to select dialog.
 --@return string: mode name
-function sextalk.getMode()
+sextalk.getMode = function()
   return self.sexboundConfig.sextalk.mode
+end
+
+--- Returns the trigger used to select dialog from dialog file.
+-- @return string: trigger name
+sextalk.getTrigger = function()
+  return self.sexboundConfig.sextalk.trigger
+end
+
+--- Returns the enabled status of the sex talk module.
+-- @return boolean enabled
+sextalk.isEnabled = function()
+  return self.sexboundConfig.sextalk.enabled
 end
 
 --- Private: Selects and set a new random dialog.
@@ -68,7 +80,7 @@ end
 
 --- Returns the current dialog.
 --@param state The state to retrieve the dialog.
-function sextalk.selectNext(state)
+sextalk.selectNext = function(state)
   if not sextalk.isEnabled() then return nil end
   
   -- If state not found in the dialog file
@@ -112,7 +124,7 @@ end
 
 ---Outputs the dialog via the entity's say function.
 --@param state The state to retrieve the dialog.
-function sextalk.sayNext(state)
+sextalk.sayNext = function(state)
   if not sextalk.isEnabled() then return nil end
 
   local currentDialog = sextalk.selectNext(state)
@@ -130,17 +142,11 @@ end
 
 --- Sets the currentDialog.
 --@param newDialog String: Dialog text.
-function sextalk.setCurrentDialog(newDialog)
+sextalk.setCurrentDialog = function(newDialog)
   -- Set the previous dialog before setting a new dialog
   self.previousDialog = self.currentDialog
 
   self.currentDialog = newDialog
   
   return self.currentDialog
-end
-
---- Returns the enabled status of the sex talk module.
--- @return boolean enabled
-sextalk.isEnabled = function()
-  return self.sexboundConfig.sextalk.enabled
 end

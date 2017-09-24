@@ -1,4 +1,3 @@
-require "/scripts/util.lua"
 require "/scripts/vec2.lua"
 
 require "/scripts/sexbound/helper.lua"
@@ -29,7 +28,7 @@ function handleSexRequest(args)
   position[2] = position[2] - 3 -- (3 * 8 = 24)
   
   local entityId = world.objectAt(position)
-  
+
   if (entityId ~= nil) then
     sendMessage(entityId, "setup-actor")
   end
@@ -42,7 +41,7 @@ function transformIntoObject(args)
   
   self.newUniqueId = tostring(sb.makeRandomSource():randu64())
   
-  local faceDirection = util.randomDirection()
+  local faceDirection = helper.randomDirection()
   
   if (world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId})) then
     sendMessage(self.newUniqueId, "store-actor")
@@ -54,6 +53,7 @@ end
 function sendMessage(uniqueId, message, role)
   local data = {
     entityType = entity.entityType(),
+    id         = entity.id(),
     identity   = npc.humanoidIdentity(),
     gender     = npc.humanoidIdentity().gender,
     species    = npc.humanoidIdentity().species,

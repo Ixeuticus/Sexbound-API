@@ -40,6 +40,11 @@ helper.randomChoice = function(options)
   return util.randomChoice(options)
 end
 
+---Wrapper function for util.randomDirection
+helper.randomDirection = function()
+  return util.randomDirection()
+end
+
 ---Wrapper function for util.randomInRange
 -- @param numberRange Range of numbers
 helper.randomInRange = function(numberRange)

@@ -1,16 +1,20 @@
 {
   "globalTagDefaults" : {
-    "part-actor1-body"        : "/artwork/humanoid/default.png:default",
-    "part-actor1-head"        : "/artwork/humanoid/default.png:default",
-    "part-actor1-hair"        : "/artwork/humanoid/default.png:default",
-    "part-actor1-facial-hair" : "/artwork/humanoid/default.png:default",
-    "part-actor1-facial-mask" : "/artwork/humanoid/default.png:default",
+    "part-actor1-body"        : "/artwork/default.png:default",
+    "part-actor1-arm-back"    : "/artwork/default.png:default",
+    "part-actor1-arm-front"   : "/artwork/default.png:default",
+    "part-actor1-head"        : "/artwork/default.png:default",
+    "part-actor1-hair"        : "/artwork/default.png:default",
+    "part-actor1-facial-hair" : "/artwork/default.png:default",
+    "part-actor1-facial-mask" : "/artwork/default.png:default",
   
-    "part-actor2-body"        : "/artwork/humanoid/default.png:default",
-    "part-actor2-head"        : "/artwork/humanoid/default.png:default",
-    "part-actor2-hair"        : "/artwork/humanoid/default.png:default",
-    "part-actor2-facial-hair" : "/artwork/humanoid/default.png:default",
-    "part-actor2-facial-mask" : "/artwork/humanoid/default.png:default",
+    "part-actor2-body"        : "/artwork/default.png:default",
+    "part-actor2-arm-back"    : "/artwork/default.png:default",
+    "part-actor2-arm-front"   : "/artwork/default.png:default",
+    "part-actor2-head"        : "/artwork/default.png:default",
+    "part-actor2-hair"        : "/artwork/default.png:default",
+    "part-actor2-facial-hair" : "/artwork/default.png:default",
+    "part-actor2-facial-mask" : "/artwork/default.png:default",
     
     "actor1-species"          : "human",
     "actor1-gender"           : "female",
@@ -96,12 +100,98 @@
     },
     
     "parts" : {
+      "actor1-arm-front" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor1ArmFront" ],
+          "zLevel" : 14
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-front>.1<actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "idle" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-front>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-front>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-front>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-front>.1<actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+    
+      "actor1-arm-back" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor1ArmBack" ],
+          "zLevel" : 1
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-back>.1<actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "idle" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-back>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-back>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-back>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-back>.1<actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+    
       "actor1-head" : {
         "properties" : {
           "centered" : true,
           "offset" : [0, 2.75],
-          "transformationGroups" : [ "actor1-head" ],
-          "zLevel" : 1
+          "transformationGroups" : [ "actor1Head" ],
+          "zLevel" : 2
         },
         
         "partStates" : {
@@ -142,9 +232,9 @@
       "actor1-hair" : {
         "properties" : {
           "centered" : true,
-          "offset" : [-0.625, 2.625],
-          "transformationGroups" : [ "actor1-hair" ],
-          "zLevel" : 2
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor1Hair" ],
+          "zLevel" : 3
         },
         
         "partStates" : {
@@ -185,9 +275,9 @@
       "actor1-facial-hair" : {
         "properties" : {
           "centered" : true,
-          "offset" : [-0.625, 2.625],
-          "transformationGroups" : [ "actor1-facial-hair" ],
-          "zLevel" : 3
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor1FacialHair" ],
+          "zLevel" : 4
         },
         
         "partStates" : {
@@ -228,9 +318,9 @@
       "actor1-facial-mask" : {
         "properties" : {
           "centered" : true,
-          "offset" : [-0.625, 2.625],
-          "transformationGroups" : [ "actor1-facial-mask" ],
-          "zLevel" : 4
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor1FacialMask" ],
+          "zLevel" : 5
         },
         
         "partStates" : {
@@ -272,7 +362,8 @@
         "properties" : {
           "centered" : true,
           "offset" : [0, 2.75],
-          "zLevel" : 5
+          "transformationGroups" : [ "actor1Body" ],
+          "zLevel" : 6
         },
         
         "partStates" : {
@@ -310,12 +401,98 @@
         }
       },
       
+      "actor2-arm-front" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor2ArmFront" ],
+          "zLevel" : 15
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-front>.1<actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "idle" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-front>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-front>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-front>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-front>.1<actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
+      "actor2-arm-back" : {
+        "properties" : {
+          "centered" : true,
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor2ArmBack" ],
+          "zLevel" : 7
+        },
+        
+        "partStates" : {
+          "sex" : {
+            "climax" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-back>.1<actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "idle" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-back>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position1" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-back>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-back>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "reset" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-back>.1<actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            }
+          }
+        }
+      },
+      
       "actor2-head" : {
         "properties" : {
           "centered" : true,
           "offset" : [0, 2.75],
-          "transformationGroups" : [ "actor2-head" ],
-          "zLevel" : 6
+          "transformationGroups" : [ "actor2Head" ],
+          "zLevel" : 8
         },
         
         "partStates" : {
@@ -356,9 +533,9 @@
       "actor2-hair" : {
         "properties" : {
           "centered" : true,
-          "offset" : [0.625, 2.625],
-          "transformationGroups" : [ "actor2-hair" ],
-          "zLevel" : 7
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor2Hair" ],
+          "zLevel" : 9
         },
         
         "partStates" : {
@@ -399,9 +576,9 @@
       "actor2-facial-hair" : {
         "properties" : {
           "centered" : true,
-          "offset" : [0.625, 2.625],
-          "transformationGroups" : [ "actor2-facial-hair" ],
-          "zLevel" : 8
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor2FacialHair" ],
+          "zLevel" : 10
         },
         
         "partStates" : {
@@ -442,9 +619,9 @@
       "actor2-facial-mask" : {
         "properties" : {
           "centered" : true,
-          "offset" : [0.625, 2.625],
-          "transformationGroups" : [ "actor2-facial-mask" ],
-          "zLevel" : 9
+          "offset" : [0, 2.75],
+          "transformationGroups" : [ "actor2FacialMask" ],
+          "zLevel" : 11
         },
         
         "partStates" : {
@@ -486,7 +663,8 @@
         "properties" : {
           "centered" : true,
           "offset" : [0, 2.75],
-          "zLevel" : 10
+          "transformationGroups" : [ "actor2Body" ],
+          "zLevel" : 12
         },
         
         "partStates" : {
@@ -524,11 +702,12 @@
         }
       },
       
-      "climax" : {
+      "actor1-climax" : {
         "properties" : {
           "centered" : true,
           "offset" : [0, 2.75],
-          "zLevel" : 11
+          "transformationGroups" : [ "actor1Climax" ],
+          "zLevel" : 13
         },
         
         "partStates" : {
@@ -551,15 +730,23 @@
   },
   
   "transformationGroups" : {
-    "actor1-facial-hair" : { "interpolated" : false },
-    "actor1-facial-mask" : { "interpolated" : false },
-    "actor1-hair"        : { "interpolated" : false },
-    "actor1-head"        : { "interpolated" : false },
+    "actor1ArmFront"   : { "interpolated" : false },
+    "actor1ArmBack"    : { "interpolated" : false },
+    "actor1Body"       : { "interpolated" : false },
+    "actor1FacialHair" : { "interpolated" : false },
+    "actor1FacialMask" : { "interpolated" : false },
+    "actor1Hair"       : { "interpolated" : false },
+    "actor1Head"       : { "interpolated" : false },
     
-    "actor2-facial-hair" : { "interpolated" : false },
-    "actor2-facial-mask" : { "interpolated" : false },
-    "actor2-hair"        : { "interpolated" : false },
-    "actor2-head"        : { "interpolated" : false }
+    "actor2ArmFront"   : { "interpolated" : false },
+    "actor2ArmBack"    : { "interpolated" : false },
+    "actor2Body"       : { "interpolated" : false },
+    "actor2FacialHair" : { "interpolated" : false },
+    "actor2FacialMask" : { "interpolated" : false },
+    "actor2Hair"       : { "interpolated" : false },
+    "actor2Head"       : { "interpolated" : false },
+    
+    "actor1Climax"     : { "interpolated" : false }
   },
   
   "particleEmitters" : {

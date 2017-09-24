@@ -26,7 +26,7 @@
   
   "interactive" : true,
   
-  "animation" : "/objects/sexnode/sexnode.animation",
+  "animation" : "/artwork/humanoid/twoactors.animation",
   "animationPosition" : [-4, 0],
   
   "orientations" : [
@@ -37,13 +37,19 @@
 
       "renderLayer" : "player",
       
-      "anchors" : [ "bottom" ]
+      "anchors" : [ "bottom" ],
+      
+      "spaceScan" : 0.1
     }
   ],
 
   "scripts" : ["/objects/sexnode/sexnode.lua"],
   
   "sexboundConfig" : {
+    "actor" : {
+      "enabled" : true
+    },
+  
     "emote" : {
       "enabled" : false
     },
@@ -68,18 +74,17 @@
         "animationState"       : "position1",
         "climaxAnimationState" : "climax",
         
-        "actor1FacialHairOffset" : [0.5, 0],
-        "actor1FacialMaskOffset" : [0.5, 0],
-        "actor1HairOffset"       : [0.5, 0],
-        "actor1HeadOffset"       : [0, 0],
+        "maxAllowedActors" : 2,
         
-        "actor2FacialHairOffset" : [0.375, -0.125],
-        "actor2FacialMaskOffset" : [0.375, -0.125],
-        "actor2HairOffset"       : [0.375, -0.125],
-        "actor2HeadOffset"       : [0, 0],
+        "offsetBody"   : [[-0.375, 0.0], [0.375, 0.0]],
+        "offsetClimax" : [[-0.125, 0.0], [0.0, 0.0]],
+        "offsetHead"   : [[-0.250, 0.0], [1.0, -0.130]],
         
-        "minTempo" : 1,
-        "maxTempo" : [2, 3],
+        "flipBody" : [false, false],
+        "flipHead" : [false, false],
+        
+        "minTempo" : 2,
+        "maxTempo" : [3, 5],
         "sustainedInterval" : [20, 30]
       },
       
@@ -93,18 +98,14 @@
         "animationState"       : "position2",
         "climaxAnimationState" : "climax",
         
-        "actor1FacialHairOffset" : [0.5, -0.495],
-        "actor1FacialMaskOffset" : [0.5, -0.495],
-        "actor1HairOffset"       : [0.5, -0.495],
-        "actor1HeadOffset"       : [0, 0],
+        "maxAllowedActors" : 2,
         
-        "actor2HairFlip"         : true,
-        "actor2FacialHairFlip"   : true,
-        "actor2FacialMaskFlip"   : true,
-        "actor2FacialHairOffset" : [0, -1.240],
-        "actor2FacialMaskOffset" : [0, -1.240],
-        "actor2HairOffset"       : [0, -1.240],
-        "actor2HeadOffset"       : [0, 0],
+        "offsetBody"   : [[-0.625, 0.0], [0.625, 0.0]],
+        "offsetClimax" : [[-0.125, 0.0], [0.0, 0.0]],
+        "offsetHead"   : [[-0.5, -0.5], [-1.125, -1.26]],
+        
+        "flipBody" : [false, false],
+        "flipHead" : [false,  true],
         
         "minTempo" : 2,
         "maxTempo" : [3, 5],
@@ -117,9 +118,9 @@
     },
     
     "sex" : {
-      "enableActors" : true,
-    
       "autoClimax"    : false,
+      
+      "autoRestart"   : true,
       
       "emoteCooldown" : [3, 4],
       
