@@ -51,4 +51,8 @@ moan.playRandom = function(gender)
     animator.setSoundPitch(gender .. "moan", pitch, 0)
     animator.playSound(gender .. "moan")
   end
+  
+  if (emote.isEnabled()) then
+    emote.playMoan()
+  end
 end

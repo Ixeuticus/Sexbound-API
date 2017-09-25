@@ -7,10 +7,13 @@ actor.data = {
   list  = {}
 }
 
+--- Returns the enabled status of the actor module.
+-- @return boolean
 actor.isEnabled = function()
   return self.sexboundConfig.actor.enabled
 end
 
+--- Clears all actor data and resets the associated global animator tags.
 actor.clearActors = function()
   actor.resetAllGlobalTags()
 
@@ -19,10 +22,14 @@ actor.clearActors = function()
   actor.data.list  = {}
 end
 
+--- Checks if actor data contains any actors.
+-- @return boolean
 actor.hasActors = function()
   if (actor.data.count > 0) then return true else return false end
 end
 
+--- Checks if actor data contains at least one player.
+-- @return boolean
 actor.hasPlayer = function()
   local result = false
 
@@ -36,6 +43,9 @@ actor.hasPlayer = function()
   return result
 end
 
+--- Resets an specified actor.
+-- @param args The actor's identity data.
+-- @param actorNumber The actor's index in the actor data list.
 actor.resetActor = function(args, actorNumber)
   local gender = self.sexboundConfig.sex.defaultPlayerGender -- default is 'male'
   -- Check if gender is supported by the mod
@@ -160,7 +170,15 @@ actor.resetActor = function(args, actorNumber)
   
   local defaultPath = "/artwork/humanoid/default.png:default"
   
+  local partEmote = defaultPath
+  
   -- Create the global tags
+  if emote.data.list[actorNumber] then
+    partEmote = "/humanoid/" .. args.species .. "/emote.png:" .. emote.data.list[actorNumber]
+  end
+  
+  animator.setGlobalTag("part-" .. role .. "-emote", partEmote)
+  
   local partHead = "/artwork/humanoid/" .. role .. "/" .. args.species .. "/head_" .. args.gender .. ".png:normal" .. bodyDirectives .. hairDirectives
   animator.setGlobalTag("part-" .. role .. "-head", partHead)
   
@@ -209,7 +227,7 @@ actor.resetActor = function(args, actorNumber)
   animator.setGlobalTag(role .. "-facialMaskFolder", facialMaskFolder)
 end
 
----Resets all actors.
+--- Resets all actors found in the actor data list.
 actor.resetAllActors = function()
   -- Reset actors' global animator tags
   actor.resetAllGlobalTags()
@@ -219,7 +237,7 @@ actor.resetAllActors = function()
   end)
 end
 
----Resets all global animator tags for all actors.
+--- Resets all global animator tags for all actors.
 actor.resetAllGlobalTags = function()
   helper.each(actor.data.list, function(k, v)
     local role = "actor" .. k
@@ -228,6 +246,7 @@ actor.resetAllGlobalTags = function()
     animator.setGlobalTag("part-" .. role .. "-arm-back",    default)
     animator.setGlobalTag("part-" .. role .. "-arm-front",   default)
     animator.setGlobalTag("part-" .. role .. "-body",        default)
+    animator.setGlobalTag("part-" .. role .. "-emote",        default)
     animator.setGlobalTag("part-" .. role .. "-head",        default)
     animator.setGlobalTag("part-" .. role .. "-hair",        default)
     animator.setGlobalTag("part-" .. role .. "-facial-hair", default)
@@ -235,9 +254,10 @@ actor.resetAllGlobalTags = function()
   end)
 end
 
+--- Resets all transformations to animated actor parts.
 actor.resetTransformationGroups = function()
   helper.each(actor.data.list, function(k1, v1)
-    helper.each({"ArmBack", "ArmFront", "Body", "Climax", "FacialHair", "FacialMask", "Hair", "Head"}, function(k2, v2)
+    helper.each({"ArmBack", "ArmFront", "Body", "Climax", "Emote", "FacialHair", "FacialMask", "Hair", "Head"}, function(k2, v2)
       if animator.hasTransformationGroup("actor" .. k1 .. v2) then
         animator.resetTransformationGroup("actor" .. k1 .. v2)
       end
@@ -245,10 +265,12 @@ actor.resetTransformationGroups = function()
   end)
 end
 
----Setup new actor.
--- @param args table of identifiying data
--- @param Boolean store permenantly
+--- Setup new actor.
+-- @param args Table of identifiying data
+-- @param storeActor True := Store actor data in this object.
 actor.setupActor = function(args, storeActor)
+  sb.logInfo(sb.printJson(args))
+
   actor.data.count = actor.data.count + 1
   
   -- Permenantly store first actor if it is an 'npc' entity type
@@ -319,6 +341,8 @@ actor.setupActor = function(args, storeActor)
   actor.resetAllActors()
 end
 
+--- Shifts the actors in actor data list to the right.
+-- @param skipReset True := Skip reseting all actors.
 actor.switchRole = function(skipReset)
     table.insert(actor.data.list, 1, table.remove(actor.data.list, #actor.data.list)) -- Shift actors
   

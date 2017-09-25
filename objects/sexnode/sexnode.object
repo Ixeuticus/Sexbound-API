@@ -51,7 +51,7 @@
     },
   
     "emote" : {
-      "enabled" : false
+      "enabled" : true
     },
   
     "moan" : {
@@ -124,7 +124,7 @@
     "pregnant" : {
       "enabled" : true,
       
-      "fertility" : 1.0,
+      "fertility" : 0.6,
       
       "trimesterCount" : 1,
     

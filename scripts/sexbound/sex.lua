@@ -78,12 +78,7 @@ function sex.loop(dt, callback)
   
   -- Update the curent state machine state
   self.sexStates.update(dt)
-  
-  -- Try to talk
-  sex.tryToTalk(function()
-    sex.talk()
-  end)
-  
+    
   -- Execute your logic as a callback within this sex loop
   if (callback ~= nil) then
     callback()
@@ -272,9 +267,9 @@ sex.setupTimers = function()
 end
 
 ---Automatically say next sextalk dialog.
-sex.talk = function()
+sex.talk = function(stateDesc)
   if (sextalk.getTrigger() == "statemachine") then
-    sextalk.sayNext( self.sexStates.stateDesc() )
+    sextalk.sayNext( stateDesc )
   end
   
   if (sextalk.getTrigger() == "animation") then
@@ -367,8 +362,8 @@ function sex.tryToMoan(callback)
   return false
 end
 
----Updates all specified timers with the Delta Time
--- @param list of timers names
+--- Updates all specified timers with the Delta Time
+-- @param timers List of timers names
 -- @param dt Delta Time
 sex.updateTimers = function(timers, dt)
   helper.each(timers, function(k, v)
@@ -414,7 +409,8 @@ end
 function idleState.enteringState(stateData)
   -- Set the default state animation for the idleState state. Start new animation.
   animator.setAnimationState("sex", sex.defaultStateAnimation("idleState"), true)
-
+  
+  
   -- Clear climax points
   self.climaxPoints.current = 0
   
@@ -463,18 +459,21 @@ function sexState.enteringState(stateData)
   -- Set the default state animation for the sexState state. Start new animation.
   animator.setAnimationState("sex", sex.defaultStateAnimation("sexState"), true)
 
-  position.changePosition("default")
+  position.changePosition( position.data.currentIndex )
   
-  position.setupSexPosition()
-
   actor.resetAllActors()
-  
-  sex.talk()
+
+  sex.talk("sexState")
 end
 
 function sexState.update(dt, stateData)
   if not sex.isHavingSex() then return true end
   if sex.isCumming() then return true end
+  
+  -- Try to talk
+  sex.tryToTalk(function()
+    sex.talk("sexState")
+  end)
   
   local sexPosition = position.selectedSexPosition()
   
@@ -486,7 +485,7 @@ function sexState.update(dt, stateData)
   -- Try to emote
   if (sexPosition.allowEmote) then
     sex.tryToEmote(function() 
-      emote.playRandom()
+      emote.playRandom("sexState")
     end)
   end
   
@@ -532,17 +531,24 @@ function climaxState.enteringState(stateData)
   
   sex.setTimer("dialog", 0)
   
-  sex.talk()
+  emote.playRandom("climaxState")
+  
+  sex.talk("climaxState")
 end
 
 function climaxState.update(dt, stateData)
   if not sex.isHavingSex() then return true end
 
+  -- Try to talk
+  sex.tryToTalk(function()
+    sex.talk("climaxState")
+  end)
+  
   local climaxTimer = sex.getTimer("climax")
   climaxTimer = sex.setTimer("climax", climaxTimer + dt)
   
   sex.tryToEmote(function() 
-    emote.playRandom()
+    emote.playRandom("climaxState")
   end)
 
   sex.tryToMoan(function()
@@ -582,8 +588,6 @@ end
 
 function exitState.update(dt, stateData)
   if not sex.isHavingSex() then
-    self.currentPositionIndex = 1
-    
     position.changePosition(1)
     
     return true

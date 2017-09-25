@@ -12,6 +12,20 @@ helper.clamp = function(value, min, max)
   return util.clamp(value, min, max)
 end
 
+--- Counts elements in table and returns the value.
+-- @param t List of elements.
+helper.count = function(t)
+  if not t then return nil end
+  
+  local count = 0
+  
+  helper.each(t, function(k, v)
+    count = count + 1
+  end)
+  
+  return count
+end
+
 ---Wrapper function for util.each
 -- @param t Data as table
 -- @param callback Callback function. Takes arguments k = key and v = value.

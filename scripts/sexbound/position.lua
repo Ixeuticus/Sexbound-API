@@ -5,8 +5,30 @@ position = {}
 require "/scripts/sexbound/helper.lua"
 require "/scripts/vec2.lua"
 
+position.data = {
+  currentIndex = nil,
+  currentPosition = nil,
+  count = 0
+}
+
 --- Initializes the position module.
 position.init = function()
+  position.setupMessageHandlers()
+
+  position.data.count = helper.count(self.sexboundConfig.position) -- Count positions
+  
+  position.changePosition(1) -- Start in position #1
+end
+
+position.reset = function()
+  position.changePosition(1)
+
+  animator.setAnimationState("sex", position.data.currentPosition.animationState)
+
+  actor.resetAllActors()
+end
+
+position.setupMessageHandlers = function()
   -- Handle change position
   message.setHandler("changePosition", function(_, _, change)
     local sexState = sex.getSexState()
@@ -15,37 +37,23 @@ position.init = function()
     if (sexState.stateDesc() ~= "sexState") then return end
   
     -- Check if unique positions have been defined. One is always defined by default.
-    if (self.positionCount <= 1) then return end
+    if (position.data.count <= 1) then return end
   
-    self.currentPositionIndex = self.currentPositionIndex + change
+    local newIndex = position.data.currentIndex + change
   
-    if (self.currentPositionIndex <= 0) then
-      self.currentPositionIndex = self.positionCount
+    if (newIndex <= 0) then
+      newIndex = position.data.count
     end
     
-    if (self.currentPositionIndex > self.positionCount) then
-      self.currentPositionIndex = 1
+    if (newIndex > position.data.count) then
+      newIndex = 1
     end
-  
-    position.changePosition(self.currentPositionIndex)
     
-    animator.setAnimationState("sex", "position" .. self.currentPositionIndex)
+    position.changePosition(newIndex)
+    
+    animator.setAnimationState("sex", "position" .. newIndex)
 
     actor.resetAllActors()
-    
-    if (sextalk.isEnabled()) then
-      if (self.sexboundConfig.sextalk.trigger == "statemachine") then
-        sextalk.sayNext("sexState")
-      end
-      
-      if (self.sexboundConfig.sextalk.trigger == "animation") then
-        local animationState = animator.animationState("sex")
-
-        sextalk.sayNext(animationState)
-      end
-      
-      self.timers.talk = 0
-    end
   end)
   
   -- Handle reset position
@@ -54,76 +62,49 @@ position.init = function()
       position.reset()
     end
   end)
-  
-  -- Set the default position as current
-  self.currentPositionIndex = 1
-  
-  self.currentPosition = {}
-  
-  -- Setup the position count
-  self.positionCount = 0
-  
-  -- Count positions
-  if (self.sexboundConfig.position ~= nil) then
-    helper.each(self.sexboundConfig.position, function(k, v)
-      self.positionCount = self.positionCount + 1
-    end)
-  end
-  
-  -- Change position to first position
-  position.changePosition(1)
-end
-
-function position.reset()
-  self.currentPositionIndex = 1
-
-  position.changePosition(1)
-
-  animator.setAnimationState("sex", position.selectedSexPosition().animationState)
-
-  actor.resetAllActors()
 end
 
 position.adjustTransformations = function()
   actor.resetTransformationGroups()
 
-  local maxActors = 2
-  local offsetAll = {0, 0}
+  actor.resetAllActors()
   
-  if (self.currentPosition.maxAllowedActors ~= nil) then
-    maxActors = self.currentPosition.maxAllowedActors -- Normally is 2
-  end
+  local currentPosition = position.getCurrentPosition()
   
-  for i=1, maxActors do
+  for i=1, self.sexboundConfig.actor.maxCount do
     offsetAll = {0, 0}
-  
-    if (self.currentPosition.offsetAll ~= nil) then
-      offsetAll = self.currentPosition.offsetAll[i]
+    
+    if currentPosition.offsetAll then
+      offsetAll = currentPosition.offsetAll[i]
     end
-  
-    helper.each({"Body", "Climax", "Head"}, function(k2, v2)
-      if (self.currentPosition["offset" .. v2] ~= nil) then
-        position.translateParts(i, v2, self.currentPosition["offset" .. v2][i], offsetAll)
+    
+    helper.each({"Body", "Climax", "Head"}, function(k2, v2) -- For each major actor part group
+      if (currentPosition["offset" .. v2] ~= nil) then
+        position.translateParts(i, v2, currentPosition["offset" .. v2][i], offsetAll)
       end
         
-      if (self.currentPosition["flip" .. v2] ~= nil and self.currentPosition["flip" .. v2][i] == true) then
+      if (currentPosition["flip" .. v2] ~= nil and currentPosition["flip" .. v2][i] == true) then
         position.flipParts(i, v2)
       end
     end)
   end
 end
 
-position.translateParts = function(actorNumber, partName, offset, globalOffset)
+position.getCurrentPosition = function()
+  return self.sexboundConfig.position[ position.data.currentIndex ]
+end
+
+position.translateParts = function(actorNumber, partName, offset, offsetAll)
   local partsList = {}
   table.insert(partsList, 1, partName)
   
   if (partName == "Body") then partsList = {"ArmBack", "ArmFront", "Body"} end
   
-  if (partName == "Head") then partsList = {"FacialHair", "FacialMask", "Hair", "Head"} end
+  if (partName == "Head") then partsList = {"FacialHair", "FacialMask", "Emote", "Hair", "Head"} end
   
   helper.each(partsList, function(k, v)
     if (animator.hasTransformationGroup("actor" .. actorNumber .. v)) then
-      position.translatePart(actorNumber, v, vec2.add(offset, globalOffset))
+      position.translatePart(actorNumber, v, vec2.add(offset, offsetAll))
     end
   end)
 end
@@ -140,7 +121,7 @@ position.flipParts = function(actorNumber, partName)
   
   if (partName == "Body") then partsList = {"ArmBack", "ArmFront", "Body"} end
   
-  if (partName == "Head") then partsList = {"FacialHair", "FacialMask", "Hair", "Head"} end
+  if (partName == "Head") then partsList = {"FacialHair", "FacialMask", "Emote", "Hair", "Head"} end
   
   helper.each(partsList, function(k, v)
     if (animator.hasTransformationGroup("actor" .. actorNumber .. v)) then
@@ -155,42 +136,42 @@ position.flipPart = function(actorNumber, partName)
   end
 end
 
-position.setupSexPosition = function()
-  self.currentPosition = self.sexboundConfig.position[self.currentPositionIndex]
+position.setupSexPosition = function(index)
+  position.data.currentPosition = self.sexboundConfig.position[index]
 
-  local minTempo          = self.currentPosition.minTempo
-  local maxTempo          = self.currentPosition.maxTempo
-  local sustainedInterval = self.currentPosition.sustainedInterval
+  local minTempo          = position.data.currentPosition.minTempo
+  local maxTempo          = position.data.currentPosition.maxTempo
+  local sustainedInterval = position.data.currentPosition.sustainedInterval
   
-  if ( minTempo == nil ) then self.currentPosition.minTempo = 1 end
+  if ( minTempo == nil ) then position.data.currentPosition.minTempo = 1 end
   
-  if ( maxTempo == nil ) then self.currentPosition.maxTempo = 1 end
+  if ( maxTempo == nil ) then position.data.currentPosition.maxTempo = 1 end
   
-  if ( sustainedInterval == nil ) then self.currentPosition.sustainedInterval = 1 end
+  if ( sustainedInterval == nil ) then position.data.currentPosition.sustainedInterval = 1 end
 
   -- Modify the position data
-  self.currentPosition.minTempo     = helper.randomInRange(minTempo)
-  self.currentPosition.nextMinTempo = helper.randomInRange(minTempo)
+  position.data.currentPosition.minTempo     = helper.randomInRange(minTempo)
+  position.data.currentPosition.nextMinTempo = helper.randomInRange(minTempo)
   
-  self.currentPosition.maxTempo     = helper.randomInRange(maxTempo)
-  self.currentPosition.nextMaxTempo = helper.randomInRange(maxTempo)
+  position.data.currentPosition.maxTempo     = helper.randomInRange(maxTempo)
+  position.data.currentPosition.nextMaxTempo = helper.randomInRange(maxTempo)
   
-  self.currentPosition.sustainedInterval     = helper.randomInRange(sustainedInterval)
-  self.currentPosition.nextSustainedInterval = helper.randomInRange(sustainedInterval)
+  position.data.currentPosition.sustainedInterval     = helper.randomInRange(sustainedInterval)
+  position.data.currentPosition.nextSustainedInterval = helper.randomInRange(sustainedInterval)
   
   position.adjustTransformations()
 end
 
+--- Changes position to specified index.
+-- @param index Position number.
 position.changePosition = function(index)
-  local newSexPosition = self.sexboundConfig.position[index] 
-
-  if (newSexPosition ~= nil) then
-    self.current = newSexPosition
-    
-    position.setupSexPosition()
+  if (self.sexboundConfig.position[index]) then
+    position.data.currentIndex = index
+  
+    position.setupSexPosition(index)
   end
 end
 
 position.selectedSexPosition = function()
-  return self.currentPosition
+  return position.data.currentPosition
 end
