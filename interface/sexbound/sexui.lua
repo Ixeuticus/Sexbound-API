@@ -36,20 +36,19 @@ function init()
   -- Reset timers 
   resetTimers()
   
-  -- Try to retrieve player's identifying information.
-  local playerData = root.assetJson("/playeridentities.json")
-  
   local data = {}
-
-  -- Find identifying data of the player or output radio message
-  if (playerData[player.uniqueId()] ~= nil) then
-    data.identity = playerData[player.uniqueId()]
+  
+  if pcall( checkForPlayerIdentityFile ) then -- Catch that damn exception
+    local playerData = root.assetJson("/playeridentities.json")
+    
+    -- Find identifying data of the player or output radio message
+    if (playerData[player.uniqueId()] ~= nil) then
+      data.identity = playerData[player.uniqueId()]
+    else
+      notifyFailedPlayerIdentity()
+    end
   else
-    player.radioMessage({
-      messageId = "missingplayerid",
-      unique    = false,
-      text      = "^orange;Warning:^reset; Sexbound could not determine your player's identity! Run the ^green;BuildSexboundData^reset; executable file within your 'mods' folder to fix this!"
-    })
+    notifyFailedPlayerIdentity()
   end
   
   data.id      = player.id()
@@ -70,6 +69,18 @@ function init()
     -- Send initial message to obtain the source entity's position data
     helper.sendMessage(self.sourceEntity, "sync-position", nil, true)
   end
+end
+
+function notifyFailedPlayerIdentity()
+  player.radioMessage({
+    messageId = "missingplayerid",
+    unique    = false,
+    text      = "^orange;Warning:^reset; Sexbound could not determine your player's identity! Run the ^green;BuildSexboundData^reset; executable file within your 'mods' folder to fix this!"
+  })
+end
+
+function checkForPlayerIdentityFile()
+  root.assetJson("/playeridentities.json")
 end
 
 -- Updates the UI.
