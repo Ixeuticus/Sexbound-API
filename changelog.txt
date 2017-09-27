@@ -1,3 +1,7 @@
+1.11.0: Added emotes to NPC faces during sex.
+- BuildSexboundAPI executable is no longer needed.
+- Fixed Avian fluff color for player characters.
+1.10.1: Fixed sextalk dialog bug.
 1.10.0: Male players and male NPCs can now make female NPCs become pregnant.
 - NPCs can now automatically climax when having sex with other NPCs.
 - Reorganized art assets into artwork folder.
