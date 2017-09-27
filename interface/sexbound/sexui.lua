@@ -41,6 +41,11 @@ function init()
   local data = {}
   
   data.identity = helper.parsePortraitData(player.species(), player.gender(), portraitData)
+  
+  if not data.identity then
+    notifyFailedPlayerIdentity()
+  end
+  
   data.id       = player.id()
   data.gender   = player.gender()
   data.species  = player.species()
@@ -65,7 +70,7 @@ function notifyFailedPlayerIdentity()
   player.radioMessage({
     messageId = "missingplayerid",
     unique    = false,
-    text      = "^orange;Warning:^reset; Sexbound could not determine your player's identity! Run the ^green;BuildSexboundData^reset; executable file within your 'mods' folder to fix this!"
+    text      = "^orange;Unsupported Species:^reset; Sorry, but Sexbound does not support your species yet!"
   })
 end
 
