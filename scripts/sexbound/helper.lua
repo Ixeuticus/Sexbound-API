@@ -126,3 +126,92 @@ helper.updateMessage = function(message, callback)
     callback(result)
   end
 end
+
+helper.parsePortraitData = function(species, gender, data)
+  local result = nil
+
+  -- Check if species is supported
+  helper.each({"apex", "avian", "floran", "glitch", "human", "hylotl", "novakid"}, function(k, v)
+    if (species == v) then result = true end
+  end)
+
+  if not result then return nil end
+  
+  local identity = {
+    bodyDirectives = "",
+    emoteDirectives = "",
+    facialHairDirectives = "",
+    facialHairGroup = "",
+    facialHairType = "",
+    facialMaskDirectives = "",
+    facialMaskGroup = "",
+    facialMaskType = "",
+    hairGroup = "hair",
+    hairType = "",
+    hairDirectives = "",
+    gender = "",
+    species = ""
+  }
+
+  identity.gender = gender
+  
+  identity.species = species
+  
+  helper.each(data, function(k, v)
+    -- Try to find beaks identity
+    if (string.find(v.image, "/beaks/") ~= nil) then
+      identity.facialMaskGroup = "beaks"
+      identity.facialMaskType  = string.match(v.image, '^.*/beaks/(.*)%.png')
+      identity.facialMaskDirectives = string.match(v.image, '%?replace.*')
+    end
+    
+    -- Try to find beard identity
+    if (string.find(v.image, "/beard") ~= nil) then
+      identity.facialHairGroup = "beard"
+      identity.facialHairType  = string.match(v.image, '^.*/bear.*/(.*)%.png')
+      identity.facialHairDirectives = string.match(v.image, '%?replace.*')
+    end
+  
+    -- Try to find body identity
+    if (string.find(v.image, "body.png") ~= nil) then
+      identity.bodyDirectives = string.match(v.image, '%?replace.*')
+    end
+  
+    -- Try to find brand identity
+    if (string.find(v.image, "/brand/") ~= nil) then
+      identity.facialHairGroup = "brand"
+      identity.facialHairType = string.match(v.image, '^.*/brand/(%d+)%.png')
+      identity.facialHairDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+    end
+    
+    -- Try to find fluff identity
+    if (string.find(v.image, "/fluff/") ~= nil) then
+      identity.facialHairGroup = "fluff"
+      identity.facialHairType  = string.match(v.image, '^.*/fluff/(.*)%.png')
+      identity.facialHairDirectives = string.match(v.image, '%?replace.*')
+    end
+    
+    -- Try to find emote identity
+    if (string.find(v.image, "emote.png") ~= nil) then
+      identity.emoteDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+    end
+    
+    -- Try to find hair identity
+    if (string.find(v.image, "/hair/") ~= nil) then
+      if (species == "floran" or species == "hylotl") then
+        identity.hairType = string.match(v.image, '^.*/hair/(%d+)%.png')
+      else
+        identity.hairType = string.match(v.image, '^.*/hair/(%a+%d+)%.png')
+      end
+      
+      identity.hairDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+    end
+    
+    if (string.find(v.image, "/hair" .. gender .. "/") ~= nil) then
+      identity.hairType = string.match(v.image, '^.*/hair.*/(%d+)%.png')
+      identity.hairDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+    end
+  end)
+  
+  return identity
+end

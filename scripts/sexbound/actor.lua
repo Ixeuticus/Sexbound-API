@@ -66,9 +66,11 @@ actor.resetActor = function(args, actorNumber)
   args.species = species
   
   local bodyDirectives   = ""
+  local facialHairDirectives = ""
   local facialHairFolder = "default"
   local facialHairGroup  = ""
   local facialHairType   = ""
+  local facialMaskDirectives = ""
   local facialMaskFolder = "default"
   local facialMaskGroup  = ""
   local facialMaskType   = ""
@@ -87,8 +89,10 @@ actor.resetActor = function(args, actorNumber)
   -- Set animator global tags for identifying information
   if (args.identity ~= nil) then
     if (args.identity.bodyDirectives  ~= nil) then bodyDirectives  = args.identity.bodyDirectives  end
+    if (args.identity.facialHairDirectives ~= nil) then facialHairDirectives = args.identity.facialHairDirectives end
     if (args.identity.facialHairGroup ~= nil) then facialHairGroup = args.identity.facialHairGroup end
     if (args.identity.facialHairType  ~= nil) then facialHairType  = args.identity.facialHairType  end
+    if (args.identity.facialMaskDirectives ~= nil) then facialMaskDirectives = args.identity.facialMaskDirectives end
     if (args.identity.facialMaskGroup ~= nil) then facialMaskGroup = args.identity.facialMaskGroup end
     if (args.identity.facialMaskType  ~= nil) then facialMaskType  = args.identity.facialMaskType  end
     if (args.identity.hairType        ~= nil) then hairType        = args.identity.hairType        end
@@ -192,7 +196,7 @@ actor.resetActor = function(args, actorNumber)
   animator.setGlobalTag("part-" .. role .. "-arm-back", partArmBack)
   
   if (facialHairType ~= "") then
-    local partFacialHair = "/humanoid/" .. args.species .. "/" .. facialHairFolder .. "/" .. facialHairType .. ".png:normal" .. hairDirectives
+    local partFacialHair = "/humanoid/" .. args.species .. "/" .. facialHairFolder .. "/" .. facialHairType .. ".png:normal" .. facialHairDirectives
     animator.setGlobalTag("part-" .. role .. "-facial-hair", partFacialHair)
   else
     animator.setGlobalTag("part-" .. role .. "-facial-hair", defaultPath)
@@ -201,7 +205,7 @@ actor.resetActor = function(args, actorNumber)
   animator.setGlobalTag(role .. "-facialHairType", facialHairType)
   
   if (facialMaskType ~= "") then
-    local partFacialMask = "/humanoid/" .. args.species .. "/" .. facialMaskFolder .. "/" .. facialMaskType .. ".png:normal" .. hairDirectives
+    local partFacialMask = "/humanoid/" .. args.species .. "/" .. facialMaskFolder .. "/" .. facialMaskType .. ".png:normal" .. facialMaskDirectives
     animator.setGlobalTag("part-" .. role .. "-facial-mask", partFacialMask)
   else
     animator.setGlobalTag("part-" .. role .. "-facial-mask", defaultPath)
@@ -269,8 +273,6 @@ end
 -- @param args Table of identifiying data
 -- @param storeActor True := Store actor data in this object.
 actor.setupActor = function(args, storeActor)
-  sb.logInfo(sb.printJson(args))
-
   actor.data.count = actor.data.count + 1
   
   -- Permenantly store first actor if it is an 'npc' entity type
@@ -300,19 +302,28 @@ actor.setupActor = function(args, storeActor)
     
     identity.bodyDirectives = ""
     
-    helper.each(helper.randomChoice(speciesConfig.bodyColor), function(k, v)
-      identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
-    end)
+    if (speciesConfig.bodyColor[1] ~= "") then
+      helper.each(helper.randomChoice(speciesConfig.bodyColor), function(k, v)
+        identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
+      end)
+    end
     
-    helper.each(helper.randomChoice(speciesConfig.undyColor), function(k, v)
-      identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
-    end)
+    if (speciesConfig.undyColor[1] ~= "") then
+      helper.each(helper.randomChoice(speciesConfig.undyColor), function(k, v)
+        identity.bodyDirectives = identity.bodyDirectives .. "?replace=" .. k .. "=" .. v 
+      end)
+    end
     
     identity.hairDirectives = ""
     
-    helper.each(helper.randomChoice(speciesConfig.hairColor), function(k, v)
-      identity.hairDirectives = identity.hairDirectives .. "?replace=" .. k .. "=" .. v 
-    end)
+    if (speciesConfig.hairColor[1] ~= "") then
+      helper.each(helper.randomChoice(speciesConfig.hairColor), function(k, v)
+        identity.hairDirectives = identity.hairDirectives .. "?replace=" .. k .. "=" .. v 
+      end)
+    end
+    
+    --identity.facialHairDirectives = identity.bodyDirectives .. identity.hairDirectives
+    --identity.facialMaskDirectives = identity.bodyDirectives
     
     local genderCount = 1
     

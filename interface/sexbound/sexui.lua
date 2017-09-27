@@ -36,26 +36,16 @@ function init()
   -- Reset timers 
   resetTimers()
   
+  local portraitData = world.entityPortrait( player.id(), "full" )
+  
   local data = {}
   
-  if pcall( checkForPlayerIdentityFile ) then -- Catch that damn exception
-    local playerData = root.assetJson("/playeridentities.json")
-    
-    -- Find identifying data of the player or output radio message
-    if (playerData[player.uniqueId()] ~= nil) then
-      data.identity = playerData[player.uniqueId()]
-    else
-      notifyFailedPlayerIdentity()
-    end
-  else
-    notifyFailedPlayerIdentity()
-  end
-  
-  data.id      = player.id()
-  data.gender  = player.gender()
-  data.species = player.species()
-  data.type    = "player"
-  data.uuid    = player.uniqueId()
+  data.identity = helper.parsePortraitData(player.species(), player.gender(), portraitData)
+  data.id       = player.id()
+  data.gender   = player.gender()
+  data.species  = player.species()
+  data.type     = "player"
+  data.uuid     = player.uniqueId()
   
   self.sourceEntity = pane.sourceEntity()
   

@@ -192,7 +192,7 @@ function sex.setupHandlers()
     if (args.type == "player") then
       sex.data.player = args
     end
-  
+
     if (actor.isEnabled) then actor.setupActor(args, false) end 
   end)
   
