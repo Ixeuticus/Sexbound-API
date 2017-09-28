@@ -1,3 +1,4 @@
+1.12.0: Other mods can now specify a configuration to override configuration used lust causes an NPC to transform.
 1.11.0: Added emotes to NPC faces during sex.
 - BuildSexboundAPI executable is no longer needed.
 - Fixed Avian fluff color for player characters.
