@@ -22,7 +22,7 @@ updateUniqueId = function()
   -- Transform into object when status property 'lust' is true
   if (status.statusProperty("lust") == true) then
     status.setStatusProperty("lust", false)
-
+    
     transformIntoObject()
   end
   
@@ -80,6 +80,15 @@ function handleSexRequest(args)
 end
 
 function transformIntoObject(args)
+  self.lustConfig = {
+    damageSourceKind = "lust"
+  }
+
+  -- Attempt to override default lustConfig options
+  if (status.statusProperty("lustConfigOverride") ~= "default") then
+    self.lustConfig = helper.mergeTable(self.lustConfig, status.statusProperty("lustConfigOverride"))
+  end
+  
   -- Create an object that resembles the npc at the position
   local position = vec2.floor(entity.position())
   position[2] = position[2] - 2
@@ -92,6 +101,13 @@ function transformIntoObject(args)
     sendMessage(self.newUniqueId, "store-actor")
   
     unloadNPC()
+  else
+    status.applySelfDamageRequest({
+      damageType       = "IgnoresDef",
+      damage           = 0,
+      damageSourceKind = self.lustConfig.damageSourceKind,
+      sourceEntityId   = entity.id()
+    })
   end
 end
 
@@ -140,6 +156,7 @@ end
 
 function unloadNPC()
   npc.setDropPools({}) -- prevent loot drop
+  
   npc.setDeathParticleBurst(nil) -- prevent death particle effect
   
   npc.setPersistent(false)
@@ -148,7 +165,7 @@ function unloadNPC()
   status.applySelfDamageRequest({
     damageType       = "IgnoresDef",
     damage           = status.resourceMax("health"),
-    damageSourceKind = "fire",
+    damageSourceKind = self.lustConfig.damageSourceKind,
     sourceEntityId   = entity.id()
   })
 end
