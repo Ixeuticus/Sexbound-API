@@ -8,6 +8,12 @@ oldUpdateUniqueId = updateUniqueId
 updateUniqueId = function()
   oldUpdateUniqueId() -- Run the previous version of the function.
   
+  if (config.getParameter("actualUniqueId") and entity.uniqueId() ~= config.getParameter("actualUniqueId")) then
+    tryToSetUniqueId(config.getParameter("actualUniqueId"), function(uniqueId)
+      npc.setUniqueId( uniqueId ) -- Set the NPC's unique id as the object's unique id.
+    end)
+  end
+  
   if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
     local pregnant = status.statusProperty("pregnant")
   
@@ -94,6 +100,7 @@ function transformIntoObject(args)
   position[2] = position[2] - 2
   
   self.newUniqueId = tostring(sb.makeRandomSource():randu64())
+  self.newNPCUniqueId = tostring(sb.makeRandomSource():randu64())
   
   local faceDirection = helper.randomDirection()
   
@@ -121,9 +128,10 @@ function sendMessage(uniqueId, message, role)
     species    = npc.humanoidIdentity().species,
     level      = npc.level(),
     seed       = npc.seed(),
-    type       = npc.npcType()
+    type       = npc.npcType(),
+    uniqueId   = entity.uniqueId()
   }
-  
+
   -- Preserve the pregnancy status
   if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
     data.pregnant = status.statusProperty("pregnant")
@@ -154,6 +162,22 @@ function tryToGiveBirth(callback)
   return false
 end
 
+tryToSetUniqueId = function(uniqueId, callback)
+  if not self.findUniqueId then
+    self.findUniqueId = world.findUniqueEntity(uniqueId)
+  else
+    if (self.findUniqueId:finished()) then
+      if not self.findUniqueId:result() then
+        if (callback ~= nil) then
+          callback(uniqueId)
+        end
+      end
+      
+      self.findUniqueId = nil
+    end
+  end
+end
+
 function unloadNPC()
   npc.setDropPools({}) -- prevent loot drop
   
@@ -161,6 +185,8 @@ function unloadNPC()
   
   npc.setPersistent(false)
 
+  npc.setUniqueId(nil) -- Remove uniqueId from NPC
+  
   -- Kill the NPC
   status.applySelfDamageRequest({
     damageType       = "IgnoresDef",

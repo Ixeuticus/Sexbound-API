@@ -28,6 +28,12 @@ end
 
 --- Hook - Handles object's update phase.
 function update(dt)
+  if (storage.npc.uniqueId and storage.npc.uniqueId ~= object.uniqueId()) then
+    sex.tryToSetUniqueId(storage.npc.uniqueId, function(uniqueId)
+      object.setUniqueId( uniqueId ) -- Set the NPC's unique id as the object's unique id.
+    end)
+  end
+  
   sex.loop(dt)
   
   local worldTime = world.day() + world.timeOfDay()
@@ -50,15 +56,19 @@ function respawnNPC()
   if (storage.npc ~= nil) then
     local position = vec2.add(object.position(), {0, 5})
   
-    local parameters = nil
+    local parameters = {}
   
     if (pregnant.isPregnant()) then
-      parameters = {
-        statusControllerSettings = {
-          statusProperties = {
-            pregnant = storage.pregnant
-          }
+      parameters.statusControllerSettings = {
+        statusProperties = {
+          pregnant = storage.pregnant
         }
+      }
+    end
+    
+    if (storage.npc.uniqueId) then
+      parameters.scriptConfig = {
+        actualUniqueId = storage.npc.uniqueId
       }
     end
     

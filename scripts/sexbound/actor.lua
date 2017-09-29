@@ -279,7 +279,7 @@ actor.setupActor = function(args, storeActor)
   if (storeActor) then
     storage.npc  = args
     sex.data.npc = args
-    
+
     -- Store any prior pregnancy
     if (args.pregnant ~= nil and args.pregnant.isPregnant) then
       storage.pregnant = args.pregnant
