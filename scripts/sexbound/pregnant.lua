@@ -80,9 +80,7 @@ local function becomePregnant(other)
   if not pregnant.isEnabled() then return false end
 
   -- Entity should not get pregnant while already pregnant
-  if (storage.pregnant.isPregnant ~= nil) then
-    if (storage.pregnant.isPregnant) then return false end
-  end
+  if (storage.pregnant.isPregnant) then return false end
   
   -- Store that the entity is pregnant
   storage.pregnant.isPregnant = true

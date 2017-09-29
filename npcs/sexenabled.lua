@@ -8,7 +8,7 @@ oldUpdateUniqueId = updateUniqueId
 updateUniqueId = function()
   oldUpdateUniqueId() -- Run the previous version of the function.
   
-  if (status.statusProperty("pregnant") ~= nil) then
+  if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
     local pregnant = status.statusProperty("pregnant")
   
     -- Handle pregnancy
@@ -125,7 +125,7 @@ function sendMessage(uniqueId, message, role)
   }
   
   -- Preserve the pregnancy status
-  if (status.statusProperty("pregnant") ~= nil) then
+  if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
     data.pregnant = status.statusProperty("pregnant")
   end
   

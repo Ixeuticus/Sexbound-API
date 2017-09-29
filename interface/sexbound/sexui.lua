@@ -5,7 +5,7 @@ function init()
   self.entityType = world.entityType(pane.sourceEntity())
 
   --if (self.entityType == "object") then
-  player.lounge(pane.sourceEntity()) -- Command the player to lounge in the source entity
+  player.lounge( pane.sourceEntity() ) -- Command the player to lounge in the source entity
   --end
   
   -- Storage (Canvas)
