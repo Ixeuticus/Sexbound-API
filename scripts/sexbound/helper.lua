@@ -161,14 +161,14 @@ helper.parsePortraitData = function(species, gender, data)
     -- Try to find beaks identity
     if (string.find(v.image, "/beaks/") ~= nil) then
       identity.facialMaskGroup = "beaks"
-      identity.facialMaskType  = string.match(v.image, '^.*/beaks/(.*)%.png')
+      identity.facialMaskType  = string.match(v.image, '^.*/beaks/(%d+)%.png')
       identity.facialMaskDirectives = string.match(v.image, '%?replace.*')
     end
     
     -- Try to find beard identity
     if (string.find(v.image, "/beard") ~= nil) then
       identity.facialHairGroup = "beard"
-      identity.facialHairType  = string.match(v.image, '^.*/bear.*/(.*)%.png')
+      identity.facialHairType  = string.match(v.image, '^.*/bear.*/(%d+)%.png')
       identity.facialHairDirectives = string.match(v.image, '%?replace.*')
     end
   
@@ -187,7 +187,7 @@ helper.parsePortraitData = function(species, gender, data)
     -- Try to find fluff identity
     if (string.find(v.image, "/fluff/") ~= nil) then
       identity.facialHairGroup = "fluff"
-      identity.facialHairType  = string.match(v.image, '^.*/fluff/(.*)%.png')
+      identity.facialHairType  = string.match(v.image, '^.*/fluff/(%d+)%.png')
       identity.facialHairDirectives = string.match(v.image, '%?replace.*')
     end
     

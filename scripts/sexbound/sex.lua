@@ -25,7 +25,7 @@ require "/scripts/sexbound/helper.lua"
 function sex.init(callback)
   sex.setupHandlers()
   
-  -- Load custom configuration
+  -- Load configuration from mod
   self.sexboundConfig = helper.mergeTable(root.assetJson("/scripts/sexbound/default.config"), config.getParameter("sexboundConfig"))
   
   -- Predefined sex states
