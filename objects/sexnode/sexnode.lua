@@ -66,10 +66,16 @@ function respawnNPC()
       }
     end
     
-    if (storage.npc.uniqueId) then
-      parameters.scriptConfig = {
-        actualUniqueId = storage.npc.uniqueId
-      }
+    if (storage.npc.uniqueId or storage.npc.home) then
+      parameters.scriptConfig = {}
+    
+      if (storage.npc.uniqueId) then
+        parameters.scriptConfig.actualUniqueId  = storage.npc.uniqueId
+      end
+      
+      if (storage.npc.storage) then
+        parameters.scriptConfig.previousStorage = storage.npc.storage
+      end
     end
     
     world.spawnNpc(position, storage.npc.species, storage.npc.type, storage.npc.level, storage.npc.seed, parameters)

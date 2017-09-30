@@ -7,10 +7,15 @@ oldUpdateUniqueId = updateUniqueId
 
 updateUniqueId = function()
   oldUpdateUniqueId() -- Run the previous version of the function.
-  
+
   if (config.getParameter("actualUniqueId") and entity.uniqueId() ~= config.getParameter("actualUniqueId")) then
     tryToSetUniqueId(config.getParameter("actualUniqueId"), function(uniqueId)
       npc.setUniqueId( uniqueId ) -- Set the NPC's unique id as the object's unique id.
+      
+      -- Restore the NPCs storage parameters
+      if (config.getParameter("previousStorage")) then
+        storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
+      end
     end)
   end
   
@@ -135,6 +140,11 @@ function sendMessage(uniqueId, message, role)
   -- Preserve the pregnancy status
   if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
     data.pregnant = status.statusProperty("pregnant")
+  end
+  
+  -- Preserve storage information
+  if (storage) then
+    data.storage = storage
   end
   
   -- Send the identifying information to the object to be stored.
