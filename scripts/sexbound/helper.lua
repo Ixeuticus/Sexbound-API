@@ -198,7 +198,7 @@ helper.parsePortraitData = function(species, gender, data)
     
     -- Try to find hair identity
     if (string.find(v.image, "/hair/") ~= nil) then
-      if (species == "floran" or species == "hylotl") then
+      if (species == "avian" or species == "floran" or species == "hylotl") then
         identity.hairType = string.match(v.image, '^.*/hair/(%d+)%.png')
       else
         identity.hairType = string.match(v.image, '^.*/hair/(%a+%d+)%.png')
