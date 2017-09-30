@@ -162,14 +162,14 @@ helper.parsePortraitData = function(species, gender, data)
     if (string.find(v.image, "/beaks/") ~= nil) then
       identity.facialMaskGroup = "beaks"
       identity.facialMaskType  = string.match(v.image, '^.*/beaks/(%d+)%.png')
-      identity.facialMaskDirectives = string.match(v.image, '%?replace.*')
+      identity.facialMaskDirectives = helper.filterReplace(v.image)
     end
     
     -- Try to find beard identity
     if (string.find(v.image, "/beard") ~= nil) then
       identity.facialHairGroup = "beard"
       identity.facialHairType  = string.match(v.image, '^.*/bear.*/(%d+)%.png')
-      identity.facialHairDirectives = string.match(v.image, '%?replace.*')
+      identity.facialHairDirectives = helper.filterReplace(v.image)
     end
   
     -- Try to find body identity
@@ -181,19 +181,19 @@ helper.parsePortraitData = function(species, gender, data)
     if (string.find(v.image, "/brand/") ~= nil) then
       identity.facialHairGroup = "brand"
       identity.facialHairType = string.match(v.image, '^.*/brand/(%d+)%.png')
-      identity.facialHairDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+      identity.facialHairDirectives = helper.filterReplace(v.image)
     end
     
     -- Try to find fluff identity
     if (string.find(v.image, "/fluff/") ~= nil) then
       identity.facialHairGroup = "fluff"
       identity.facialHairType  = string.match(v.image, '^.*/fluff/(%d+)%.png')
-      identity.facialHairDirectives = string.match(v.image, '%?replace.*')
+      identity.facialHairDirectives = helper.filterReplace(v.image)
     end
     
     -- Try to find emote identity
     if (string.find(v.image, "emote.png") ~= nil) then
-      identity.emoteDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+      identity.emoteDirectives = helper.filterReplace(v.image)
     end
     
     -- Try to find hair identity
@@ -204,14 +204,33 @@ helper.parsePortraitData = function(species, gender, data)
         identity.hairType = string.match(v.image, '^.*/hair/(%a+%d+)%.png')
       end
       
-      identity.hairDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+      identity.hairDirectives = helper.filterReplace(v.image)
     end
     
     if (string.find(v.image, "/hair" .. gender .. "/") ~= nil) then
       identity.hairType = string.match(v.image, '^.*/hair.*/(%d+)%.png')
-      identity.hairDirectives = string.match(v.image, '^.*(%?replace.*)%?.-$')
+    
+      identity.hairDirectives = helper.filterReplace(v.image)
     end
   end)
   
   return identity
+end
+
+helper.filterReplace = function(image)
+  if (string.find(image, "?addmask")) then
+    if (string.match(image, '^.*(%?replace.*%?replace.*)%?addmask.-$')) then
+      return string.match(image, '^.*(%?replace.*%?replace.*)%?addmask.-$')
+    else
+      return string.match(image, '^.*(%?replace.*)%?addmask.-$')
+    end
+  else
+    if (string.match(image, '^.*(%?replace.*%?replace.*)')) then
+      return string.match(image, '^.*(%?replace.*%?replace.*)')
+    else
+      return string.match(image, '^.*(%?replace.*)')
+    end
+  end
+  
+  return ""
 end
