@@ -5,22 +5,24 @@ require "/scripts/sexbound/helper.lua"
 -- Hack into the loaded /npcs/bmain.lua file through 'updateUniqueId'
 oldUpdateUniqueId = updateUniqueId
 
+-- Override init
+oldInit = init
+init = function()
+  oldInit()
+  
+  -- Restore the NPCs storage parameters
+  if (config.getParameter("previousStorage")) then
+    storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
+  end
+  
+  if (hasRespawner()) then
+    world.sendEntityMessage(storage.respawner, "transform-into-npc", {uniqueId = entity.uniqueId()})
+  end
+end
+
 updateUniqueId = function()
   oldUpdateUniqueId() -- Run the previous version of the function.
 
-  if (config.getParameter("actualUniqueId") and entity.uniqueId() ~= config.getParameter("actualUniqueId")) then
-  
-    tryToSetUniqueId(config.getParameter("actualUniqueId"), function(uniqueId)
-      pcall( function() npc.setUniqueId( uniqueId ) end) -- Set the NPC's unique id as the object's unique id.
-      
-      -- Restore the NPCs storage parameters
-      if (config.getParameter("previousStorage")) then
-        storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
-      end
-    end)
-    
-  end
-  
   if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
     local pregnant = status.statusProperty("pregnant")
   
@@ -112,8 +114,12 @@ function transformIntoObject(args)
   
   if (world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId})) then
     sendMessage(self.newUniqueId, "store-actor")
-  
-    unloadNPC()
+
+    if (hasRespawner()) then
+      if world.sendEntityMessage(storage.respawner, "transform-into-object", {uniqueId = entity.uniqueId()}):result() then
+        unloadNPC()
+      end
+    else unloadNPC() end
   else
     status.applySelfDamageRequest({
       damageType       = "IgnoresDef",
@@ -124,7 +130,15 @@ function transformIntoObject(args)
   end
 end
 
-function sendMessage(uniqueId, message, role)
+function hasRespawner()
+  if (storage ~= nil and storage.respawner) then
+    return true
+  end
+  
+  return false
+end
+
+function sendMessage(uniqueId, message)
   local data = {
     entityType = entity.entityType(),
     id         = entity.id(),
@@ -196,8 +210,6 @@ function unloadNPC()
   
   npc.setPersistent(false)
 
-  npc.setUniqueId(nil) -- Remove uniqueId from NPC
-  
   -- Kill the NPC
   status.applySelfDamageRequest({
     damageType       = "IgnoresDef",

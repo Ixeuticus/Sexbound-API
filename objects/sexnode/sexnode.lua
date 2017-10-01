@@ -4,8 +4,6 @@ require "/scripts/vec2.lua"
 
 --- Hook - Handles object's init phase.
 function init()
-  self.setUniqueIdTimer = 0
-
   if (storage.isInTrance) then 
     object.smash(true)
   end
@@ -30,26 +28,6 @@ end
 
 --- Hook - Handles object's update phase.
 function update(dt)
-  if (storage.npc.uniqueId and storage.npc.uniqueId ~= object.uniqueId()) then
-    sex.tryToSetUniqueId(storage.npc.uniqueId, function(uniqueId)
-      pcall( 
-        function() 
-          self.canSetUniqueId = true
-        end
-      ) -- Try to catch any exceptions
-    end)
-  end
-  
-  -- Set unique id on timed delay
-  if (self.canSetUniqueId) then
-    self.setUniqueIdTimer = self.setUniqueIdTimer + dt
-    
-    if (self.setUniqueIdTimer >= 0.5) then -- wait for 0.5 of a second
-      object.setUniqueId( storage.npc.uniqueId ) 
-      self.canSetUniqueId = false
-    end
-  end
-  
   sex.loop(dt)
   
   local worldTime = world.day() + world.timeOfDay()
@@ -82,16 +60,14 @@ function respawnNPC()
       }
     end
     
-    if (storage.npc.uniqueId or storage.npc.home) then
-      parameters.scriptConfig = {}
+    parameters.scriptConfig = {}
+  
+    if (storage.npc.storage) then
+      parameters.scriptConfig.previousStorage = storage.npc.storage
+    end
     
-      if (storage.npc.uniqueId) then
-        parameters.scriptConfig.actualUniqueId  = storage.npc.uniqueId
-      end
-      
-      if (storage.npc.storage) then
-        parameters.scriptConfig.previousStorage = storage.npc.storage
-      end
+    if (storage.npc.uniqueId) then
+      parameters.scriptConfig.uniqueId = storage.npc.uniqueId
     end
     
     world.spawnNpc(position, storage.npc.species, storage.npc.type, storage.npc.level, storage.npc.seed, parameters)
