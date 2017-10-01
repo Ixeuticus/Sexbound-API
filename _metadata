@@ -1,6 +1,6 @@
  {
  "name" : "SexboundAPI",
- "version" : "1.11.0",
+ "version" : "1.11.4",
  "description" : "Adds the Sexbound API.",
  "friendlyName" : "SexboundAPI",
  "priority" : -1,
