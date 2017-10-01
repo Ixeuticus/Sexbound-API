@@ -15,7 +15,7 @@ init = function()
     storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
   end
   
-  if (hasRespawner()) then
+  if (hasRespawner() and respawnerExists(storage.respawner)) then
     world.sendEntityMessage(storage.respawner, "transform-into-npc", {uniqueId = entity.uniqueId()})
   end
 end
@@ -115,7 +115,7 @@ function transformIntoObject(args)
   if (world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId})) then
     sendMessage(self.newUniqueId, "store-actor")
 
-    if (hasRespawner()) then
+    if (hasRespawner() and respawnerExists(storage.respawner)) then
       if world.sendEntityMessage(storage.respawner, "transform-into-object", {uniqueId = entity.uniqueId()}):result() then
         unloadNPC()
       end
@@ -128,6 +128,11 @@ function transformIntoObject(args)
       sourceEntityId   = entity.id()
     })
   end
+end
+
+function respawnerExists(uniqueId)
+  if world.findUniqueEntity(uniqueId):result() then return true end
+  return false
 end
 
 function hasRespawner()
