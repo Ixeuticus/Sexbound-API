@@ -1,3 +1,4 @@
+1.11.6: Fixed new duplicating bug related to tenants.
 1.11.5: Fixed tenant related issues once and for all.
 1.11.4: Fixed duplicate unique id error.
 1.11.3: Fixed bug when extracting player identity data.
