@@ -1,3 +1,4 @@
+1.11.5: Fixed tenant related issues once and for all.
 1.11.4: Fixed duplicate unique id error.
 1.11.3: Fixed bug when extracting player identity data.
 1.11.2: Fixed forgotten NPC storage bug, so tenants will remember their homes.
