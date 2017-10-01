@@ -9,14 +9,16 @@ updateUniqueId = function()
   oldUpdateUniqueId() -- Run the previous version of the function.
 
   if (config.getParameter("actualUniqueId") and entity.uniqueId() ~= config.getParameter("actualUniqueId")) then
+  
     tryToSetUniqueId(config.getParameter("actualUniqueId"), function(uniqueId)
-      npc.setUniqueId( uniqueId ) -- Set the NPC's unique id as the object's unique id.
+      pcall( function() npc.setUniqueId( uniqueId ) end) -- Set the NPC's unique id as the object's unique id.
       
       -- Restore the NPCs storage parameters
       if (config.getParameter("previousStorage")) then
         storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
       end
     end)
+    
   end
   
   if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
@@ -104,9 +106,8 @@ function transformIntoObject(args)
   local position = vec2.floor(entity.position())
   position[2] = position[2] - 2
   
-  self.newUniqueId = tostring(sb.makeRandomSource():randu64())
-  self.newNPCUniqueId = tostring(sb.makeRandomSource():randu64())
-  
+  self.newUniqueId = sb.makeUuid()
+
   local faceDirection = helper.randomDirection()
   
   if (world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId})) then

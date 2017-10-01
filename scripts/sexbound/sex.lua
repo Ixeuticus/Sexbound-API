@@ -105,16 +105,14 @@ end
 sex.tryToSetUniqueId = function(uniqueId, callback)
   if not self.findUniqueId then
     self.findUniqueId = world.findUniqueEntity(uniqueId)
-  else
-    if (self.findUniqueId:finished()) then
-      if not self.findUniqueId:result() then
-        if (callback ~= nil) then
-          callback(uniqueId)
-        end
-      end
-      
-      self.findUniqueId = nil
+  end
+  
+  if (self.findUniqueId:finished()) then
+    if not self.findUniqueId:result() then
+      if (callback ~= nil) then callback(uniqueId) end
     end
+    
+    self.findUniqueId = nil
   end
 end
 
