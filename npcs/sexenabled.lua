@@ -2,13 +2,10 @@ require "/scripts/vec2.lua"
 
 require "/scripts/sexbound/helper.lua"
 
--- Hack into the loaded /npcs/bmain.lua file through 'updateUniqueId'
-oldUpdateUniqueId = updateUniqueId
-
 -- Override init
-oldInit = init
+sexbound_oldInit = init
 init = function()
-  oldInit()
+  sexbound_oldInit()
   
   -- Restore the NPCs storage parameters
   if (config.getParameter("previousStorage")) then
@@ -20,8 +17,10 @@ init = function()
   end
 end
 
-updateUniqueId = function()
-  oldUpdateUniqueId() -- Run the previous version of the function.
+-- Override update
+sexbound_oldUpdate = update
+update = function(dt)
+  sexbound_oldUpdate(dt) -- Run the previous version of the function.
 
   if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
     local pregnant = status.statusProperty("pregnant")
