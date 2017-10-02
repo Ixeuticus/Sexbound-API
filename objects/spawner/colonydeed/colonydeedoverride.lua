@@ -1,7 +1,7 @@
 -- Override the init function. First defined by 'colonydeed.lua'
-oldInit = init
+sexbound_oldInit = init
 function init()
-  oldInit() -- Call the old init function. 
+  sexbound_oldInit() -- Call the old init function. 
   
   message.setHandler("transform-into-object", function(_, _, args)
     for i,tenant in ipairs(storage.occupier.tenants) do
@@ -25,11 +25,11 @@ function init()
 end
 
 -- Override the anyTenantsDead function. First defined by 'colonydeed.lua'
-oldAnyTenantsDead = anyTenantsDead
+sexbound_oldAnyTenantsDead = anyTenantsDead
 function anyTenantsDead()
   for _,tenant in ipairs(storage.occupier.tenants) do
     if not isTransformedIntoObject(tenant) then
-      return oldAnyTenantsDead()
+      return sexbound_oldAnyTenantsDead()
     end
   end
   return false
