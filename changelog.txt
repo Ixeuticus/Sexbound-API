@@ -1,3 +1,4 @@
+1.11.7: Fixed incompatibility issue with some other mods.
 1.11.6: Fixed new duplicating bug related to tenants.
 1.11.5: Fixed tenant related issues once and for all.
 1.11.4: Fixed duplicate unique id error.
