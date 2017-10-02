@@ -7,6 +7,10 @@ sexbound_oldInit = init
 init = function()
   sexbound_oldInit()
   
+  self.lustConfig = {
+    damageSourceKind = "lust"
+  }
+  
   -- Restore the NPCs storage parameters
   if (config.getParameter("previousStorage")) then
     storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
@@ -94,10 +98,6 @@ function handleSexRequest(args)
 end
 
 function transformIntoObject(args)
-  self.lustConfig = {
-    damageSourceKind = "lust"
-  }
-
   -- Attempt to override default lustConfig options
   if (status.statusProperty("lustConfigOverride") ~= "default") then
     self.lustConfig = helper.mergeTable(self.lustConfig, status.statusProperty("lustConfigOverride"))
