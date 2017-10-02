@@ -66,7 +66,7 @@ function respawnNPC()
       parameters.scriptConfig.previousStorage = storage.npc.storage
     end
     
-    if (storage.npc.uniqueId) then
+    if (storage.npc.uniqueId and not world.findUniqueEntity(storage.npc.uniqueId):result()) then
       parameters.scriptConfig.uniqueId = storage.npc.uniqueId
     end
     
