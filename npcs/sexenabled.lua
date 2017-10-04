@@ -1,5 +1,4 @@
 require "/scripts/vec2.lua"
-
 require "/scripts/sexbound/helper.lua"
 
 -- Override init
@@ -7,17 +6,25 @@ sexbound_oldInit = init
 init = function()
   sexbound_oldInit()
   
-  self.lustConfig = {
-    damageSourceKind = "lust"
-  }
+  message.setHandler("unload", function(_, _, args)
+    unloadNPC()
+  end)
+  
+  self.lustConfig = { damageSourceKind = "lust" }
   
   -- Restore the NPCs storage parameters
   if (config.getParameter("previousStorage")) then
     storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
   end
   
-  if (hasRespawner() and respawnerExists(storage.respawner)) then
+  -- Restore tenant type NPC
+  if hasRespawner() and findEntityWithUid(storage.respawner) then
     world.sendEntityMessage(storage.respawner, "transform-into-npc", {uniqueId = entity.uniqueId()})
+  end
+  
+  -- Restore companion NPC
+  if hasOwnerUuid() and findEntityWithUid(storage.ownerUuid) then
+    world.sendEntityMessage(storage.ownerUuid, "transform-into-npc", {uniqueId = entity.uniqueId()})
   end
 end
 
@@ -111,14 +118,22 @@ function transformIntoObject(args)
 
   local faceDirection = helper.randomDirection()
   
-  if (world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId})) then
+  if world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId}) then
     sendMessage(self.newUniqueId, "store-actor")
-
-    if (hasRespawner() and respawnerExists(storage.respawner)) then
-      if world.sendEntityMessage(storage.respawner, "transform-into-object", {uniqueId = entity.uniqueId()}):result() then
-        unloadNPC()
+    
+    -- Check for respawner (tenant)
+    if hasRespawner() or hasOwnerUuid() then
+      if hasRespawner() and findEntityWithUid(storage.respawner) then
+        world.sendEntityMessage(storage.respawner, "transform-into-object", {uniqueId = entity.uniqueId()})
       end
-    else unloadNPC() end
+      
+      -- Check for crew member
+      if hasOwnerUuid() and findEntityWithUid(storage.ownerUuid) then
+        world.sendEntityMessage(storage.ownerUuid, "transform-into-object", {uniqueId = entity.uniqueId()})
+      end
+    else
+      unloadNPC()
+    end
   else
     status.applySelfDamageRequest({
       damageType       = "IgnoresDef",
@@ -129,16 +144,18 @@ function transformIntoObject(args)
   end
 end
 
-function respawnerExists(uniqueId)
+function findEntityWithUid(uniqueId)
   if world.findUniqueEntity(uniqueId):result() then return true end
   return false
 end
 
+function hasOwnerUuid()
+  if (storage ~= nil and storage.ownerUuid) then return true end
+  return false
+end
+
 function hasRespawner()
-  if (storage ~= nil and storage.respawner) then
-    return true
-  end
-  
+  if (storage ~= nil and storage.respawner) then return true end
   return false
 end
 
@@ -221,4 +238,6 @@ function unloadNPC()
     damageSourceKind = self.lustConfig.damageSourceKind,
     sourceEntityId   = entity.id()
   })
+  
+  --self.forceDie = true
 end
