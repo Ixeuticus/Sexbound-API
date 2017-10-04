@@ -16,27 +16,11 @@
     "part-actor2-facial-hair" : "/artwork/default.png:default",
     "part-actor2-facial-mask" : "/artwork/default.png:default",
     
-    "actor1-species"          : "human",
-    "actor1-gender"           : "female",
     "actor1-bodyDirectives"   : "",
     "actor1-hairDirectives"   : "",
-    "actor1-hairFolder"       : "hair",
-    "actor1-hairType"         : "fem1",
-    "actor1-facialHairFolder" : "facialhair",
-    "actor1-facialHairType"   : "default",
-    "actor1-facialMaskFolder" : "facialmask",
-    "actor1-facialMaskType"   : "default",
     
-    "actor2-species"          : "human",
-    "actor2-gender"           : "female",
     "actor2-bodyDirectives"   : "",
-    "actor2-hairDirectives"   : "",
-    "actor2-hairFolder"       : "hair",
-    "actor2-hairType"         : "fem1",
-    "actor2-facialHairFolder" : "facialhair",
-    "actor2-facialHairType"   : "default",
-    "actor2-facialMaskFolder" : "facialmask",
-    "actor2-facialMaskType"   : "default"
+    "actor2-hairDirectives"   : ""
   },
 
   "animatedParts" : {

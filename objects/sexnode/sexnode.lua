@@ -48,25 +48,22 @@ end
 function respawnNPC()
   -- Set NPC spawn offset offset
   if (storage.npc ~= nil) then
-    local position = vec2.add(object.position(), {0, 5})
+    if storage.npc.storage.ownerUuid then 
+      world.sendEntityMessage(storage.npc.storage.ownerUuid, "transform-into-npc", {uniqueId = storage.npc.uniqueId})
+    return end -- Don't respawn a follower
   
-    local parameters = {}
+    local position = vec2.add(object.position(), {0, 3})
   
-    if (pregnant.isPregnant()) then
-      parameters.statusControllerSettings = {
+    local parameters = {
+      statusControllerSettings = {
         statusProperties = {
-          pregnant = storage.pregnant
+          prevStorage = storage.npc.storage
         }
       }
-    end
-    
-    parameters.scriptConfig = {}
-  
-    if (storage.npc.storage) then
-      parameters.scriptConfig.previousStorage = storage.npc.storage
-    end
+    }
     
     if (storage.npc.uniqueId and not world.findUniqueEntity(storage.npc.uniqueId):result()) then
+      parameters.scriptConfig = {}
       parameters.scriptConfig.uniqueId = storage.npc.uniqueId
     end
     

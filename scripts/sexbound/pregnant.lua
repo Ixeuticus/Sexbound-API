@@ -39,7 +39,7 @@ function pregnant.clear()
 end
 
 --- Private: Creates and stores the birth date for this entity.
-local function createBirthday()
+local function createBirthday(other)
   local dateToday = world.day()
   local trimesterCount = 3
   local trimesterLength = {5, 8}
@@ -63,14 +63,14 @@ local function createBirthday()
     birthDate = birthDate + dayCount
   end
   
-  storage.pregnant.birthDate = birthDate
-  storage.pregnant.dayCount = dayCount
+  other.storage.pregnant.birthDate = birthDate
+  other.storage.pregnant.dayCount = dayCount
 end
 
 --- Private: Creates and stores the birth time for this entity.
-local function createBirthTime()
+local function createBirthTime(other)
   -- Generate random time to give birth
-  storage.pregnant.birthTime = helper.randomInRange({0.0, 1.0})
+  other.storage.pregnant.birthTime = helper.randomInRange({0.0, 1.0})
 end
 
 --- Private: Makes the entity become pregnant when it is not already pregnant.
@@ -79,17 +79,18 @@ end
 local function becomePregnant(other)
   if not pregnant.isEnabled() then return false end
 
-  -- Entity should not get pregnant while already pregnant
-  if (storage.pregnant.isPregnant) then return false end
+  if other.storage.pregnant ~= nil and other.storage.pregnant.isPregnant then return false end
   
-  -- Store that the entity is pregnant
-  storage.pregnant.isPregnant = true
+  -- Store pregnancy in actor data
+  other.storage.pregnant = {
+    isPregnant = true
+  }
   
   -- Create a day for the entity to give birth
-  createBirthday()
+  createBirthday(other)
   
   -- Create a time to give birth on the birth day
-  createBirthTime()
+  createBirthTime(other)
   
   local partnerName = "Unknown NPC"
   
@@ -103,8 +104,8 @@ local function becomePregnant(other)
   end
 
   local txtMessage = ""
-  local endMessage = ", and she will give birth in ^red;" .. storage.pregnant.dayCount .. "^reset;"
-  if (storage.pregnant.dayCount <= 1) then
+  local endMessage = ", and she will give birth in ^red;" .. other.storage.pregnant.dayCount .. "^reset;"
+  if (other.storage.pregnant.dayCount <= 1) then
     endMessage = endMessage .. " day!"
   else
     endMessage = endMessage .. " days!"
@@ -136,7 +137,7 @@ local function becomePregnant(other)
     txtMessage = npcName .. " was impregnated "
   end
   
-  storage.pregnant.partnerName = partnerName
+  other.storage.pregnant.partnerName = partnerName
   
   txtMessage = txtMessage .. endMessage
   
@@ -157,6 +158,10 @@ local function becomePregnant(other)
       text = txtMessage
     })
   end)
+  
+  if not other.isSexNode then
+    world.sendEntityMessage(other.id, "become-pregnant", other.storage.pregnant)
+  end
   
   return true
 end

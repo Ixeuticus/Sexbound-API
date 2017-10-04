@@ -3,5 +3,11 @@
     "op" : "add",
     "path" : "/defaultBlueprints/tier1/-",
     "value" : {"item" : "sexboundexinteract"}
+  },
+  
+  {
+    "op" : "add",
+    "path" : "/companionsConfig/scripts/-",
+    "value" : "/scripts/companions/playeroverride.lua"
   }
 ]

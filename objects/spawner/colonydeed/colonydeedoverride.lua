@@ -7,9 +7,11 @@ function init()
     for i,tenant in ipairs(storage.occupier.tenants) do
       if tenant.uniqueId == args.uniqueId then
         storage.occupier.tenants[i].transformIntoObject = true
+        
+        world.sendEntityMessage(args.uniqueId, "unload", nil)
       end
     end
-    
+
     return true
   end)
   

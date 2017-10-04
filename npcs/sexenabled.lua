@@ -6,16 +6,17 @@ sexbound_oldInit = init
 init = function()
   sexbound_oldInit()
   
+  message.setHandler("become-pregnant", function(_, _, args)
+    sb.logInfo("Other Non-SexNode NPC has become pregnant!")
+  
+    storage.pregnant = args
+  end)
+  
   message.setHandler("unload", function(_, _, args)
     unloadNPC()
   end)
   
   self.lustConfig = { damageSourceKind = "lust" }
-  
-  -- Restore the NPCs storage parameters
-  if (config.getParameter("previousStorage")) then
-    storage = helper.mergeTable(storage, config.getParameter("previousStorage"))
-  end
   
   -- Restore tenant type NPC
   if hasRespawner() and findEntityWithUid(storage.respawner) then
@@ -32,12 +33,17 @@ end
 sexbound_oldUpdate = update
 update = function(dt)
   sexbound_oldUpdate(dt) -- Run the previous version of the function.
-
-  if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
-    local pregnant = status.statusProperty("pregnant")
   
-    -- Handle pregnancy
-    if (pregnant.birthDate ~= nil and pregnant.birthTime ~= nil) then
+  -- Restore the NPCs storage parameters
+  if status.statusProperty("prevStorage") ~= nil and status.statusProperty("prevStorage") ~= "default" then
+    storage = helper.mergeTable(storage, status.statusProperty("prevStorage"))
+
+    status.setStatusProperty("prevStorage", "default") -- clear it afterwards
+  end
+  
+  -- Handle pregnancy
+  if storage.pregnant and storage.pregnant.isPregnant then
+    if (storage.pregnant.birthDate ~= nil and storage.pregnant.birthTime ~= nil) then
       tryToGiveBirth(function()
         giveBirth()
       end)
@@ -119,29 +125,34 @@ function transformIntoObject(args)
   local faceDirection = helper.randomDirection()
   
   if world.placeObject("sexnode", position, faceDirection, {uniqueId = self.newUniqueId}) then
-    sendMessage(self.newUniqueId, "store-actor")
-    
     -- Check for respawner (tenant)
     if hasRespawner() or hasOwnerUuid() then
       if hasRespawner() and findEntityWithUid(storage.respawner) then
+        sendMessage(self.newUniqueId, "store-actor")
         world.sendEntityMessage(storage.respawner, "transform-into-object", {uniqueId = entity.uniqueId()})
       end
       
       -- Check for crew member
       if hasOwnerUuid() and findEntityWithUid(storage.ownerUuid) then
-        world.sendEntityMessage(storage.ownerUuid, "transform-into-object", {uniqueId = entity.uniqueId()})
+        splashDamage()
+        --world.sendEntityMessage(storage.ownerUuid, "transform-into-object", {uniqueId = entity.uniqueId()})
       end
     else
+      sendMessage(self.newUniqueId, "store-actor")
       unloadNPC()
     end
   else
-    status.applySelfDamageRequest({
-      damageType       = "IgnoresDef",
-      damage           = 0,
-      damageSourceKind = self.lustConfig.damageSourceKind,
-      sourceEntityId   = entity.id()
-    })
+    splashDamage()
   end
+end
+
+function splashDamage()
+  status.applySelfDamageRequest({
+    damageType       = "IgnoresDef",
+    damage           = 0,
+    damageSourceKind = self.lustConfig.damageSourceKind,
+    sourceEntityId   = entity.id()
+  })
 end
 
 function findEntityWithUid(uniqueId)
@@ -165,7 +176,6 @@ function sendMessage(uniqueId, message)
     id         = entity.id(),
     identity   = npc.humanoidIdentity(),
     gender     = npc.humanoidIdentity().gender,
-    pregnant   = pregnant,
     species    = npc.humanoidIdentity().species,
     level      = npc.level(),
     seed       = npc.seed(),
@@ -173,11 +183,6 @@ function sendMessage(uniqueId, message)
     uniqueId   = entity.uniqueId()
   }
 
-  -- Preserve the pregnancy status
-  if (status.statusProperty("pregnant") ~= nil and status.statusProperty("pregnant") ~= "default") then
-    data.pregnant = status.statusProperty("pregnant")
-  end
-  
   -- Preserve storage information
   if (storage) then
     data.storage = storage
@@ -188,7 +193,7 @@ function sendMessage(uniqueId, message)
 end
 
 function tryToGiveBirth(callback)
-  local pregnant = status.statusProperty("pregnant")
+  local pregnant = storage.pregnant
   
   if (pregnant.birthDate ~= nil and pregnant.birthTime ~= nil) then
     local birthTime = pregnant.birthDate + pregnant.birthTime
@@ -196,7 +201,9 @@ function tryToGiveBirth(callback)
     
     if (worldTime >= birthTime) then
       if (callback ~= nil) then
-        status.setStatusProperty("pregnant", nil) -- Ensure NPC is no longer pregnant
+        storage.pregnant = {
+          isPregnant = false
+        } -- Ensure NPC is no longer pregnant
       
         return callback()
       end

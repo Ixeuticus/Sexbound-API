@@ -135,40 +135,43 @@ helper.parsePortraitData = function(species, gender, data)
     if (species == v) then result = true end
   end)
 
-  if not result then return nil end
-  
   local identity = {
     bodyDirectives = "",
     emoteDirectives = "",
     facialHairDirectives = "",
+    facialHairFolder = "",
     facialHairGroup = "",
     facialHairType = "",
     facialMaskDirectives = "",
+    facialMaskFolder = "",
     facialMaskGroup = "",
     facialMaskType = "",
+    hairFolder = "hair",
     hairGroup = "hair",
-    hairType = "",
+    hairType = "1",
     hairDirectives = "",
-    gender = "",
-    species = ""
+    gender = "female",
+    species = "human"
   }
 
+  if not result then return identity end
+  
   identity.gender = gender
   
   identity.species = species
   
   helper.each(data, function(k, v)
     -- Try to find beaks identity
-    if (string.find(v.image, "/beaks/") ~= nil) then
+    if (string.find(v.image, "/beaks") ~= nil) then
       identity.facialMaskGroup = "beaks"
-      identity.facialMaskType  = string.match(v.image, '^.*/beaks/(%d+)%.png')
+      identity.facialMaskFolder, identity.facialMaskType  = string.match(v.image, '^.*/(beaks.*)/(.*)%.png')
       identity.facialMaskDirectives = helper.filterReplace(v.image)
     end
     
     -- Try to find beard identity
     if (string.find(v.image, "/beard") ~= nil) then
       identity.facialHairGroup = "beard"
-      identity.facialHairType  = string.match(v.image, '^.*/bear.*/(%d+)%.png')
+      identity.facialHairFolder, identity.facialHairType  = string.match(v.image, '^.*/(beard.*)/(.*)%.png')
       identity.facialHairDirectives = helper.filterReplace(v.image)
     end
   
@@ -178,16 +181,16 @@ helper.parsePortraitData = function(species, gender, data)
     end
   
     -- Try to find brand identity
-    if (string.find(v.image, "/brand/") ~= nil) then
+    if (string.find(v.image, "/brand") ~= nil) then
       identity.facialHairGroup = "brand"
-      identity.facialHairType = string.match(v.image, '^.*/brand/(%d+)%.png')
+      identity.facialHairFolder, identity.facialHairType = string.match(v.image, '^.*/(brand.*)/(.*)%.png')
       identity.facialHairDirectives = helper.filterReplace(v.image)
     end
     
     -- Try to find fluff identity
-    if (string.find(v.image, "/fluff/") ~= nil) then
+    if (string.find(v.image, "/fluff") ~= nil) then
       identity.facialHairGroup = "fluff"
-      identity.facialHairType  = string.match(v.image, '^.*/fluff/(%d+)%.png')
+      identity.facialHairFolder, identity.facialHairType  = string.match(v.image, '^.*/(fluff.*)/(.*)%.png')
       identity.facialHairDirectives = helper.filterReplace(v.image)
     end
     
@@ -197,19 +200,9 @@ helper.parsePortraitData = function(species, gender, data)
     end
     
     -- Try to find hair identity
-    if (string.find(v.image, "/hair/") ~= nil) then
-      if (species == "avian" or species == "floran" or species == "hylotl") then
-        identity.hairType = string.match(v.image, '^.*/hair/(%d+)%.png')
-      else
-        identity.hairType = string.match(v.image, '^.*/hair/(%a+%d+)%.png')
-      end
+    if (string.find(v.image, "/hair") ~= nil) then
+      identity.hairFolder, identity.hairType = string.match(v.image, '^.*/(hair.*)/(.*)%.png')
       
-      identity.hairDirectives = helper.filterReplace(v.image)
-    end
-    
-    if (string.find(v.image, "/hair" .. gender .. "/") ~= nil) then
-      identity.hairType = string.match(v.image, '^.*/hair.*/(%d+)%.png')
-    
       identity.hairDirectives = helper.filterReplace(v.image)
     end
   end)
