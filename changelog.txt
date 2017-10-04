@@ -1,3 +1,7 @@
+1.11.8: Restored compatibility for most custom hair mods.
+- Fixed pregnancy bug to ensure all NPC females can become pregnant.
+- Fixed bug preventing some NPC tenants from working.
+- Other bug fixes.
 1.11.7: Fixed incompatibility issue with some other mods.
 1.11.6: Fixed new duplicating bug related to tenants.
 1.11.5: Fixed tenant related issues once and for all.
