@@ -72,68 +72,74 @@ local function createSpecies(target)
   return target.identity.species
 end
 
---- Private: Returns the name of the partner.
+--- Returns the name of the partner.
 -- @param target the specified actor {data}
-local function findPartnerName(target)
-  local name = "<Unknown Name>"
+function pregnant.findPartnerName(target)
+  local name = nil
   
   helper.each(actor.data.list, function(k,v)
     if target.id ~= v.id then name = v.identity.name end
   end)
-    
-  return name
+  
+  if (name) then return name end
+  
+  return "<Unknown Name>"
 end
 
 --- Private: Causes the specified entity to become pregnant.
 -- @param target the specified actor {data}
 -- @return boolean value
 local function becomePregnant(target)
-  local _pregnant = { isPregnant = true }
+  local lpregnant = { isPregnant = true }
 
   -- Generate a birth date and day count until then
-  _pregnant.birthDate, _pregnant.dayCount = createBirthday()
+  lpregnant.birthDate, lpregnant.dayCount = createBirthday()
   
   -- Generate random time to give birth
-  _pregnant.birthTime = createBirthTime()
+  lpregnant.birthTime = createBirthTime()
   
-  _pregnant.npcType = createNPCType(target)
+  lpregnant.npcType = createNPCType(target)
   
-  _pregnant.species = createSpecies(target)
+  lpregnant.species = createSpecies(target)
   
-  _pregnant.motherName = target.identity.name
+  lpregnant.motherName = target.identity.name
   
-  if not _pregnant.motherName then _pregnant.motherName = "You" end
+  if not lpregnant.motherName then lpregnant.motherName = "You" end
   
   -- Find the partner name
-  _pregnant.partnerName = findPartnerName(target)
+  lpregnant.partnerName = pregnant.findPartnerName(target)
   
   -- Store the pregnancy according to whether target is a SexNode or not.
   if not target.isSexNode then
     if not target.storage then target.storage = {} end
   
-    target.storage.pregnant = _pregnant
+    target.storage.pregnant = lpregnant
     
-    world.sendEntityMessage(target.id, "become-pregnant", _pregnant)
+    world.sendEntityMessage(target.id, "become-pregnant", lpregnant)
   else
-    storage.pregnant = _pregnant
+    if not target.storage then target.storage = {} end
+  
+    target.storage.pregnant = lpregnant
+  
+    storage.pregnant = lpregnant
   end
   
   local messageId = "targetbecamepregnant"
   
   local textSuffix = "days!"
   
-  if (_pregnant.dayCount <= 1) then textSuffix = "day!" end
+  if (lpregnant.dayCount <= 1) then textSuffix = "day!" end
   
-  local text1 = "Oopsy! You just impregnanted ^green;" .. _pregnant.motherName .. 
-    "^reset;, and she will give birth in ^red;" .. _pregnant.dayCount .. "^reset; " ..
+  local text1 = "Oopsy! You just impregnanted ^green;" .. lpregnant.motherName .. 
+    "^reset;, and she will give birth in ^red;" .. lpregnant.dayCount .. "^reset; " ..
     textSuffix
 
-  local text2 = "Oppsy! You were just impregnated by ^green;" ..  _pregnant.partnerName ..
-    "^reset;, and you will give birth in ^red;" .. _pregnant.dayCount .. "^reset; " ..
+  local text2 = "Oppsy! You were just impregnated by ^green;" ..  lpregnant.partnerName ..
+    "^reset;, and you will give birth in ^red;" .. lpregnant.dayCount .. "^reset; " ..
     textSuffix
     
-  local text3 = _pregnant.partnerName .. " just impregnanted ^green;" .. _pregnant.motherName .. 
-    "^reset;, and she will give birth in ^red;" .. _pregnant.dayCount .. "^reset; " .. 
+  local text3 = lpregnant.partnerName .. " just impregnanted ^green;" .. lpregnant.motherName .. 
+    "^reset;, and she will give birth in ^red;" .. lpregnant.dayCount .. "^reset; " .. 
     textSuffix
   
   -- Broadcast radio message to the players
@@ -198,26 +204,26 @@ function pregnant.giveBirth(callback)
     return callback()
   end
 
-  local _pregnant = storage.pregnant
+  local lpregnant = storage.pregnant
 
   local parameters = {
     statusControllerSettings = {
       statusProperties = {
-        birthday = _pregnant
+        birthday = lpregnant
       }
     }
   }
   
-  world.spawnNpc(entity.position(), _pregnant.species, _pregnant.npcType, 1, nil, parameters) -- level 1
+  world.spawnNpc(entity.position(), lpregnant.species, lpregnant.npcType, 1, nil, parameters) -- level 1
 end
 
 --- Attempt to make the entity give birth.
 -- @param[opt] callback executes inputted function if the entity gives birth.
 -- @return boolean value
 function pregnant.tryToGiveBirth(callback)
-  local _pregnant = storage.pregnant
+  local lpregnant = storage.pregnant
   
-  local birthTime = _pregnant.birthDate + _pregnant.birthTime
+  local birthTime = lpregnant.birthDate + lpregnant.birthTime
   local worldTime = world.day() + world.timeOfDay()
   
   if (worldTime >= birthTime) then

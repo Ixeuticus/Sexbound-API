@@ -183,10 +183,23 @@ actor.resetActor = function(args, actorNumber)
   
   animator.setGlobalTag("part-" .. role .. "-emote", partEmote)
   
+  local pregnant = nil
+  
+  if args.storage and args.storage.pregnant then
+    pregnant = args.storage.pregnant
+  end
+  
   local partHead = "/artwork/humanoid/" .. role .. "/" .. species .. "/head_" .. gender .. ".png:normal" .. args.identity.bodyDirectives .. args.identity.hairDirectives
   animator.setGlobalTag("part-" .. role .. "-head", partHead)
   
-  local partBody = "/artwork/humanoid/" .. role .. "/" .. species  .. "/body_" .. gender .. ".png:" .. position
+  local partBody = nil
+  
+  if pregnant and pregnant.isPregnant then
+    partBody = "/artwork/humanoid/" .. role .. "/" .. species  .. "/body_" .. gender .. "_pregnant.png:" .. position
+  else
+    partBody = "/artwork/humanoid/" .. role .. "/" .. species  .. "/body_" .. gender .. ".png:" .. position
+  end
+  
   animator.setGlobalTag("part-" .. role .. "-body", partBody)
   
   local partArmFront = "/artwork/humanoid/" .. role .. "/" .. species .. "/arm_front.png:" .. position
