@@ -48,6 +48,39 @@ helper.mergeTable = function(t1, t2)
   return util.mergeTable(t1, t2)
 end
 
+--- Sends a radio message to all players in the world.
+-- @param messageId the message id as a string value
+-- @param text the message to send as a string value
+helper.radioAllPlayers = function(messageId, text)
+  helper.each(world.players(), function(k, v)
+    helper.radioPlayer(v, messageId, text)
+  end)
+end
+
+--- Sends a radio message to all other players in the world.
+-- @param playerId the specific player id to target
+-- @param messageId the message id as a string value
+-- @param text the message to send as a string value
+helper.radioAllOtherPlayers = function(playerId, messageId, text)
+  helper.each(world.players(), function(k, v)
+    if playerId ~= v then
+      helper.radioPlayer(v, messageId, text)
+    end
+  end)
+end
+
+--- Sends a radio message to a specific player in the world.
+-- @param playerId the specific player id to target
+-- @param messageId the message id as a string value
+-- @param text the message to send as a string value
+helper.radioPlayer = function(playerId, messageId, text)
+  world.sendEntityMessage(playerId, "queueRadioMessage", {
+    messageId = messageId,
+    unique    = false,
+    text      = text
+  })
+end
+
 ---Wrapper function for util.randomChoice
 -- @param options table
 helper.randomChoice = function(options)

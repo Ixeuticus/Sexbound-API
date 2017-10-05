@@ -48,12 +48,18 @@ end
 function respawnNPC()
   -- Set NPC spawn offset offset
   if (storage.npc ~= nil) then
+    -- Improve this code.
     if storage.npc.storage.ownerUuid then 
       world.sendEntityMessage(storage.npc.storage.ownerUuid, "transform-into-npc", {uniqueId = storage.npc.uniqueId})
     return end -- Don't respawn a follower
-  
+    
     local position = vec2.add(object.position(), {0, 3})
-  
+    
+    -- Copy reference to pregnant storage into NPC storage
+    if storage.pregnant and storage.pregnant.isPregnant then
+      storage.npc.storage.pregnant = storage.pregnant
+    end
+    
     local parameters = {
       statusControllerSettings = {
         statusProperties = {

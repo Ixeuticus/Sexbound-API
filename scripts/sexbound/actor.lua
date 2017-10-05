@@ -273,6 +273,12 @@ actor.setupActor = function(args, storeActor)
     storage.npc  = args
     sex.data.npc = args
     actor.data.list[ actor.data.count ].isSexNode = true
+    
+    local pregnant = actor.data.list[ actor.data.count ].storage.pregant
+    
+    if pregnant and pregnant.isPregnant then
+      storage.pregnant = pregnant
+    end
   else
     actor.data.list[ actor.data.count ].isSexNode = false
   end

@@ -5,10 +5,8 @@ pregnant = {}
 require "/scripts/sexbound/helper.lua"
 
 function pregnant.init()
-  if (storage.pregnant == nil) then
-    storage.pregnant = {
-      isPregnant = false
-    }
+  if not self.sexboundConfig then
+    self.sexboundConfig = root.assetJson("/scripts/sexbound/default.config")
   end
 end
 
@@ -18,28 +16,16 @@ function pregnant.isEnabled()
   return self.sexboundConfig.pregnant.enabled
 end
 
+--- Returns the pregnant status this entity
+-- @return boolean value
 pregnant.isPregnant = function()
-  return storage.pregnant.isPregnant
+  return storage.pregnant and storage.pregnant.isPregnant
 end
 
---- Outputs debug information about the pregnancy with sb.logInfo.
-function pregnant.debugPregnancy()
-  if (storage.pregnant.birthDate ~= nil and storage.pregnant.birthTime ~= nil) then
-    local entityId = entity.id()
-  
-    sb.logInfo("Entity Id (" .. entityId .. ") is going to give birth on day (" .. storage.pregnant.birthDate .. ") at time (" .. storage.pregnant.birthTime .. ")")
-  end
-end
-
---- Removes the pregnancy status of this entity.
-function pregnant.clear()
-  if not pregnant.isEnabled() then return end
-
-  cleanupPregnancy()
-end
-
---- Private: Creates and stores the birth date for this entity.
-local function createBirthday(other)
+--- Private: Returns a random birth date and day count
+-- @return birthDate
+-- @return dayCount
+local function createBirthday()
   local dateToday = world.day()
   local trimesterCount = 3
   local trimesterLength = {5, 8}
@@ -63,104 +49,105 @@ local function createBirthday(other)
     birthDate = birthDate + dayCount
   end
   
-  other.storage.pregnant.birthDate = birthDate
-  other.storage.pregnant.dayCount = dayCount
+  return birthDate, dayCount
 end
 
---- Private: Creates and stores the birth time for this entity.
-local function createBirthTime(other)
+--- Private: Returns a random birth time
+local function createBirthTime()
+  return helper.randomInRange({0.0, 1.0})
+end
+
+--- Private: Returns a suitable NPC type for the baby
+-- @return string as NPC type.
+local function createNPCType(target)
+  if target.type == "npc" then
+    return target.identity.npcType
+  end
+  return "villager"
+end
+
+--- Private: Returns a suitable species for the baby
+-- @return string as species name
+local function createSpecies(target)
+  return target.identity.species
+end
+
+--- Private: Returns the name of the partner.
+-- @param target the specified actor {data}
+local function findPartnerName(target)
+  helper.each(actor.data.list, function(k,v)
+    if target.id ~= v.id then return v.identity.name end
+  end)
+    
+  return "<Unknown Name>"
+end
+
+--- Private: Causes the specified entity to become pregnant.
+-- @param target the specified actor {data}
+-- @return boolean value
+local function becomePregnant(target)
+  local _pregnant = { isPregnant = true }
+
+  -- Generate a birth date and day count until then
+  _pregnant.birthDate, _pregnant.dayCount = createBirthday()
+  
   -- Generate random time to give birth
-  other.storage.pregnant.birthTime = helper.randomInRange({0.0, 1.0})
-end
-
---- Private: Makes the entity become pregnant when it is not already pregnant.
---@return Success: returns true
---@return Failute: returns false
-local function becomePregnant(other)
-  if not pregnant.isEnabled() then return false end
-
-  if other.storage.pregnant ~= nil and other.storage.pregnant.isPregnant then return false end
+  _pregnant.birthTime = createBirthTime()
   
-  -- Store pregnancy in actor data
-  other.storage.pregnant = {
-    isPregnant = true
-  }
+  _pregnant.npcType = createNPCType(target)
   
-  -- Create a day for the entity to give birth
-  createBirthday(other)
+  _pregnant.species = createSpecies(target)
   
-  -- Create a time to give birth on the birth day
-  createBirthTime(other)
+  _pregnant.motherName = target.identity.name
   
-  local partnerName = "Unknown NPC"
+  if not _pregnant.motherName then _pregnant.motherName = "You" end
   
-  if not actor.hasPlayer() and actor.data.count == 2 then
-    helper.each(actor.data.list, function(k, v)
-      if (v.id ~= other.id) then
-        partnerName = v.identity.name
-        return true
-      end
-    end)
-  end
-
-  local txtMessage = ""
-  local endMessage = ", and she will give birth in ^red;" .. other.storage.pregnant.dayCount .. "^reset;"
-  if (other.storage.pregnant.dayCount <= 1) then
-    endMessage = endMessage .. " day!"
+  -- Find the partner name
+  _pregnant.partnerName = findPartnerName(target)
+  
+  -- Store the pregnancy according to whether target is a SexNode or not.
+  if not target.isSexNode then
+    if not target.storage then target.storage = {} end
+  
+    target.storage.pregnant = _pregnant
+    
+    world.sendEntityMessage(target.id, "become-pregnant", _pregnant)
   else
-    endMessage = endMessage .. " days!"
+    storage.pregnant = _pregnant
   end
   
-  local npcName = "^green;" .. other.identity.name .. "^reset;"
+  local messageId = "targetbecamepregnant"
   
-  if (actor.hasPlayer()) then
-    partnerName = "Unknown Player"
+  local textSuffix = "days!"
   
-    if (sex.data.player.identity.name ~= nil) then
-      partnerName = sex.data.player.identity.name
+  if (_pregnant.dayCount <= 1) then textSuffix = "day!" end
+  
+  local text1 = "Oopsy! You just impregnanted ^green;" .. _pregnant.motherName .. 
+    "^reset;, and she will give birth in ^red;" .. _pregnant.dayCount .. "^reset; " ..
+    textSuffix
+
+  local text2 = "Oppsy! You were just impregnated by ^green;" ..  _pregnant.partnerName ..
+    "^reset;, and you will give birth in ^red;" .. _pregnant.dayCount .. "^reset; " ..
+    textSuffix
+    
+  local text3 = _pregnant.partnerName .. " just impregnanted ^green;" .. _pregnant.motherName .. 
+    "^reset;, and she will give birth in ^red;" .. _pregnant.dayCount .. "^reset; " .. 
+    textSuffix
+  
+  -- Broadcast radio message to the players
+  if sex.data.player then
+    -- Send radio message to the player
+    if sex.data.player.identity.gender == "male" then
+      helper.radioPlayer(sex.data.player.id, messageId, text1)
     end
     
-    txtMessage = "Oopsy! You just impregnanted " .. npcName
-    txtMessage = txtMessage .. endMessage
+    if sex.data.player.identity.gender == "female" then
+      helper.radioPlayer(sex.data.player.id, messageId, text2)
+    end
     
-    world.sendEntityMessage(sex.data.player.uuid, "queueRadioMessage", {
-      messageId = "entitybecamepregnant",
-      unique = false,
-      text = txtMessage
-    })
-  end
-  
-  -- Broadcast message to all players
-  if (partnerName ~= nil) then
-    txtMessage = "^green;" .. partnerName .. "^reset; just impregnanted " .. npcName
+    helper.radioAllOtherPlayers(sex.data.player.id, messageId, text3)
   else
-    txtMessage = npcName .. " was impregnated "
-  end
-  
-  other.storage.pregnant.partnerName = partnerName
-  
-  txtMessage = txtMessage .. endMessage
-  
-  local players = world.players()
-
-  if (actor.hasPlayer()) then
-    helper.each(players, function(k, v)
-      if (v == sex.data.player.id) then
-        table.remove(players, k)
-      end
-    end)
-  end
-  
-  helper.each(players, function(k, v)
-    world.sendEntityMessage(v, "queueRadioMessage", {
-      messageId = "entitybecamepregnant",
-      unique = false,
-      text = txtMessage
-    })
-  end)
-  
-  if not other.isSexNode then
-    world.sendEntityMessage(other.id, "become-pregnant", other.storage.pregnant)
+    helper.radioAllPlayers(messageId, text3)
   end
   
   return true
@@ -174,67 +161,82 @@ function pregnant.tryBecomePregnant(callback)
   -- Check the pregnancy chance while in current position
   local possiblePregnancy = position.selectedSexPosition().possiblePregnancy
 
-  if (possiblePregnancy ~= nil) then
+  if possiblePregnancy ~= nil then
     helper.each(actor.data.list, function(k, v)
-      if (possiblePregnancy[k] and v.gender == "female" and v.type ~= "player") then
+      if possiblePregnancy[k] and v.gender == "female" then
+        if v.isSexNode and storage.pregnant and storage.pregnant.isPregnant then return false end
+        if v.storage and v.storage.pregnant and v.storage.pregnant.isPregnant then return false end
+
         -- Generate random chance of becoming pregnant
         local chance = helper.randomInRange({0.0, 1.0})
         
-        -- Compare random chance with fertility. Success on chance is less than or equal to fertility
-        if (chance <= self.sexboundConfig.pregnant.fertility and becomePregnant(v)) then 
-          if (callback ~= nil) then
+        -- Compare random chance with fertility. Success on chance is less than or equal to fertility.
+        if chance <= self.sexboundConfig.pregnant.fertility and becomePregnant(v) then 
+          if callback ~= nil then
             return callback()
           end
 
-          return true
+          return true -- SUCCESS
         end
       end
     end)
   end
 
-  return false
+  return false -- FAILURE
 end
 
---- Private: Removes the pregnancy data from this entities storage.
-local function cleanupPregnancy()
-  if not pregnant.isEnabled() then return end
-
-  storage.pregnant = { isPregnant = false }
+function pregnant.clear()
+  storage.pregnant = {isPregnant = false}
 end
 
--- Private: Automatically cleanup the pregnancy.
-local function giveBirth()
-  if not pregnant.isEnabled() then return end
+--- Causes the current entity to give birth.
+-- @param data options
+function pregnant.giveBirth(callback)
+  if callback ~= nil then -- Handle giving birth in callback
+    return callback()
+  end
 
-  -- Clean up pregnancy after entity gives birth
-  cleanupPregnancy()
+  local _pregnant = storage.pregnant
+
+  local parameters = {
+    statusControllerSettings = {
+      statusProperties = {
+        birthday = _pregnant
+      }
+    }
+  }
   
-  return true
+  world.spawnNpc(entity.position(), _pregnant.species, _pregnant.npcType, 1, nil, parameters) -- level 1
 end
 
 --- Attempt to make the entity give birth.
 -- @param[opt] callback executes inputted function if the entity gives birth.
--- @return Success: returns the callback function's return value or true
--- @return Failure: returns false
-function pregnant.tryGiveBirth(callback)
-  if not pregnant.isEnabled() then return end
-
-  -- Check that a birth date has been set
-  if (storage.pregnant.birthDate ~= nil and storage.pregnant.birthTime ~= nil) then
-    local birthTime = storage.pregnant.birthDate + storage.pregnant.birthTime
-    local worldTime = world.day() + world.timeOfDay()
-
-    -- If the birth date is today or later then give birth
-    if (worldTime >= birthTime and giveBirth()) then
-      if (callback ~= nil) then
-        return callback()
-      end
-
-      return true
+-- @return boolean value
+function pregnant.tryToGiveBirth(callback)
+  local _pregnant = storage.pregnant
+  
+  local birthTime = _pregnant.birthDate + _pregnant.birthTime
+  local worldTime = world.day() + world.timeOfDay()
+  
+  if (worldTime >= birthTime) then
+    if (callback ~= nil) then      
+      return callback()
     end
+    
+    return true
   end
   
   return false
 end
 
-
+--- Updates a current pregnancy.
+-- @param[opt] callback
+function pregnant.update(callback)
+  if pregnant.isPregnant() then
+    pregnant.tryToGiveBirth(function()      
+      pregnant.giveBirth(callback)
+      
+      pregnant.clear()
+    end)
+  end
+end

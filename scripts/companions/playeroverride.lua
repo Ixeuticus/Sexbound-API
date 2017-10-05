@@ -1,8 +1,18 @@
+require "/scripts/sexbound/pregnant.lua"
+
 -- Override init function. First defined in '/scripts/companions/player.lua'
 sexbound_oldInit = init
 function init()
   sexbound_oldInit()
 
+  pregnant.init()
+  
+  message.setHandler("become-pregnant", function(_, _, args)
+    sb.logInfo("The player became pregnant!")
+  
+    storage.pregnant = args
+  end)
+  
   message.setHandler("transform-into-object", function(_, _, args)
     --sb.logInfo("Recruit recieved message to transform into object!")
     --sb.logInfo("Unique Id: " .. args.uniqueId)
@@ -43,6 +53,15 @@ function init()
     recruit.storage.transformIntoObject = false
     recruit.hasDied = false
   end)
+end
+
+-- Override update function. First defined in '/scripts/companions/player.lua'
+sexbound_oldUpdate = update
+function update(dt)
+  sexbound_oldUpdate(dt)
+
+  -- Updates any current pregnancy
+  pregnant.update()
 end
 
 recruitSpawner.oldRespawnRecruit = recruitSpawner.respawnRecruit

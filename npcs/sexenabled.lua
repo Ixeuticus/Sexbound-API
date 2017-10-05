@@ -1,14 +1,15 @@
 require "/scripts/vec2.lua"
 require "/scripts/sexbound/helper.lua"
+require "/scripts/sexbound/pregnant.lua"
 
 -- Override init
 sexbound_oldInit = init
 init = function()
   sexbound_oldInit()
   
-  message.setHandler("become-pregnant", function(_, _, args)
-    sb.logInfo("Other Non-SexNode NPC has become pregnant!")
+  pregnant.init()
   
+  message.setHandler("become-pregnant", function(_, _, args)
     storage.pregnant = args
   end)
   
@@ -40,14 +41,24 @@ update = function(dt)
 
     status.setStatusProperty("prevStorage", "default") -- clear it afterwards
   end
-  
-  -- Handle pregnancy
-  if storage.pregnant and storage.pregnant.isPregnant then
-    if (storage.pregnant.birthDate ~= nil and storage.pregnant.birthTime ~= nil) then
-      tryToGiveBirth(function()
-        giveBirth()
-      end)
+
+  if status.statusProperty("birthday") ~= nil and status.statusProperty("birthday") ~= "default" then
+    local babyName   = npc.humanoidIdentity().name
+    local babyGender = npc.humanoidIdentity().gender
+    
+    if (babyGender == "male") then
+      babyGender = "^blue;boy^reset;"
     end
+    
+    if (babyGender == "female") then
+      babyGender = "^pink;girl^reset;"
+    end
+    
+    local text = "^green;" .. status.statusProperty("birthday").motherName .. "^reset; just gave birth to baby " .. babyGender .. " named ^green;" .. babyName .. "^reset;!"
+    
+    helper.radioAllPlayers("npcgivingbirth", text) -- Tell all players the news
+    
+    status.setStatusProperty("birthday", "default") -- clear it afterwards
   end
   
   -- Transform into object when status property 'lust' is true
@@ -63,40 +74,9 @@ update = function(dt)
     
     handleSexRequest()
   end
-end
-
-function getName()
-  return npc.humanoidIdentity().name
-end
-
-function giveBirth()
-  local position = entity.position()
-  local level = 1
   
-  -- Spawn in an NPC for now
-  local entityId     = world.spawnNpc(position, npc.species(), npc.npcType(), level)
-  local entityName   = world.entityName(entityId)
-  local entityGender = world.entityGender(entityId)
-  
-  if (entityGender == "male") then
-    entityGender = "^blue;boy^reset;"
-  end
-  
-  if (entityGender == "female") then
-    entityGender = "^pink;girl^reset;"
-  end
-  
-  local players = world.players()
-  
-  local txtMessage = "^green;" .. getName() .. "^reset; just gave birth to baby " .. entityGender .. " named ^green;" .. entityName .. "^reset;!"
-  
-  helper.each(players, function(k, v)
-    world.sendEntityMessage(v, "queueRadioMessage", {
-      messageId = "npcgivingbirth",
-      unique = false,
-      text = txtMessage
-    })
-  end)
+  -- Updates any current pregnancy
+  pregnant.update()
 end
 
 function handleSexRequest(args)
@@ -190,29 +170,6 @@ function sendMessage(uniqueId, message)
   
   -- Send the identifying information to the object to be stored.
   helper.sendMessage(uniqueId, message, data, false)
-end
-
-function tryToGiveBirth(callback)
-  local pregnant = storage.pregnant
-  
-  if (pregnant.birthDate ~= nil and pregnant.birthTime ~= nil) then
-    local birthTime = pregnant.birthDate + pregnant.birthTime
-    local worldTime = world.day() + world.timeOfDay()
-    
-    if (worldTime >= birthTime) then
-      if (callback ~= nil) then
-        storage.pregnant = {
-          isPregnant = false
-        } -- Ensure NPC is no longer pregnant
-      
-        return callback()
-      end
-      
-      return true
-    end
-  end
-  
-  return false
 end
 
 tryToSetUniqueId = function(uniqueId, callback)
