@@ -1,3 +1,5 @@
+1.12.1: Fixed major bug.
+- Pregnant sprites added.
 1.12.0: Added ability for players to become pregnant and give birth.
 1.11.8: Restored compatibility for most custom hair mods.
 - Fixed pregnancy bug to ensure all NPC females can become pregnant.
