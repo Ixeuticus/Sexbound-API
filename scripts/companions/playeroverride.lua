@@ -7,9 +7,11 @@ function init()
 
   pregnant.init()
   
-  message.setHandler("become-pregnant", function(_, _, args)
-    sb.logInfo("The player became pregnant!")
+  message.setHandler("retrieve-storage", function(_, _, args)
+    world.sendEntityMessage(args.sourceId, "store-player-storage", {actorId = args.actorId, storage = storage})
+  end)
   
+  message.setHandler("become-pregnant", function(_, _, args)
     storage.pregnant = args
   end)
   

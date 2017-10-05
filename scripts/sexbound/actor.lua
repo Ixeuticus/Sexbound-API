@@ -283,6 +283,10 @@ actor.setupActor = function(args, storeActor)
     actor.data.list[ actor.data.count ].isSexNode = false
   end
   
+  if actor.data.list[ actor.data.count ].type == "player" then
+    world.sendEntityMessage(args.id, "retrieve-storage", {sourceId = entity.id(), actorId = args.id})
+  end
+  
   if (actor.data.list[ actor.data.count ].identity == nil) then
     local identity = {}
   

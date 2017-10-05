@@ -193,7 +193,17 @@ sex.setTimer = function(name, value)
   return self.timers[name]
 end
 
-function sex.setupHandlers()  
+function sex.setupHandlers()
+  message.setHandler("store-player-storage", function(_, _, args)
+    if (actor.hasPlayer()) then
+      helper.each(actor.data.list, function(k,v)
+        if args.actorId == v.id then
+          v.storage = args.storage
+        end
+      end)
+    end
+  end)
+
   -- Handle message 'isClimaxing'. Receives player's intent to climax.
   message.setHandler("isClimaxing", function()
     self.isCumming = true

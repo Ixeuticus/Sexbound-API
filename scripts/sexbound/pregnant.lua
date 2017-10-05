@@ -75,11 +75,13 @@ end
 --- Private: Returns the name of the partner.
 -- @param target the specified actor {data}
 local function findPartnerName(target)
+  local name = "<Unknown Name>"
+  
   helper.each(actor.data.list, function(k,v)
-    if target.id ~= v.id then return v.identity.name end
+    if target.id ~= v.id then name = v.identity.name end
   end)
     
-  return "<Unknown Name>"
+  return name
 end
 
 --- Private: Causes the specified entity to become pregnant.
