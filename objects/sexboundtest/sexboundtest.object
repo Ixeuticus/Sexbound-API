@@ -1,0 +1,49 @@
+{
+  "objectName" : "sexboundtest",
+  "colonyTags" : ["misc"],
+  "printable" : false,
+  "rarity" : "Common",
+  "description" : "A test object.",
+  "shortdescription" : "Sexbound Test",
+  "race" : "generic",
+  "category" : "furniture",
+  "price" : 1,
+  
+  "apexDescription"    : "",
+  "avianDescription"   : "",
+  "floranDescription"  : "",
+  "glitchDescription"  : "",
+  "humanDescription"   : "",
+  "hylotlDescription"  : "",
+  "novakidDescription" : "",
+  
+  "interactive" : true,
+  
+  "objectType" : "loungeable",
+  "sitFlipDirection" : true,
+  "sitPositions" : [[0, 24]],
+  
+  "sitOrientation" : "lay",
+  "sitAngle" : 90,
+  
+  "inventoryIcon" : "sexboundtest.png",
+  "orientations" : [
+    {
+      "dualImage" : "sexboundtest.png:default.1",
+
+      "imagePosition" : [-8, 0],
+      "frames" : 1,
+      "animationCycle" : 1.0,
+
+      "spaceScan" : 0.1,
+      
+      "anchors" : [ "bottom" ]
+    }
+  ],
+  
+  "scripts" : ["sexboundtest.lua"],
+  
+  "sexboundConfig" : {
+    // "requiredVersion" : "1.0.0"
+  }
+}

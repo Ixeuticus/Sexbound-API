@@ -1,8 +1,0 @@
-{
-  "name" : "sex",
-  "defaultDuration" : 999,
-
-  "scripts" : [
-    "sex.lua"
-  ]
-}

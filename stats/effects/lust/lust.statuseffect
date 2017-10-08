@@ -1,8 +1,0 @@
-{
-  "name" : "lust",
-  "defaultDuration" : 999,
-
-  "scripts" : [
-    "lust.lua"
-  ]
-}

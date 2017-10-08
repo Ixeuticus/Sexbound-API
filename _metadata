@@ -1,7 +1,7 @@
  {
  "name" : "SexboundAPI",
- "version" : "1.12.1",
- "description" : "Adds the Sexbound API.",
+ "version" : "2.0.0",
+ "description" : "Adds the Sexbound API v2.",
  "friendlyName" : "SexboundAPI",
  "priority" : -1,
  "link" : "http://www.loverslab.com/files/file/4337-starbound-sexbound-api/",
