@@ -114,6 +114,34 @@
         "minTempo" : 2,
         "maxTempo" : [3, 5],
         "sustainedInterval" : [20, 30]
+      },
+      
+      {
+        "name" : "Cowgirl",
+        
+        "allowClimax" : true,
+        "allowMoan"   : true,
+        "allowEmote"  : true,
+        
+        "animationState"       : "position3",
+        "climaxAnimationState" : "climax",
+        
+        "maxAllowedActors" : 2,
+        
+        "offsetBody"   : [[-0.5, 0.0], [0.0, 0.0]],
+        "offsetClimax" : [[0.0, 0.0], [0.0, 0.0]],
+        "offsetHead"   : [[0.375, -1.375], [0.125, -0.5]],
+        
+        "rotateHead"   : [1.5708, 0],
+        
+        "possiblePregnancy" : [false, true],
+        
+        "flipBody" : [false, false],
+        "flipHead" : [false,  true],
+        
+        "minTempo" : 2,
+        "maxTempo" : [3, 5],
+        "sustainedInterval" : [20, 30]
       }
     ],
     

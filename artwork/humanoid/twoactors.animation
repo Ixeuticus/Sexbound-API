@@ -92,6 +92,18 @@
             }
           },
           
+          "position3" : {
+            "frames" : 7,
+            "cycle"  : 1,
+            "mode"   : "loop",
+            "properties" : {
+              "immediateSoundRangeMultiplier" : 0.8
+            },
+            "frameProperties" : {
+              "immediateSound" : ["", "", "", "/sfx/sexbound/hits/splat.ogg"]
+            }
+          },
+          
           "reset" : {
             "frames" : 1,
             "cycle"  : 1,
@@ -131,6 +143,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-front>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor1-arm-front>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
               }
@@ -179,6 +197,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor1-arm-back>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor1-arm-back>.1<actor1-bodyDirectives><actor1-hairDirectives>"
@@ -217,6 +241,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-head>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor1-head>"
               }
@@ -265,6 +295,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor1-hair>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor1-hair>"
@@ -303,6 +339,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-facial-hair>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor1-facial-hair>"
               }
@@ -351,6 +393,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor1-facial-mask>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor1-facial-mask>"
@@ -389,6 +437,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor1-emote>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor1-emote>"
               }
@@ -437,6 +491,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor1-body>.<frame><actor1-bodyDirectives><actor1-hairDirectives>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor1-body>.1<actor1-bodyDirectives><actor1-hairDirectives>"
@@ -475,6 +535,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-front>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor2-arm-front>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
               }
@@ -523,6 +589,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor2-arm-back>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor2-arm-back>.1<actor2-bodyDirectives><actor2-hairDirectives>"
@@ -561,6 +633,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-head>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor2-head>"
               }
@@ -609,6 +687,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor2-hair>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor2-hair>"
@@ -647,6 +731,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-facial-hair>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor2-facial-hair>"
               }
@@ -695,6 +785,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor2-facial-mask>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor2-facial-mask>"
@@ -738,6 +834,12 @@
               }
             },
             
+            "position3" : {
+              "properties" : {
+                "image" : "<part-actor2-emote>"
+              }
+            },
+            
             "reset" : {
               "properties" : {
                 "image" : "<part-actor2-emote>"
@@ -776,6 +878,12 @@
             },
             
             "position2" : {
+              "properties" : {
+                "image" : "<part-actor2-body>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
+              }
+            },
+            
+            "position3" : {
               "properties" : {
                 "image" : "<part-actor2-body>.<frame><actor2-bodyDirectives><actor2-hairDirectives>"
               }
