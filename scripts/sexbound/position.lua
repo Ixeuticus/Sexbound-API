@@ -83,10 +83,6 @@ position.adjustTransformations = function()
         position.translateParts(i, v2, currentPosition["offset" .. v2][i], offsetAll)
       end
         
-      if (currentPosition["rotate" .. v2] ~= nil) then
-        position.rotateParts(i, v2, currentPosition["rotate" .. v2][i])
-      end
-        
       if (currentPosition["flip" .. v2] ~= nil and currentPosition["flip" .. v2][i] == true) then
         position.flipParts(i, v2)
       end
@@ -132,27 +128,6 @@ position.flipParts = function(actorNumber, partName)
       position.flipPart(actorNumber, v)
     end
   end)
-end
-
-position.rotateParts = function(actorNumber, partName, rotation)
-  local partsList = {}
-  table.insert(partsList, 1, partName)
-  
-  if (partName == "Body") then partsList = {"ArmBack", "ArmFront", "Body"} end
-  
-  if (partName == "Head") then partsList = {"FacialHair", "FacialMask", "Emote", "Hair", "Head"} end
-  
-  helper.each(partsList, function(k, v)
-    if (animator.hasTransformationGroup("actor" .. actorNumber .. v)) then
-      position.rotatePart(actorNumber, v, rotation)
-    end
-  end)
-end
-
-position.rotatePart = function(actorNumber, partName, rotation)
-  if (animator.hasTransformationGroup("actor" .. actorNumber .. partName)) then
-    animator.rotateTransformationGroup("actor" .. actorNumber .. partName, rotation)
-  end
 end
 
 position.flipPart = function(actorNumber, partName)
